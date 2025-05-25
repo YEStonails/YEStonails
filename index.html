@@ -918,10 +918,37 @@
       }
     }
 
-  loadServicesFromSheet(); // services
-// (Optional below if you implement them)
-loadBookingsFromSheet();
-loadSettingsFromSheet();
+function loadDataFromStorage() {
+  const prefix = 'yestonails_';
+
+  const savedServices = localStorage.getItem(`${prefix}services`);
+  if (savedServices) {
+    services = JSON.parse(savedServices);
+  }
+
+  const savedBookings = localStorage.getItem(`${prefix}bookings`);
+  if (savedBookings) {
+    bookings = JSON.parse(savedBookings);
+  }
+
+  const savedTimeSlots = localStorage.getItem(`${prefix}bookedTimeSlots`);
+  if (savedTimeSlots) {
+    bookedTimeSlots = JSON.parse(savedTimeSlots);
+  }
+
+  const savedBusinessHours = localStorage.getItem(`${prefix}businessHours`);
+  if (savedBusinessHours) {
+    businessHours = JSON.parse(savedBusinessHours);
+  }
+
+  const savedEmailSettings = localStorage.getItem(`${prefix}emailSettings`);
+  if (savedEmailSettings) {
+    emailSettings = JSON.parse(savedEmailSettings);
+  } else {
+    emailSettings.adminEmail = CONFIG.ADMIN_EMAIL;
+  }
+}
+
    
       // Load services
       const savedServices = localStorage.getItem(`${prefix}services`);
