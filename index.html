@@ -619,14 +619,20 @@ header h1 {
     <a onclick="showUserPanel()">Services</a> | 
     <a onclick="showAdminLogin()">Admin</a>
   </nav>
-  <main id="userPanel">
-    <section id="services">
-      <h2>Browse Services</h2>
-      <select id="categoryFilter" onchange="filterServices()">
-        <option value="all">All Categories</option>
-      </select>
-      <div id="serviceList"></div>
-    </section>
+ <main id="userPanel">
+  <section id="services">
+    <h2>Browse Services</h2>
+    <select id="categoryFilter" onchange="filterServices()">
+      <option value="all">All Categories</option>
+      <option value="Manicure">Manicure</option>
+      <option value="Pedicure">Pedicure</option>
+      <option value="Nail Art">Nail Art</option>
+      <option value="Extensions">Extensions</option>
+      <option value="Treatments">Treatments</option>
+    </select>
+    <div id="serviceList"></div> <!-- leave this empty -->
+  </section>
+
     <section id="cartSection">
       <h2>Your Selection</h2>
       <div id="cart"></div>
