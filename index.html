@@ -918,11 +918,11 @@
       }
     }
 
-    // Load data from localStorage
-    function loadDataFromStorage() {
-      // Use a prefix for all storage keys to avoid conflicts
-      const prefix = 'yestonails_';
-      
+  loadServicesFromSheet(); // services
+// (Optional below if you implement them)
+loadBookingsFromSheet();
+loadSettingsFromSheet();
+   
       // Load services
       const savedServices = localStorage.getItem(`${prefix}services`);
       if (savedServices) {
