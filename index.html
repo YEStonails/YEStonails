@@ -600,7 +600,7 @@ header h1 {
 
 .service-meta {
   flex: 1;
-  min-width: 100px;
+  min-width: 120px; /* Optional: ensures better layout on wider screens */
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -608,7 +608,8 @@ header h1 {
   text-align: right;
   gap: 0.5em;
 }
-   @media (max-width: 768px) {
+
+@media (max-width: 768px) {
   main {
     grid-template-columns: 1fr;
     padding: 1em;
@@ -628,24 +629,25 @@ header h1 {
   }
 
   .service-meta {
-    align-items: flex-start;
-    text-align: left;
+    align-items: center;
+    text-align: center;
     width: 100%;
-    margin-top: 0.5em;
+    margin-top: 1em;
   }
 
   .add-btn {
-    align-self: flex-start;
+    align-self: center;
   }
 
   .total-section {
-    text-align: left;
+    text-align: center;
   }
 
   #bookingForm {
     width: 100%;
   }
 }
+
 
 
   </style>
