@@ -88,6 +88,52 @@
     .service-info {
       flex-grow: 1;
     }
+    .service-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+}
+
+.service-body {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.service-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+@media screen and (max-width: 600px) {
+  .service-card {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+
+  .service-header, .service-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .add-btn {
+    align-self: flex-end;
+  }
+}
+
     .service-name {
       font-weight: bold;
     }
@@ -348,6 +394,35 @@
     .tab-panel {
       display: none;
     }
+    .service-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+    /* Make service list more table-like on mobile */
+@media (max-width: 768px) {
+  .service {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5em;
+    padding: 1em;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 1em;
+  }
+  .service-info {
+    text-align: left;
+  }
+  .service-price, .service-duration {
+    font-weight: normal;
+    color: #444;
+  }
+  .add-btn {
+    justify-self: start;
+    width: 100%;
+  }
+}
+
     .tab-panel.active {
       display: block;
     }
@@ -1018,19 +1093,23 @@
       filteredServices.forEach(service => {
         const serviceDiv = document.createElement('div');
         serviceDiv.className = 'service';
-        serviceDiv.innerHTML = `
-          <div class="service-info">
-            <div class="service-name">${service.name}</div>
-            <div class="service-details">
-              <span class="category-badge">${service.category}</span>
-              ${service.description || ''}
-            </div>
-          </div>
-          <span class="service-duration">${service.duration} mins</span>
-          <span class="service-price">AED ${service.price.toFixed(2)}</span>
-          <button class="add-btn" onclick="addToCart(${service.id})">Add</button>
-        `;
-        serviceList.appendChild(serviceDiv);
+    serviceDiv.innerHTML = `
+  <div class="service-card">
+    <div class="service-header">
+      <strong>${service.name}</strong>
+      <span class="category">${service.category}</span>
+    </div>
+    <div class="service-body">
+      <p class="description">${service.description || ''}</p>
+      <div class="service-meta">
+        <span>${service.duration} mins</span>
+        <span>AED ${service.price.toFixed(2)}</span>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addToCart(${service.id})">Add</button>
+  </div>
+`;
+      document.querySelector('.service-container').appendChild(serviceDiv);
       });
     }
 
