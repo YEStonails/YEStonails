@@ -484,28 +484,30 @@
     }
 .shimmer-text {
   font-weight: bold;
+  color: transparent;
   background: linear-gradient(
-    to right,
+    90deg,
     #ff66cc 0%,
-    #ffffff 20%,
-    #ff66cc 40%,
+    #ffcce6 25%,
+    #ffffff 50%,
+    #ffcce6 75%,
     #ff66cc 100%
   );
   background-size: 200% auto;
-  color: transparent;
-  background-clip: text;
   -webkit-background-clip: text;
-  animation: shimmer 2s linear infinite;
+  background-clip: text;
+  animation: shimmer 3s ease-in-out infinite;
 }
 
 @keyframes shimmer {
   0% {
-    background-position: -200% center;
+    background-position: -100% center;
   }
   100% {
-    background-position: 200% center;
+    background-position: 100% center;
   }
 }
+
 
   </style>
 
