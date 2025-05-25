@@ -608,15 +608,18 @@ header h1 {
   text-align: right;
   gap: 0.5em;
 }
-    @media (max-width: 768px) {
+   @media (max-width: 768px) {
   main {
     grid-template-columns: 1fr;
     padding: 1em;
   }
 
-  #services, #cartSection {
+  #services,
+  #cartSection,
+  #userPanel section {
+    width: 100%;
     max-width: 100%;
-    margin: 0;
+    margin: 0 auto;
   }
 
   .service {
@@ -634,9 +637,15 @@ header h1 {
   .add-btn {
     align-self: flex-start;
   }
+
+  .total-section {
+    text-align: left;
+  }
+
+  #bookingForm {
+    width: 100%;
+  }
 }
-
-
 
 
   </style>
