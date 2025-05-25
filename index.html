@@ -87,12 +87,16 @@
       border-bottom: 2px solid var(--pink);
       padding-bottom: 0.5em;
     }
-   .service {
+ .service {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.8em 0;
+  justify-content: flex-start; /* Aligns content to the left */
+  align-items: flex-start;     /* Top-aligns items vertically */
+  gap: 1.5em;                  /* Adds spacing between left and right sections */
+  padding: 1em 0;
   border-bottom: 1px solid #eee;
+  flex-wrap: wrap;            /* Allows better responsiveness on smaller screens */
+}
+
 }
 
 #serviceList {
