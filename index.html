@@ -1044,6 +1044,25 @@
         emailSettings.adminEmail = CONFIG.ADMIN_EMAIL;
       }
     }
+filteredServices.forEach(service => {
+  const serviceDiv = document.createElement('div');
+  serviceDiv.className = 'service-card';
+  serviceDiv.innerHTML = `
+    <div class="service-header">
+      <strong>${service.name}</strong>
+      <span class="category">${service.category}</span>
+    </div>
+    <div class="service-body">
+      <p class="description">${service.description || ''}</p>
+      <div class="service-meta">
+        <span>${service.duration} mins</span>
+        <span>AED ${service.price.toFixed(2)}</span>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addToCart(${service.id})">Add</button>
+  `;
+  document.querySelector('.service-container').appendChild(serviceDiv);
+});
 
     // Save data to localStorage
     function saveDataToStorage() {
