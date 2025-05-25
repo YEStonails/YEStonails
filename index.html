@@ -1763,5 +1763,39 @@
       }
     }
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9442718dc5f340d2',t:'MTc0Nzk4MTE4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9442718dc5f340d2',t:'MTc0Nzk4MTE4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbzk-plJKMaPEZsoeMWjmOj5wGfLiwqWFaOrKFNqEC9dQ1q4FH5c9BGfcy3MAv9lQ9JC5g/exec";
+
+  // Load services from Google Sheet
+  async function loadServicesFromSheet() {
+    try {
+      const response = await fetch(SHEET_URL + "?type=services");
+      const data = await response.json();
+      services = data.map((s, i) => ({
+        id: i + 1,
+        name: s.name,
+        category: s.category,
+        price: parseFloat(s.price),
+        duration: parseInt(s.duration),
+        description: s.description
+      }));
+      populateServices();
+      populateCategories();
+    } catch (error) {
+      console.error("Failed to load services from sheet", error);
+    }
+  }
+
+  // Replace original `populateServices()` call in DOMContentLoaded with this:
+  document.addEventListener('DOMContentLoaded', function () {
+    detectEnvironment();
+    initializeEmailJS();
+    loadServicesFromSheet(); // <--- REPLACED
+    populateCategories();
+    updateCart();
+    displayLogo();
+    ...
+  });
+</script>
+</body>
 </html>
