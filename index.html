@@ -798,19 +798,29 @@ const CONFIG = {
       ADMIN_EMAIL: "nailsk2022@gmail.com" // Default admin email
     };
 
-    // Sample data
-    let services = [
-      { id: 1, name: "Classic Manicure", category: "Manicure", price: 60, duration: 30, description: "Nail shaping, cuticle care, and polish" },
-      { id: 2, name: "Gel Manicure", category: "Manicure", price: 90, duration: 45, description: "Long-lasting gel polish with nail care" },
-      { id: 3, name: "Classic Pedicure", category: "Pedicure", price: 80, duration: 45, description: "Foot soak, scrub, nail care, and polish" },
-      { id: 4, name: "Gel Pedicure", category: "Pedicure", price: 110, duration: 60, description: "Foot care with long-lasting gel polish" },
-      { id: 5, name: "Nail Art - Simple", category: "Nail Art", price: 30, duration: 15, description: "Basic designs like dots, lines, or glitter" },
-      { id: 6, name: "Nail Art - Complex", category: "Nail Art", price: 60, duration: 30, description: "Detailed designs, multiple colors, or 3D elements" },
-      { id: 7, name: "Acrylic Full Set", category: "Extensions", price: 180, duration: 90, description: "Full set of acrylic nail extensions" },
-      { id: 8, name: "Acrylic Fill", category: "Extensions", price: 100, duration: 60, description: "Maintenance for existing acrylic nails" },
-      { id: 9, name: "Nail Repair", category: "Treatments", price: 20, duration: 15, description: "Fix for broken or damaged nails" },
-      { id: 10, name: "Paraffin Treatment", category: "Treatments", price: 40, duration: 20, description: "Moisturizing wax treatment for hands or feet" }
-    ];
+   let services = [];
+
+async function loadDataFromStorage() {
+  const prefix = 'yestonails_';
+  const savedBookings = localStorage.getItem(`${prefix}bookings`);
+  if (savedBookings) bookings = JSON.parse(savedBookings);
+  const savedTimeSlots = localStorage.getItem(`${prefix}bookedTimeSlots`);
+  if (savedTimeSlots) bookedTimeSlots = JSON.parse(savedTimeSlots);
+  const savedEmailSettings = localStorage.getItem(`${prefix}emailSettings`);
+  if (savedEmailSettings) emailSettings = JSON.parse(savedEmailSettings);
+  else emailSettings.adminEmail = CONFIG.ADMIN_EMAIL;
+
+  try {
+    const servicesRes = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=Services`);
+    const servicesData = await servicesRes.json();
+    if (Array.isArray(servicesData)) services = servicesData;
+  } catch (e) {
+    console.error('Failed to load services from Google Sheets', e);
+  }
+
+  // Also load hours and logo etc., as already done below...
+}
+
 
     let cart = [];
     let bookings = [];
