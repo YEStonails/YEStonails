@@ -1788,13 +1788,14 @@
   }
 
   // Replace original `populateServices()` call in  with this:
-  document.addEventListener('', function () {
-    detectEnvironment();
-    initializeEmailJS();
-    loadServicesFromSheet(); // <-- replaced populateServices()
-    populateCategories();
-    updateCart();
-    displayLogo();
+ document.addEventListener('DOMContentLoaded', function () {
+  detectEnvironment();
+  initializeEmailJS();
+  loadServicesFromSheet(); // ✅ loads latest from sheet
+  populateCategories();    // ✅ based on loaded services
+  updateCart();
+  displayLogo();
+});
     // other setup code remains the same
   });
 </script>
