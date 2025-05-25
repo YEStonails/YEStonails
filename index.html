@@ -483,13 +483,26 @@
       padding-bottom: 0.5em;
     }
   </style>
+  .rainbow-text {
+  background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbowAnimation 5s linear infinite;
+  display: inline-block;
+}
+
+@keyframes rainbowAnimation {
+  0% { background-position: 0% }
+  100% { background-position: 100% }
+}
+
 </head>
 <body>
   <header>
     <div id="logoContainer">
       <!-- Logo will be inserted here -->
     </div>
-    <h1>Yes to Nails - Service Calculator</h1>
+   <h1 class="rainbow-text">Yes to Nails</h1>
   </header>
   <nav>
     <a onclick="showUserPanel()">Services</a> | 
