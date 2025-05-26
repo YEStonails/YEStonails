@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YesToNails - Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background-color: #f9f9f9;
+    }
+    .container {
+      max-width: 700px;
+      margin: 2em auto;
+      padding: 2em;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #d63384;
+    }
+    ul {
+      padding-left: 1.2em;
+    }
+    .success-message {
+      padding: 1em;
+      margin-top: 1em;
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>YesToNails Services</h1>
+    <p>This version fetches services from Supabase and logs them to the console.</p>
+    <div id="serviceList"></div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabaseUrl = 'https://fyphrauehrmotfderfey.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0';
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    async function loadServices() {
+      const { data, error } = await supabase.from('services').select('*');
+      if (error) {
+        console.error('Error loading services:', error);
+        return;
+      }
+      const listContainer = document.getElementById('serviceList');
+      if (data.length > 0) {
+        const ul = document.createElement('ul');
+        data.forEach(service => {
+          const li = document.createElement('li');
+          li.textContent = `${service.name} - ${service.category} - AED ${service.price}`;
+          ul.appendChild(li);
+        });
+        listContainer.appendChild(ul);
+      } else {
+        listContainer.innerHTML = '<div class="success-message">No services found.</div>';
+      }
+    }
+
+    loadServices();
+  </script>
+</body>
+</html>
