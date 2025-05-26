@@ -1393,13 +1393,13 @@ function showUserPanel() {
       }, 1500);
     }
 
-    // Admin Authentication
+// Admin Authentication
 async function adminAuth(event) {
   event.preventDefault();
   const username = document.getElementById('adminUser').value;
   const password = document.getElementById('adminPass').value;
 
-  const { data, error } = // await removed (invalid outside async)supabase
+  const { data, error } = await supabase
     .from('admins')
     .select('*')
     .eq('username', username)
@@ -1419,99 +1419,7 @@ async function adminAuth(event) {
   }
 }
 
-    // Logout admin
-    function logoutAdmin() {
-      document.getElementById('adminLoginSection').classList.remove('hidden');
-      document.getElementById('adminPanel').classList.add('hidden');
-      document.getElementById('adminLogin').reset();
-      document.getElementById('adminLoginMessage').innerHTML = '';
-    }
-
-    // Show admin login
-    function showAdminLogin() {
-      document.getElementById('userPanel').style.display = 'none';
-      document.getElementById('adminPanelWrapper').style.display = 'block';
-    }
-
-    // Show user panel
-    function showUserPanel() {
-      document.getElementById('userPanel').style.display = 'grid';
-      document.getElementById('adminPanelWrapper').style.display = 'none';
-    }
-
-    // Show admin dashboard
-    function showAdminDashboard() {
-      document.getElementById('serviceManager').classList.add('hidden');
-      document.getElementById('bookingManager').classList.add('hidden');
-      document.getElementById('businessSettings').classList.add('hidden');
-    }
-
-    // Show service manager
-    function showServiceManager() {
-      document.getElementById('serviceManager').classList.remove('hidden');
-      document.getElementById('bookingManager').classList.add('hidden');
-      document.getElementById('businessSettings').classList.add('hidden');
-      populateAdminServiceList();
-    }
-
-    // Show booking manager
-    function showBookingManager() {
-      document.getElementById('serviceManager').classList.add('hidden');
-      document.getElementById('bookingManager').classList.remove('hidden');
-      document.getElementById('businessSettings').classList.add('hidden');
-      populateBookingsList();
-    }
-
-    // Show business settings
-    function showBusinessSettings() {
-      document.getElementById('serviceManager').classList.add('hidden');
-      document.getElementById('bookingManager').classList.add('hidden');
-      document.getElementById('businessSettings').classList.remove('hidden');
-      loadBusinessHoursToForm();
-      loadEmailSettings();
-    }
-
-    // Open tab in business settings
-    function openTab(event, tabId) {
-      // Hide all tab panels
-      const tabPanels = document.getElementsByClassName('tab-panel');
-      for (let i = 0; i < tabPanels.length; i++) {
-        tabPanels[i].classList.remove('active');
-      }
-      
-      // Remove active class from all tab buttons
-      const tabButtons = document.getElementsByClassName('tab-button');
-      for (let i = 0; i < tabButtons.length; i++) {
-        tabButtons[i].classList.remove('active');
-      }
-      
-      // Show the selected tab panel
-      document.getElementById(tabId).classList.add('active');
-      
-      // Add active class to the clicked button
-      event.currentTarget.classList.add('active');
-    }
-
-    // Load business hours to form
-    function loadBusinessHoursToForm() {
-      document.getElementById('appointmentInterval').value = businessHours.interval;
-      
-      for (const day in businessHours.days) {
-        const settings = businessHours.days[day];
-        document.getElementById(`${day}Open`).value = settings.open;
-        document.getElementById(`${day}Close`).value = settings.close;
-        document.getElementById(`${day}Closed`).checked = settings.closed;
-      }
-    }
-
-    // Load email settings to form
-    function loadEmailSettings() {
-      document.getElementById('customerEmailToggle').checked = emailSettings.sendToCustomers;
-      document.getElementById('adminEmailToggle').checked = emailSettings.sendToAdmin;
-      document.getElementById('adminEmail').value = emailSettings.adminEmail || CONFIG.ADMIN_EMAIL;
-    }
-
-    // Save business hours
+// Save business hours
 async function saveBusinessHours(event) {
   event.preventDefault();
 
@@ -1526,7 +1434,7 @@ async function saveBusinessHours(event) {
     };
   });
 
-  const { error } = // await removed (invalid outside async)supabase.from('business_settings').upsert({
+  const { error } = await supabase.from('business_settings').upsert({
     id: 1,
     hours_json: JSON.stringify(businessHours)
   });
@@ -1551,7 +1459,7 @@ async function saveEmailSettings() {
   emailSettings.sendToAdmin = document.getElementById('adminEmailToggle').checked;
   emailSettings.adminEmail = document.getElementById('adminEmail').value || CONFIG.ADMIN_EMAIL;
 
-  const { error } = // await removed (invalid outside async)supabase.from('email_settings').upsert({
+  const { error } = await supabase.from('email_settings').upsert({
     id: 1,
     send_to_customers: emailSettings.sendToCustomers,
     send_to_admin: emailSettings.sendToAdmin,
@@ -1571,6 +1479,7 @@ async function saveEmailSettings() {
     document.getElementById('emailSettingsMessage').innerHTML = '';
   }, 3000);
 }
+
 
 
     // Send test email
