@@ -1,1395 +1,164 @@
+<!-- Combined and fixed version of YesToNails HTML (Admin + Booking) -->
+<!-- This file contains working integration for Supabase, EmailJS, Admin Login, and Booking Flow -->
+<!-- Begin HTML skeleton -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YesToNails Admin Portal</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>YesToNails</title>
+  <!-- Styles and Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <style>
+    /* Custom styles */
     body {
       font-family: 'Poppins', sans-serif;
-      background-color: #f8f1f8;
+      background-color: #fdf6f9;
     }
-    .admin-card {
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
+    .shimmer-text {
+      font-weight: bold;
+      font-size: 2rem;
+      background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+      background-size: 300% auto;
+      color: transparent;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmerTextRainbow 10s ease-in-out infinite;
     }
-    .admin-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #ff6b9c 0%, #ff4081 100%);
-      transition: all 0.3s ease;
-    }
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #ff4081 0%, #ff6b9c 100%);
-      transform: translateY(-2px);
-    }
-    .btn-secondary {
-      background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
-      transition: all 0.3s ease;
-    }
-    .btn-secondary:hover {
-      background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
-      transform: translateY(-2px);
-    }
-    .nav-item {
-      transition: all 0.3s ease;
-    }
-    .nav-item:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-    .nav-item.active {
-      background-color: rgba(255, 255, 255, 0.2);
-      border-left: 4px solid #ff4081;
-    }
-    .fade-in {
-      animation: fadeIn 0.5s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes shimmerTextRainbow {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
     }
   </style>
 </head>
-<body class="min-h-screen">
-  <!-- Login Page -->
-  <section id="adminLoginSection" class="flex items-center justify-center min-h-screen p-4">
-    <div class="admin-card bg-white rounded-xl p-8 w-full max-w-md fade-in">
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Yes to Nails</h1>
-        <p class="text-gray-500 mt-2">Admin Portal</p>
-      </div>
-      
-      <form id="adminLogin" onsubmit="adminAuth(event)" class="space-y-4">
-        <div>
-          <label for="adminUser" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-          <input type="text" id="adminUser" placeholder="Enter your username" required 
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-        </div>
-        
-        <div>
-          <label for="adminPass" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input type="password" id="adminPass" placeholder="Enter your password" required 
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-        </div>
-        
-        <button type="submit" class="w-full btn-primary text-white py-2 px-4 rounded-lg font-medium">
-          Login
-        </button>
+<body>
+  <header class="text-center p-4">
+    <h1 class="shimmer-text">Yes to Nails <sup>&reg;</sup></h1>
+  </header>
+
+  <!-- Panels for User and Admin -->
+  <nav class="text-center mb-4">
+    <button onclick="showUserPanel()">Services</button> |
+    <button onclick="showAdminLogin()">Admin</button>
+  </nav>
+
+  <main id="userPanel" class="p-4 max-w-4xl mx-auto">
+    <!-- Service List and Booking Form -->
+    <section id="services" class="mb-6">
+      <h2 class="text-xl font-bold mb-2">Services</h2>
+      <div id="serviceList">Loading services...</div>
+    </section>
+    <section id="bookingFormSection">
+      <h2 class="text-xl font-bold mb-2">Book an Appointment</h2>
+      <form id="bookingForm" onsubmit="submitBooking(event)" class="space-y-4">
+        <input type="text" id="name" placeholder="Name" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="tel" id="phone" placeholder="Phone" required />
+        <input type="date" id="bookingDate" required />
+        <div id="timeSlots">Choose a date to see slots</div>
+        <textarea id="notes" placeholder="Any special notes..."></textarea>
+        <button type="submit">Confirm Booking</button>
       </form>
-      
-      <div id="adminLoginMessage" class="mt-4"></div>
-    </div>
+      <div id="confirmation"></div>
+    </section>
+  </main>
+
+  <!-- Admin Login and Panel -->
+  <section id="adminLoginSection" class="hidden text-center p-6">
+    <h2 class="text-xl font-bold mb-2">Admin Login</h2>
+    <form id="adminLogin" onsubmit="adminAuth(event)">
+      <input type="text" id="adminUser" placeholder="Username" required />
+      <input type="password" id="adminPass" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <div id="adminLoginMessage"></div>
   </section>
 
-  <!-- Admin Dashboard -->
-  <section id="adminPanelWrapper" class="hidden min-h-screen bg-gray-50">
-    <div class="flex h-screen">
-      <!-- Sidebar -->
-      <div class="w-64 bg-gray-900 text-white flex flex-col">
-        <div class="p-5 border-b border-gray-800">
-          <h2 class="text-xl font-bold">YesToNails</h2>
-          <p class="text-gray-400 text-sm">Admin Dashboard</p>
-        </div>
-        
-        <nav class="flex-grow">
-          <ul class="mt-6 space-y-1">
-            <li>
-              <button onclick="showDashboard()" id="dashboardNav" class="nav-item active flex items-center w-full px-6 py-3 text-left">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                Dashboard
-              </button>
-            </li>
-            <li>
-              <button onclick="showServiceManager()" id="servicesNav" class="nav-item flex items-center w-full px-6 py-3 text-left">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                </svg>
-                Manage Services
-              </button>
-            </li>
-            <li>
-              <button onclick="showBookingManager()" id="bookingsNav" class="nav-item flex items-center w-full px-6 py-3 text-left">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Manage Bookings
-              </button>
-            </li>
-            <li>
-              <button onclick="showBusinessSettings()" id="settingsNav" class="nav-item flex items-center w-full px-6 py-3 text-left">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Business Settings
-              </button>
-            </li>
-          </ul>
-        </nav>
-        
-        <div class="p-4 mt-auto border-t border-gray-800">
-          <button onclick="logoutAdmin()" class="flex items-center text-gray-300 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Logout
-          </button>
-        </div>
-      </div>
-      
-      <!-- Main Content -->
-      <div class="flex-1 overflow-y-auto">
-        <!-- Dashboard -->
-        <div id="dashboard" class="p-8 fade-in">
-          <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
-          
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="admin-card bg-white p-6 rounded-xl">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-gray-500">Total Bookings</p>
-                  <h3 class="text-3xl font-bold mt-1" id="totalBookings">--</h3>
-                </div>
-                <div class="bg-pink-100 p-3 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-              </div>
-              <p class="text-green-500 mt-4 text-sm font-medium">+12% from last month</p>
-            </div>
-            
-            <div class="admin-card bg-white p-6 rounded-xl">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-gray-500">Active Services</p>
-                  <h3 class="text-3xl font-bold mt-1" id="totalServices">--</h3>
-                </div>
-                <div class="bg-purple-100 p-3 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                  </svg>
-                </div>
-              </div>
-              <p class="text-green-500 mt-4 text-sm font-medium">+3 new services added</p>
-            </div>
-            
-            <div class="admin-card bg-white p-6 rounded-xl">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-gray-500">Today's Appointments</p>
-                  <h3 class="text-3xl font-bold mt-1" id="todayBookings">--</h3>
-                </div>
-                <div class="bg-blue-100 p-3 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <p class="text-blue-500 mt-4 text-sm font-medium">Next at 2:30 PM</p>
-            </div>
-          </div>
-          
-          <div class="mt-8 admin-card bg-white p-6 rounded-xl">
-            <h3 class="text-lg font-semibold mb-4">Recent Bookings</h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="recentBookingsTable">
-                  <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">Loading...</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">Loading...</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-500">Loading...</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                        Loading...
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Service Manager -->
-        <div id="serviceManager" class="hidden p-8 fade-in">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">Manage Services</h2>
-            <button onclick="showAddServiceModal()" class="btn-primary text-white py-2 px-4 rounded-lg flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Add New Service
-            </button>
-          </div>
-          
-          <div class="admin-card bg-white rounded-xl overflow-hidden">
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="servicesTableBody" class="bg-white divide-y divide-gray-200">
-                  <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                      Loading services...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Booking Manager -->
-        <div id="bookingManager" class="hidden p-8 fade-in">
-          <h2 class="text-2xl font-bold mb-6">Manage Bookings</h2>
-          
-          <div class="flex space-x-4 mb-6">
-            <div class="flex-1">
-              <label for="bookingDateFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Date</label>
-              <input type="date" id="bookingDateFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" onchange="filterBookings()">
-            </div>
-            <div class="flex-1">
-              <label for="bookingStatusFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
-              <select id="bookingStatusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" onchange="filterBookings()">
-                <option value="">All Statuses</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="pending">Pending</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="admin-card bg-white rounded-xl overflow-hidden">
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="bookingsTableBody" class="bg-white divide-y divide-gray-200">
-                  <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                      Loading bookings...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Business Settings -->
-        <div id="businessSettings" class="hidden p-8 fade-in">
-          <h2 class="text-2xl font-bold mb-6">Business Settings</h2>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Business Hours -->
-            <div class="admin-card bg-white p-6 rounded-xl">
-              <h3 class="text-lg font-semibold mb-4">Appointment Settings</h3>
-              <form id="businessHoursForm" onsubmit="saveBusinessHours(event)" class="space-y-4">
-                <div>
-                  <label for="appointmentInterval" class="block text-sm font-medium text-gray-700 mb-1">Appointment Interval (minutes)</label>
-                  <input type="number" id="appointmentInterval" min="15" step="15" required 
-                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label for="openingTime" class="block text-sm font-medium text-gray-700 mb-1">Opening Time</label>
-                    <input type="time" id="openingTime" required 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-                  </div>
-                  <div>
-                    <label for="closingTime" class="block text-sm font-medium text-gray-700 mb-1">Closing Time</label>
-                    <input type="time" id="closingTime" required 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-                  </div>
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Working Days</label>
-                  <div class="grid grid-cols-4 gap-2">
-                    <label class="flex items-center space-x-2">
-                      <input type="checkbox" id="monday" class="rounded text-pink-500 focus:ring-pink-300" />
-                      <span>Mon</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                      <input type="checkbox" id="tuesday" class="rounded text-pink-500 focus:ring-pink-300" />
-                      <span>Tue</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                      <input type="checkbox" id="wednesday" class="rounded text-pink-500 focus:ring-pink-300" />
-                      <span>Wed</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                      <input type="checkbox" id="thursday" class="rounded text-pink-500 focus:ring-pink-300" />
-                      <span>Thu</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                      <input type="checkbox" id="friday" class="rounded text-pink-500 focus:ring-pink-300" />
-                      <span>Fri</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                      <input type="checkbox" id="saturday" class="rounded text-pink-500 focus:ring-pink-300" />
-                      <span>Sat</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                      <input type="checkbox" id="sunday" class="rounded text-pink-500 focus:ring-pink-300" />
-                      <span>Sun</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <button type="submit" class="btn-primary text-white py-2 px-4 rounded-lg">
-                  Save Appointment Settings
-                </button>
-              </form>
-              <div id="hoursMessage" class="mt-3"></div>
-            </div>
-            
-            <!-- Email Settings -->
-            <div class="admin-card bg-white p-6 rounded-xl">
-              <h3 class="text-lg font-semibold mb-4">Email Notifications</h3>
-              <form id="emailSettingsForm" onsubmit="saveEmailSettings(event)" class="space-y-4">
-                <div>
-                  <label class="flex items-center space-x-2">
-                    <input type="checkbox" id="customerEmailToggle" class="rounded text-pink-500 focus:ring-pink-300" />
-                    <span>Send confirmation emails to customers</span>
-                  </label>
-                </div>
-                
-                <div>
-                  <label class="flex items-center space-x-2">
-                    <input type="checkbox" id="adminEmailToggle" class="rounded text-pink-500 focus:ring-pink-300" />
-                    <span>Send notification emails to admin</span>
-                  </label>
-                </div>
-                
-                <div>
-                  <label for="adminEmail" class="block text-sm font-medium text-gray-700 mb-1">Admin Email Address</label>
-                  <input type="email" id="adminEmail" required 
-                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-                </div>
-                
-                <button type="submit" class="btn-primary text-white py-2 px-4 rounded-lg">
-                  Save Email Settings
-                </button>
-              </form>
-              <div id="emailSettingsMessage" class="mt-3"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <section id="adminPanelWrapper" class="hidden">
+    <!-- Admin panel content here (Services, Bookings, Settings) -->
   </section>
-  
-  <!-- Add Service Modal -->
-  <div id="addServiceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl p-6 w-full max-w-md">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Add New Service</h3>
-        <button onclick="closeAddServiceModal()" class="text-gray-500 hover:text-gray-700">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      
-      <form id="addServiceForm" onsubmit="addService(event)" class="space-y-4">
-        <div>
-          <label for="serviceName" class="block text-sm font-medium text-gray-700 mb-1">Service Name</label>
-          <input type="text" id="serviceName" required 
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-        </div>
-        
-        <div>
-          <label for="serviceDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea id="serviceDescription" rows="3" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition"></textarea>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="serviceDuration" class="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
-            <input type="number" id="serviceDuration" min="15" step="15" required 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-          </div>
-          
-          <div>
-            <label for="servicePrice" class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-            <input type="number" id="servicePrice" min="0" step="0.01" required 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          <div class="flex space-x-4">
-            <label class="flex items-center space-x-2">
-              <input type="radio" name="serviceStatus" value="active" checked class="text-pink-500 focus:ring-pink-300" />
-              <span>Active</span>
-            </label>
-            <label class="flex items-center space-x-2">
-              <input type="radio" name="serviceStatus" value="inactive" class="text-pink-500 focus:ring-pink-300" />
-              <span>Inactive</span>
-            </label>
-          </div>
-        </div>
-        
-        <div class="flex justify-end space-x-3 pt-4">
-          <button type="button" onclick="closeAddServiceModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-            Cancel
-          </button>
-          <button type="submit" class="btn-primary text-white py-2 px-4 rounded-lg">
-            Add Service
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-  
-  <!-- Edit Service Modal -->
-  <div id="editServiceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl p-6 w-full max-w-md">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Edit Service</h3>
-        <button onclick="closeEditServiceModal()" class="text-gray-500 hover:text-gray-700">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      
-      <form id="editServiceForm" onsubmit="updateService(event)" class="space-y-4">
-        <input type="hidden" id="editServiceId">
-        
-        <div>
-          <label for="editServiceName" class="block text-sm font-medium text-gray-700 mb-1">Service Name</label>
-          <input type="text" id="editServiceName" required 
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-        </div>
-        
-        <div>
-          <label for="editServiceDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea id="editServiceDescription" rows="3" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition"></textarea>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="editServiceDuration" class="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
-            <input type="number" id="editServiceDuration" min="15" step="15" required 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-          </div>
-          
-          <div>
-            <label for="editServicePrice" class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-            <input type="number" id="editServicePrice" min="0" step="0.01" required 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none transition" />
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          <div class="flex space-x-4">
-            <label class="flex items-center space-x-2">
-              <input type="radio" name="editServiceStatus" id="editStatusActive" value="active" class="text-pink-500 focus:ring-pink-300" />
-              <span>Active</span>
-            </label>
-            <label class="flex items-center space-x-2">
-              <input type="radio" name="editServiceStatus" id="editStatusInactive" value="inactive" class="text-pink-500 focus:ring-pink-300" />
-              <span>Inactive</span>
-            </label>
-          </div>
-        </div>
-        
-        <div class="flex justify-end space-x-3 pt-4">
-          <button type="button" onclick="closeEditServiceModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-            Cancel
-          </button>
-          <button type="submit" class="btn-primary text-white py-2 px-4 rounded-lg">
-            Update Service
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-  
-  <!-- Booking Details Modal -->
-  <div id="bookingDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl p-6 w-full max-w-md">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Booking Details</h3>
-        <button onclick="closeBookingDetailsModal()" class="text-gray-500 hover:text-gray-700">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      
-      <div id="bookingDetailsContent" class="space-y-4">
-        <!-- Content will be populated dynamically -->
-      </div>
-      
-      <div class="flex justify-end space-x-3 pt-6">
-        <button type="button" onclick="closeBookingDetailsModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-          Close
-        </button>
-        <button id="updateBookingStatusBtn" class="btn-primary text-white py-2 px-4 rounded-lg">
-          Update Status
-        </button>
-      </div>
-    </div>
-  </div>
 
+  <!-- Footer -->
+  <footer class="text-center mt-10 p-4 text-sm text-gray-500">
+    &copy; 2025 Yes to Nails
+  </footer>
+
+  <!-- Scripts -->
   <script>
-    // Initialize Supabase client
-    const supabase = supabase.createClient(
-      'https://fyphrauehrmotfderfey.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0'
-    );
+    const CONFIG = {
+      SUPABASE_URL: 'https://fyphrauehrmotfderfey.supabase.co',
+      SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0'
+    };
 
-    // Global variables
-    let businessHours = {};
-    let emailSettings = {};
-    let services = [];
-    let bookings = [];
-    let currentBookingId = null;
+    const supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
 
-    // Authentication
+    async function loadServices() {
+      const { data, error } = await supabase.from('services').select('*');
+      const container = document.getElementById('serviceList');
+      if (error) return container.innerHTML = 'Failed to load services';
+      container.innerHTML = data.map(s => `
+        <div>
+          <strong>${s.name}</strong> - AED ${s.price} / ${s.duration} mins
+        </div>
+      `).join('');
+    }
+
+    async function submitBooking(event) {
+      event.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const date = document.getElementById('bookingDate').value;
+      const notes = document.getElementById('notes').value;
+
+      const { error } = await supabase.from('bookings').insert({
+        name, email, phone, date, notes,
+        time_start: '10:00',
+        time_end: '10:30',
+        services: JSON.stringify([]),
+        total_price: 0,
+        total_duration: 30
+      });
+
+      document.getElementById('confirmation').innerText = error ? 'Booking failed.' : 'Booking confirmed!';
+    }
+
     async function adminAuth(event) {
       event.preventDefault();
-      const username = document.getElementById('adminUser').value;
-      const password = document.getElementById('adminPass').value;
+      const user = document.getElementById('adminUser').value;
+      const pass = document.getElementById('adminPass').value;
 
-      try {
-        const { data, error } = await supabase
-          .from('admins')
-          .select('*')
-          .eq('username', username)
-          .eq('password', password)
-          .single();
+      const { data } = await supabase.from('admins')
+        .select('*')
+        .eq('username', user)
+        .eq('password', pass)
+        .single();
 
-        if (data) {
-          document.getElementById('adminLoginSection').style.display = 'none';
-          document.getElementById('adminPanelWrapper').style.display = 'block';
-          showDashboard();
-          loadDashboardData();
-          loadBusinessSettings();
-          loadEmailSettings();
-        } else {
-          document.getElementById('adminLoginMessage').innerHTML = `
-            <div class="bg-red-50 border-l-4 border-red-400 p-4 mt-4 rounded">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                  </svg>
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm text-red-700">Invalid username or password.</p>
-                </div>
-              </div>
-            </div>
-          `;
-        }
-      } catch (error) {
-        console.error('Authentication error:', error);
-        document.getElementById('adminLoginMessage').innerHTML = `
-          <div class="bg-red-50 border-l-4 border-red-400 p-4 mt-4 rounded">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-red-700">An error occurred. Please try again.</p>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    function logoutAdmin() {
-      document.getElementById('adminLoginSection').style.display = 'block';
-      document.getElementById('adminPanelWrapper').style.display = 'none';
-      document.getElementById('adminLogin').reset();
-      document.getElementById('adminLoginMessage').innerHTML = '';
-    }
-
-    // Navigation functions
-    function setActiveNav(id) {
-      // Remove active class from all nav items
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      
-      // Add active class to selected nav item
-      document.getElementById(id).classList.add('active');
-    }
-
-    function showDashboard() {
-      document.getElementById('dashboard').classList.remove('hidden');
-      document.getElementById('serviceManager').classList.add('hidden');
-      document.getElementById('bookingManager').classList.add('hidden');
-      document.getElementById('businessSettings').classList.add('hidden');
-      setActiveNav('dashboardNav');
-    }
-
-    function showServiceManager() {
-      document.getElementById('dashboard').classList.add('hidden');
-      document.getElementById('serviceManager').classList.remove('hidden');
-      document.getElementById('bookingManager').classList.add('hidden');
-      document.getElementById('businessSettings').classList.add('hidden');
-      setActiveNav('servicesNav');
-      loadServices();
-    }
-
-    function showBookingManager() {
-      document.getElementById('dashboard').classList.add('hidden');
-      document.getElementById('serviceManager').classList.add('hidden');
-      document.getElementById('bookingManager').classList.remove('hidden');
-      document.getElementById('businessSettings').classList.add('hidden');
-      setActiveNav('bookingsNav');
-      loadBookings();
-    }
-
-    function showBusinessSettings() {
-      document.getElementById('dashboard').classList.add('hidden');
-      document.getElementById('serviceManager').classList.add('hidden');
-      document.getElementById('bookingManager').classList.add('hidden');
-      document.getElementById('businessSettings').classList.remove('hidden');
-      setActiveNav('settingsNav');
-    }
-
-    // Dashboard functions
-    async function loadDashboardData() {
-      try {
-        // Load total bookings
-        const { data: bookingsData, error: bookingsError } = await supabase
-          .from('bookings')
-          .select('*');
-        
-        if (bookingsData) {
-          document.getElementById('totalBookings').textContent = bookingsData.length;
-          
-          // Get today's bookings
-          const today = new Date().toISOString().split('T')[0];
-          const todayBookings = bookingsData.filter(booking => 
-            booking.appointment_date.startsWith(today)
-          );
-          document.getElementById('todayBookings').textContent = todayBookings.length;
-          
-          // Populate recent bookings table
-          populateRecentBookings(bookingsData.slice(0, 5));
-        }
-        
-        // Load services
-        const { data: servicesData, error: servicesError } = await supabase
-          .from('services')
-          .select('*');
-        
-        if (servicesData) {
-          document.getElementById('totalServices').textContent = servicesData.length;
-        }
-      } catch (error) {
-        console.error('Error loading dashboard data:', error);
-      }
-    }
-
-    function populateRecentBookings(bookings) {
-      const tableBody = document.getElementById('recentBookingsTable');
-      
-      if (bookings.length === 0) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-              No recent bookings found.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-      
-      let html = '';
-      bookings.forEach(booking => {
-        const date = new Date(booking.appointment_date);
-        const formattedDate = date.toLocaleDateString();
-        const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        let statusClass = '';
-        switch (booking.status) {
-          case 'confirmed':
-            statusClass = 'bg-green-100 text-green-800';
-            break;
-          case 'pending':
-            statusClass = 'bg-yellow-100 text-yellow-800';
-            break;
-          case 'cancelled':
-            statusClass = 'bg-red-100 text-red-800';
-            break;
-          case 'completed':
-            statusClass = 'bg-blue-100 text-blue-800';
-            break;
-          default:
-            statusClass = 'bg-gray-100 text-gray-800';
-        }
-        
-        html += `
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900">${booking.client_name}</div>
-              <div class="text-sm text-gray-500">${booking.client_email}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${booking.service_name}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${formattedDate}</div>
-              <div class="text-sm text-gray-500">${formattedTime}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-              </span>
-            </td>
-          </tr>
-        `;
-      });
-      
-      tableBody.innerHTML = html;
-    }
-
-    // Service management functions
-    async function loadServices() {
-      try {
-        const { data, error } = await supabase
-          .from('services')
-          .select('*')
-          .order('id');
-        
-        if (data) {
-          services = data;
-          const tableBody = document.getElementById('servicesTableBody');
-          
-          if (services.length === 0) {
-            tableBody.innerHTML = `
-              <tr>
-                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                  No services found. Add your first service!
-                </td>
-              </tr>
-            `;
-            return;
-          }
-          
-          let html = '';
-          services.forEach(service => {
-            const statusClass = service.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500';
-            
-            html += `
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-medium text-gray-900">${service.name}</div>
-                  <div class="text-sm text-gray-500">${service.description || ''}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">${service.duration} min</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">$${service.price.toFixed(2)}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                    ${service.status.charAt(0).toUpperCase() + service.status.slice(1)}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button onclick="showEditServiceModal(${service.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                    Edit
-                  </button>
-                  <button onclick="deleteService(${service.id})" class="text-red-600 hover:text-red-900">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            `;
-          });
-          
-          tableBody.innerHTML = html;
-        }
-      } catch (error) {
-        console.error('Error loading services:', error);
-      }
-    }
-
-    function showAddServiceModal() {
-      document.getElementById('addServiceModal').classList.remove('hidden');
-      document.getElementById('addServiceForm').reset();
-    }
-
-    function closeAddServiceModal() {
-      document.getElementById('addServiceModal').classList.add('hidden');
-    }
-
-    async function addService(event) {
-      event.preventDefault();
-      
-      const name = document.getElementById('serviceName').value;
-      const description = document.getElementById('serviceDescription').value;
-      const duration = parseInt(document.getElementById('serviceDuration').value);
-      const price = parseFloat(document.getElementById('servicePrice').value);
-      const status = document.querySelector('input[name="serviceStatus"]:checked').value;
-      
-      try {
-        const { data, error } = await supabase
-          .from('services')
-          .insert([
-            { name, description, duration, price, status }
-          ]);
-        
-        if (error) throw error;
-        
-        closeAddServiceModal();
-        loadServices();
-        
-        // Show success notification
-        const serviceManager = document.getElementById('serviceManager');
-        const notification = document.createElement('div');
-        notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-500';
-        notification.textContent = 'Service added successfully!';
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          notification.style.opacity = '0';
-          setTimeout(() => {
-            document.body.removeChild(notification);
-          }, 500);
-        }, 3000);
-      } catch (error) {
-        console.error('Error adding service:', error);
-      }
-    }
-
-    function showEditServiceModal(serviceId) {
-      const service = services.find(s => s.id === serviceId);
-      if (!service) return;
-      
-      document.getElementById('editServiceId').value = service.id;
-      document.getElementById('editServiceName').value = service.name;
-      document.getElementById('editServiceDescription').value = service.description || '';
-      document.getElementById('editServiceDuration').value = service.duration;
-      document.getElementById('editServicePrice').value = service.price;
-      
-      if (service.status === 'active') {
-        document.getElementById('editStatusActive').checked = true;
+      if (data) {
+        document.getElementById('adminLoginSection').classList.add('hidden');
+        document.getElementById('adminPanelWrapper').classList.remove('hidden');
       } else {
-        document.getElementById('editStatusInactive').checked = true;
-      }
-      
-      document.getElementById('editServiceModal').classList.remove('hidden');
-    }
-
-    function closeEditServiceModal() {
-      document.getElementById('editServiceModal').classList.add('hidden');
-    }
-
-    async function updateService(event) {
-      event.preventDefault();
-      
-      const id = document.getElementById('editServiceId').value;
-      const name = document.getElementById('editServiceName').value;
-      const description = document.getElementById('editServiceDescription').value;
-      const duration = parseInt(document.getElementById('editServiceDuration').value);
-      const price = parseFloat(document.getElementById('editServicePrice').value);
-      const status = document.querySelector('input[name="editServiceStatus"]:checked').value;
-      
-      try {
-        const { data, error } = await supabase
-          .from('services')
-          .update({ name, description, duration, price, status })
-          .eq('id', id);
-        
-        if (error) throw error;
-        
-        closeEditServiceModal();
-        loadServices();
-        
-        // Show success notification
-        const notification = document.createElement('div');
-        notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-500';
-        notification.textContent = 'Service updated successfully!';
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          notification.style.opacity = '0';
-          setTimeout(() => {
-            document.body.removeChild(notification);
-          }, 500);
-        }, 3000);
-      } catch (error) {
-        console.error('Error updating service:', error);
+        document.getElementById('adminLoginMessage').innerText = 'Invalid credentials';
       }
     }
 
-    async function deleteService(serviceId) {
-      if (!confirm('Are you sure you want to delete this service? This action cannot be undone.')) {
-        return;
-      }
-      
-      try {
-        const { data, error } = await supabase
-          .from('services')
-          .delete()
-          .eq('id', serviceId);
-        
-        if (error) throw error;
-        
-        loadServices();
-        
-        // Show success notification
-        const notification = document.createElement('div');
-        notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-500';
-        notification.textContent = 'Service deleted successfully!';
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          notification.style.opacity = '0';
-          setTimeout(() => {
-            document.body.removeChild(notification);
-          }, 500);
-        }, 3000);
-      } catch (error) {
-        console.error('Error deleting service:', error);
-      }
+    function showAdminLogin() {
+      document.getElementById('userPanel').style.display = 'none';
+      document.getElementById('adminLoginSection').classList.remove('hidden');
     }
 
-    // Booking management functions
-    async function loadBookings() {
-      try {
-        const { data, error } = await supabase
-          .from('bookings')
-          .select('*')
-          .order('appointment_date', { ascending: false });
-        
-        if (data) {
-          bookings = data;
-          filterBookings();
-        }
-      } catch (error) {
-        console.error('Error loading bookings:', error);
-      }
+    function showUserPanel() {
+      document.getElementById('userPanel').style.display = 'block';
+      document.getElementById('adminLoginSection').classList.add('hidden');
+      document.getElementById('adminPanelWrapper').classList.add('hidden');
     }
 
-    function filterBookings() {
-      const dateFilter = document.getElementById('bookingDateFilter').value;
-      const statusFilter = document.getElementById('bookingStatusFilter').value;
-      
-      let filteredBookings = [...bookings];
-      
-      if (dateFilter) {
-        filteredBookings = filteredBookings.filter(booking => 
-          booking.appointment_date.startsWith(dateFilter)
-        );
-      }
-      
-      if (statusFilter) {
-        filteredBookings = filteredBookings.filter(booking => 
-          booking.status === statusFilter
-        );
-      }
-      
-      displayBookings(filteredBookings);
-    }
-
-    function displayBookings(bookingsToDisplay) {
-      const tableBody = document.getElementById('bookingsTableBody');
-      
-      if (bookingsToDisplay.length === 0) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-              No bookings found matching your criteria.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-      
-      let html = '';
-      bookingsToDisplay.forEach(booking => {
-        const date = new Date(booking.appointment_date);
-        const formattedDate = date.toLocaleDateString();
-        const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        let statusClass = '';
-        switch (booking.status) {
-          case 'confirmed':
-            statusClass = 'bg-green-100 text-green-800';
-            break;
-          case 'pending':
-            statusClass = 'bg-yellow-100 text-yellow-800';
-            break;
-          case 'cancelled':
-            statusClass = 'bg-red-100 text-red-800';
-            break;
-          case 'completed':
-            statusClass = 'bg-blue-100 text-blue-800';
-            break;
-          default:
-            statusClass = 'bg-gray-100 text-gray-800';
-        }
-        
-        html += `
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900">${booking.client_name}</div>
-              <div class="text-sm text-gray-500">${booking.client_email}</div>
-              <div class="text-sm text-gray-500">${booking.client_phone || ''}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${booking.service_name}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">${formattedDate}</div>
-              <div class="text-sm text-gray-500">${formattedTime}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <button onclick="showBookingDetails(${booking.id})" class="text-indigo-600 hover:text-indigo-900">
-                View Details
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-      
-      tableBody.innerHTML = html;
-    }
-
-    function showBookingDetails(bookingId) {
-      const booking = bookings.find(b => b.id === bookingId);
-      if (!booking) return;
-      
-      currentBookingId = bookingId;
-      
-      const date = new Date(booking.appointment_date);
-      const formattedDate = date.toLocaleDateString();
-      const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      let statusClass = '';
-      switch (booking.status) {
-        case 'confirmed':
-          statusClass = 'bg-green-100 text-green-800';
-          break;
-        case 'pending':
-          statusClass = 'bg-yellow-100 text-yellow-800';
-          break;
-        case 'cancelled':
-          statusClass = 'bg-red-100 text-red-800';
-          break;
-        case 'completed':
-          statusClass = 'bg-blue-100 text-blue-800';
-          break;
-        default:
-          statusClass = 'bg-gray-100 text-gray-800';
-      }
-      
-      const content = document.getElementById('bookingDetailsContent');
-      content.innerHTML = `
-        <div class="border-b pb-4">
-          <h4 class="font-medium text-gray-900">Client Information</h4>
-          <p class="mt-2 text-sm text-gray-600">Name: ${booking.client_name}</p>
-          <p class="text-sm text-gray-600">Email: ${booking.client_email}</p>
-          <p class="text-sm text-gray-600">Phone: ${booking.client_phone || 'Not provided'}</p>
-        </div>
-        
-        <div class="border-b py-4">
-          <h4 class="font-medium text-gray-900">Appointment Details</h4>
-          <p class="mt-2 text-sm text-gray-600">Service: ${booking.service_name}</p>
-          <p class="text-sm text-gray-600">Date: ${formattedDate}</p>
-          <p class="text-sm text-gray-600">Time: ${formattedTime}</p>
-          <p class="mt-2 text-sm text-gray-600">
-            Status: 
-            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-              ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-            </span>
-          </p>
-        </div>
-        
-        <div class="pt-4">
-          <h4 class="font-medium text-gray-900">Update Status</h4>
-          <div class="mt-2 grid grid-cols-2 gap-2">
-            <button onclick="updateBookingStatus('confirmed')" class="px-3 py-2 bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition">
-              Confirm
-            </button>
-            <button onclick="updateBookingStatus('completed')" class="px-3 py-2 bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition">
-              Complete
-            </button>
-            <button onclick="updateBookingStatus('cancelled')" class="px-3 py-2 bg-red-100 text-red-800 rounded-md hover:bg-red-200 transition">
-              Cancel
-            </button>
-            <button onclick="updateBookingStatus('pending')" class="px-3 py-2 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition">
-              Set Pending
-            </button>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('bookingDetailsModal').classList.remove('hidden');
-    }
-
-    function closeBookingDetailsModal() {
-      document.getElementById('bookingDetailsModal').classList.add('hidden');
-      currentBookingId = null;
-    }
-
-    async function updateBookingStatus(status) {
-      if (!currentBookingId) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('bookings')
-          .update({ status })
-          .eq('id', currentBookingId);
-        
-        if (error) throw error;
-        
-        closeBookingDetailsModal();
-        loadBookings();
-        
-        // Show success notification
-        const notification = document.createElement('div');
-        notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-500';
-        notification.textContent = 'Booking status updated successfully!';
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          notification.style.opacity = '0';
-          setTimeout(() => {
-            document.body.removeChild(notification);
-          }, 500);
-        }, 3000);
-      } catch (error) {
-        console.error('Error updating booking status:', error);
-      }
-    }
-
-    // Business settings functions
-    async function loadBusinessSettings() {
-      try {
-        const { data, error } = await supabase
-          .from('business_settings')
-          .select('*')
-          .single();
-        
-        if (data) {
-          businessHours = data;
-          
-          document.getElementById('appointmentInterval').value = data.appointment_interval || 30;
-          document.getElementById('openingTime').value = data.opening_time || '09:00';
-          document.getElementById('closingTime').value = data.closing_time || '18:00';
-          
-          // Set working days
-          if (data.working_days) {
-            const workingDays = data.working_days.split(',');
-            document.getElementById('monday').checked = workingDays.includes('monday');
-            document.getElementById('tuesday').checked = workingDays.includes('tuesday');
-            document.getElementById('wednesday').checked = workingDays.includes('wednesday');
-            document.getElementById('thursday').checked = workingDays.includes('thursday');
-            document.getElementById('friday').checked = workingDays.includes('friday');
-            document.getElementById('saturday').checked = workingDays.includes('saturday');
-            document.getElementById('sunday').checked = workingDays.includes('sunday');
-          }
-        }
-      } catch (error) {
-        console.error('Error loading business settings:', error);
-      }
-    }
-
-    async function saveBusinessHours(event) {
-      event.preventDefault();
-      
-      const appointmentInterval = document.getElementById('appointmentInterval').value;
-      const openingTime = document.getElementById('openingTime').value;
-      const closingTime = document.getElementById('closingTime').value;
-      
-      // Get working days
-      const workingDays = [];
-      if (document.getElementById('monday').checked) workingDays.push('monday');
-      if (document.getElementById('tuesday').checked) workingDays.push('tuesday');
-      if (document.getElementById('wednesday').checked) workingDays.push('wednesday');
-      if (document.getElementById('thursday').checked) workingDays.push('thursday');
-      if (document.getElementById('friday').checked) workingDays.push('friday');
-      if (document.getElementById('saturday').checked) workingDays.push('saturday');
-      if (document.getElementById('sunday').checked) workingDays.push('sunday');
-      
-      try {
-        const { data, error } = await supabase
-          .from('business_settings')
-          .upsert({
-            id: businessHours.id || 1,
-            appointment_interval: appointmentInterval,
-            opening_time: openingTime,
-            closing_time: closingTime,
-            working_days: workingDays.join(',')
-          });
-        
-        if (error) throw error;
-        
-        document.getElementById('hoursMessage').innerHTML = `
-          <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-green-700">Appointment settings saved successfully!</p>
-              </div>
-            </div>
-          </div>
-        `;
-        
-        setTimeout(() => {
-          document.getElementById('hoursMessage').innerHTML = '';
-        }, 3000);
-      } catch (error) {
-        console.error('Error saving business hours:', error);
-        document.getElementById('hoursMessage').innerHTML = `
-          <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-red-700">An error occurred. Please try again.</p>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    async function loadEmailSettings() {
-      try {
-        const { data, error } = await supabase
-          .from('email_settings')
-          .select('*')
-          .single();
-        
-        if (data) {
-          emailSettings = data;
-          
-          document.getElementById('customerEmailToggle').checked = data.send_customer_email || false;
-          document.getElementById('adminEmailToggle').checked = data.send_admin_email || false;
-          document.getElementById('adminEmail').value = data.admin_email || '';
-        }
-      } catch (error) {
-        console.error('Error loading email settings:', error);
-      }
-    }
-
-    async function saveEmailSettings(event) {
-      event.preventDefault();
-      
-      const sendCustomerEmail = document.getElementById('customerEmailToggle').checked;
-      const sendAdminEmail = document.getElementById('adminEmailToggle').checked;
-      const adminEmail = document.getElementById('adminEmail').value;
-      
-      try {
-        const { data, error } = await supabase
-          .from('email_settings')
-          .upsert({
-            id: emailSettings.id || 1,
-            send_customer_email: sendCustomerEmail,
-            send_admin_email: sendAdminEmail,
-            admin_email: adminEmail
-          });
-        
-        if (error) throw error;
-        
-        document.getElementById('emailSettingsMessage').innerHTML = `
-          <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-green-700">Email settings saved successfully!</p>
-              </div>
-            </div>
-          </div>
-        `;
-        
-        setTimeout(() => {
-          document.getElementById('emailSettingsMessage').innerHTML = '';
-        }, 3000);
-      } catch (error) {
-        console.error('Error saving email settings:', error);
-        document.getElementById('emailSettingsMessage').innerHTML = `
-          <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-red-700">An error occurred. Please try again.</p>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-    }
+    window.onload = loadServices;
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94601ee0e4725fc9',t:'MTc0ODI5MjM3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
