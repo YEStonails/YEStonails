@@ -1331,17 +1331,8 @@
         status: 'Pending'
       };
       
-      // Add booking to the list
-      bookings.push(booking);
-      
-      // Block the time slot
-      if (!bookedTimeSlots[date]) {
-        bookedTimeSlots[date] = [];
-      }
-      bookedTimeSlots[date].push(selectedTime);
-      
-      // Save data to localStorage
-      saveDataToStorage();
+     await supabase.from('bookings').insert([booking]);
+
       
       // Prepare services list for email
       const servicesList = booking.services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price.toFixed(2)}`).join('<br>');
@@ -1407,25 +1398,30 @@
     }
 
     // Admin Authentication
-    function adminAuth(event) {
-      event.preventDefault();
-      const username = document.getElementById('adminUser').value;
-      const password = document.getElementById('adminPass').value;
-      
-      // In a production environment, this would be a secure API call
-      // that would hash the password and verify against a database
-      if (username === CONFIG.ADMIN_USERNAME && password === CONFIG.ADMIN_PASSWORD) {
-        document.getElementById('adminLoginSection').classList.add('hidden');
-        document.getElementById('adminPanel').classList.remove('hidden');
-        showAdminDashboard();
-        loadBusinessHoursToForm();
-        loadEmailSettings();
-      } else {
-        document.getElementById('adminLoginMessage').innerHTML = `
-          <div class="error-box">Invalid username or password.</div>
-        `;
-      }
-    }
+async function adminAuth(event) {
+  event.preventDefault();
+  const username = document.getElementById('adminUser').value;
+  const password = document.getElementById('adminPass').value;
+
+  const { data, error } = await supabase
+    .from('admins')
+    .select('*')
+    .eq('username', username)
+    .eq('password', password)
+    .single();
+
+  if (data) {
+    document.getElementById('adminLoginSection').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+    showAdminDashboard();
+    loadBusinessHoursToForm();
+    loadEmailSettings();
+  } else {
+    document.getElementById('adminLoginMessage').innerHTML = `
+      <div class="error-box">Invalid username or password.</div>
+    `;
+  }
+}
 
     // Logout admin
     function logoutAdmin() {
@@ -1520,49 +1516,66 @@
     }
 
     // Save business hours
-    function saveBusinessHours(event) {
-      event.preventDefault();
-      
-      businessHours.interval = document.getElementById('appointmentInterval').value;
-      
-      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      days.forEach(day => {
-        businessHours.days[day] = {
-          open: document.getElementById(`${day}Open`).value,
-          close: document.getElementById(`${day}Close`).value,
-          closed: document.getElementById(`${day}Closed`).checked
-        };
-      });
-      
-      // Save to localStorage
-      saveDataToStorage();
-      
-      document.getElementById('hoursMessage').innerHTML = `
-        <div class="success-message">Business hours saved successfully!</div>
-      `;
-      
-      setTimeout(() => {
-        document.getElementById('hoursMessage').innerHTML = '';
-      }, 3000);
-    }
+async function saveBusinessHours(event) {
+  event.preventDefault();
 
-    // Save email settings
-    function saveEmailSettings() {
-      emailSettings.sendToCustomers = document.getElementById('customerEmailToggle').checked;
-      emailSettings.sendToAdmin = document.getElementById('adminEmailToggle').checked;
-      emailSettings.adminEmail = document.getElementById('adminEmail').value || CONFIG.ADMIN_EMAIL;
-      
-      // Save to localStorage
-      saveDataToStorage();
-      
-      document.getElementById('emailSettingsMessage').innerHTML = `
-        <div class="success-message">Email settings saved successfully!</div>
-      `;
-      
-      setTimeout(() => {
-        document.getElementById('emailSettingsMessage').innerHTML = '';
-      }, 3000);
-    }
+  businessHours.interval = document.getElementById('appointmentInterval').value;
+
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  days.forEach(day => {
+    businessHours.days[day] = {
+      open: document.getElementById(`${day}Open`).value,
+      close: document.getElementById(`${day}Close`).value,
+      closed: document.getElementById(`${day}Closed`).checked
+    };
+  });
+
+  const { error } = await supabase.from('business_settings').upsert({
+    id: 1,
+    hours_json: JSON.stringify(businessHours)
+  });
+
+  if (error) {
+    console.error("Failed to save business hours", error);
+    return;
+  }
+
+  document.getElementById('hoursMessage').innerHTML = `
+    <div class="success-message">Business hours saved successfully!</div>
+  `;
+
+  setTimeout(() => {
+    document.getElementById('hoursMessage').innerHTML = '';
+  }, 3000);
+}
+
+// Save email settings
+async function saveEmailSettings() {
+  emailSettings.sendToCustomers = document.getElementById('customerEmailToggle').checked;
+  emailSettings.sendToAdmin = document.getElementById('adminEmailToggle').checked;
+  emailSettings.adminEmail = document.getElementById('adminEmail').value || CONFIG.ADMIN_EMAIL;
+
+  const { error } = await supabase.from('email_settings').upsert({
+    id: 1,
+    send_to_customers: emailSettings.sendToCustomers,
+    send_to_admin: emailSettings.sendToAdmin,
+    admin_email: emailSettings.adminEmail
+  });
+
+  if (error) {
+    console.error("Failed to save email settings", error);
+    return;
+  }
+
+  document.getElementById('emailSettingsMessage').innerHTML = `
+    <div class="success-message">Email settings saved successfully!</div>
+  `;
+
+  setTimeout(() => {
+    document.getElementById('emailSettingsMessage').innerHTML = '';
+  }, 3000);
+}
+
 
     // Send test email
     function sendTestEmail() {
@@ -1663,42 +1676,36 @@
     }
 
     // Add new service
-    function addService(event) {
-      event.preventDefault();
-      
-      const newService = {
-        id: services.length > 0 ? Math.max(...services.map(s => s.id)) + 1 : 1,
-        name: document.getElementById('serviceName').value,
-        category: document.getElementById('serviceCategory').value,
-        price: parseFloat(document.getElementById('servicePrice').value),
-        duration: parseInt(document.getElementById('serviceDuration').value),
-        description: document.getElementById('serviceDescription').value
-      };
-      
-      services.push(newService);
-      document.getElementById('addServiceForm').reset();
-      
-      // Save to localStorage
-      saveDataToStorage();
-      
-      // Update all UI components
-      populateAdminServiceList();
-      populateServices();
-      populateCategories();
-      
-      // Show success message
-      const form = document.getElementById('addServiceForm');
-      const successDiv = document.createElement('div');
-      successDiv.className = 'success-message';
-      successDiv.textContent = 'Service added successfully!';
-      form.appendChild(successDiv);
-      
-      setTimeout(() => {
-        if (successDiv.parentNode) {
-          successDiv.parentNode.removeChild(successDiv);
-        }
-      }, 3000);
-    }
+async function addService(event) {
+  event.preventDefault();
+
+  const newService = {
+    name: document.getElementById('serviceName').value,
+    category: document.getElementById('serviceCategory').value,
+    price: parseFloat(document.getElementById('servicePrice').value),
+    duration: parseInt(document.getElementById('serviceDuration').value),
+    description: document.getElementById('serviceDescription').value
+  };
+
+  const { error } = await supabase.from('services').insert([newService]);
+
+  if (error) {
+    console.error("Failed to add service:", error);
+    return;
+  }
+
+  document.getElementById('addServiceForm').reset();
+  await loadServices();
+
+  const form = document.getElementById('addServiceForm');
+  const successDiv = document.createElement('div');
+  successDiv.className = 'success-message';
+  successDiv.textContent = 'Service added successfully!';
+  form.appendChild(successDiv);
+
+  setTimeout(() => successDiv.remove(), 3000);
+}
+
 
     // Edit service
     function editService(serviceId) {
@@ -1824,33 +1831,27 @@
     }
 
     // Delete service
-    function deleteService(serviceId) {
-      if (confirm('Are you sure you want to delete this service?')) {
-        const serviceName = services.find(s => s.id === serviceId)?.name || 'Service';
-        services = services.filter(service => service.id !== serviceId);
-        
-        // Save to localStorage
-        saveDataToStorage();
-        
-        // Update all UI components
-        populateAdminServiceList();
-        populateServices();
-        populateCategories();
-        
-        // Show success message
-        const serviceManager = document.getElementById('serviceManager');
-        const successDiv = document.createElement('div');
-        successDiv.className = 'success-message';
-        successDiv.textContent = `${serviceName} deleted successfully!`;
-        serviceManager.insertBefore(successDiv, serviceManager.firstChild);
-        
-        setTimeout(() => {
-          if (successDiv.parentNode) {
-            successDiv.parentNode.removeChild(successDiv);
-          }
-        }, 3000);
-      }
-    }
+async function deleteService(serviceId) {
+  if (!confirm('Are you sure you want to delete this service?')) return;
+
+  const { error } = await supabase.from('services').delete().eq('id', serviceId);
+
+  if (error) {
+    console.error("Failed to delete service:", error);
+    return;
+  }
+
+  await loadServices();
+
+  const serviceManager = document.getElementById('serviceManager');
+  const successDiv = document.createElement('div');
+  successDiv.className = 'success-message';
+  successDiv.textContent = 'Service deleted successfully!';
+  serviceManager.insertBefore(successDiv, serviceManager.firstChild);
+
+  setTimeout(() => successDiv.remove(), 3000);
+}
+
 
     // Populate bookings list
     function populateBookingsList() {
@@ -1937,65 +1938,37 @@
       }
     }
   </script>
-<script>
-  const SHEET_URL = "https://script.google.com/macros/s/AKfycbzk-plJKMaPEZsoeMWjmOj5wGfLiwqWFaOrKFNqEC9dQ1q4FH5c9BGfcy3MAv9lQ9JC5g/exec";
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  // Load services from Google Sheet
-  async function loadServicesFromSheet() {
-    try {
-      const response = await fetch(SHEET_URL + "?type=services");
-      const data = await response.json();
-      services = data.map((s, i) => ({
-        id: i + 1,
-        name: s.name,
-        category: s.category,
-        price: parseFloat(s.price),
-        duration: parseInt(s.duration),
-        description: s.description
-      }));
-      
-      // Save to localStorage as backup
-      saveDataToStorage();
-      
-      populateServices();
-      populateCategories();
-      return Promise.resolve();
-    } catch (error) {
-      console.error("Failed to load services from sheet", error);
-      return Promise.reject(error);
-    }
-  }
+  const supabase = createClient(
+    'https://fyphrauehrmotfderfey.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0'
+  );
 
-  // Initialize with Google Sheets data on page load
-  document.addEventListener('DOMContentLoaded', function() {
+  let services = [];
+  let bookings = [];
+  let bookedTimeSlots = {};
+  let businessHours = {};
+  let emailSettings = {};
+
+  document.addEventListener('DOMContentLoaded', async function () {
     detectEnvironment();
     initializeEmailJS();
-    
-    // Load data from localStorage if available
-    loadDataFromStorage();
-    
-    // Try to load services from Google Sheets, fallback to localStorage
-    loadServicesFromSheet().then(() => {
-      populateCategories();
-    }).catch(() => {
-      // If Google Sheets fails, use localStorage data
-      populateServices();
-      populateCategories();
-    });
-    
+    await loadAllFromSupabase();
+
     updateCart();
     displayLogo();
-    
-    // Set minimum date for booking to today
+
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('bookingDate').min = today;
-    
-    // Set up logo upload preview
-    document.getElementById('logoUpload').addEventListener('change', function(event) {
+
+    // Logo upload preview
+    document.getElementById('logoUpload').addEventListener('change', function (event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
           const preview = document.getElementById('logoPreview');
           preview.innerHTML = `<img src="${e.target.result}" alt="Logo Preview" style="max-width: 100%; max-height: 100px;">`;
         };
@@ -2003,6 +1976,53 @@
       }
     });
   });
+
+  async function loadAllFromSupabase() {
+    try {
+      await Promise.all([
+        loadServices(),
+        loadBookings(),
+        loadBusinessSettings(),
+        loadEmailSettings()
+      ]);
+    } catch (error) {
+      console.error('Initialization failed', error);
+    }
+  }
+
+  async function loadServices() {
+    const { data, error } = await supabase.from('services').select('*');
+    if (error) return console.error('Error loading services:', error);
+    services = data;
+    populateServices();
+    populateCategories();
+  }
+
+  async function loadBookings() {
+    const { data, error } = await supabase.from('bookings').select('*');
+    if (error) return console.error('Error loading bookings:', error);
+    bookings = data;
+    bookedTimeSlots = {};
+    data.forEach(b => {
+      if (!bookedTimeSlots[b.date]) bookedTimeSlots[b.date] = [];
+      bookedTimeSlots[b.date].push({ start: b.time_start, end: b.time_end });
+    });
+  }
+
+  async function loadBusinessSettings() {
+    const { data, error } = await supabase.from('business_settings').select('*').single();
+    if (error) return console.error('Error loading business settings:', error);
+    businessHours = JSON.parse(data.hours_json);
+    loadBusinessHoursToForm();
+  }
+
+  async function loadEmailSettings() {
+    const { data, error } = await supabase.from('email_settings').select('*').single();
+    if (error) return console.error('Error loading email settings:', error);
+    emailSettings = data;
+    loadEmailSettingsToForm();
+  }
 </script>
+
 </body>
 </html>
