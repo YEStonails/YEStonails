@@ -1882,66 +1882,67 @@ async function deleteService(serviceId) {
       });
     }
 
-    // Update booking status
-    function updateBookingStatus(bookingId, status) {
-      const booking = bookings.find(b => b.id === bookingId);
-      if (booking) {
-        const previousStatus = booking.status;
-        booking.status = status;
-        
-        // If cancelled, free up the time slot
-        if (status === 'Cancelled') {
-          const date = booking.date;
-          if (bookedTimeSlots[date]) {
-            bookedTimeSlots[date] = bookedTimeSlots[date].filter(slot => 
-              !(slot.start === booking.time.start && slot.end === booking.time.end)
-            );
-          }
-        }
-        
-        // Save to localStorage
-        saveDataToStorage();
-        
-        // Send status update email if enabled and status changed
-        if (previousStatus !== status && emailSettings.sendToCustomers) {
-          const statusParams = {
-            to_name: booking.name,
-            to_email: booking.email,
-            booking_date: formatDate(booking.date),
-            booking_time: `${booking.time.start} - ${booking.time.end}`,
-            booking_status: status,
-            booking_id: booking.id,
-            services_list: booking.services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price.toFixed(2)}`).join('<br>'),
-            total_price: `AED ${booking.totalPrice.toFixed(2)}`
-          };
-          
-          sendEmail(statusParams, false);
-          
-          // Also send notification to admin
-          const adminStatusParams = {
-            to_name: 'Admin',
-            to_email: 'nailsk2022@gmail.com',
-            customer_name: booking.name,
-            customer_email: booking.email,
-            booking_date: formatDate(booking.date),
-            booking_time: `${booking.time.start} - ${booking.time.end}`,
-            booking_status: status,
-            booking_id: booking.id,
-            services_list: booking.services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price.toFixed(2)}`).join('<br>'),
-            total_price: `AED ${booking.totalPrice.toFixed(2)}`
-          };
-          
-          sendEmail(adminStatusParams, true);
-        }
-        
-        populateBookingsList();
+// Update booking status
+async function updateBookingStatus(bookingId, status) {
+  const booking = bookings.find(b => b.id === bookingId);
+  if (booking) {
+    const previousStatus = booking.status;
+    booking.status = status;
+
+    // ✅ Save to Supabase
+    await supabase.from('bookings').update({ status }).eq('id', bookingId);
+
+    // If cancelled, free up the time slot
+    if (status === 'Cancelled') {
+      const date = booking.date;
+      if (bookedTimeSlots[date]) {
+        bookedTimeSlots[date] = bookedTimeSlots[date].filter(slot =>
+          !(slot.start === booking.time.start && slot.end === booking.time.end)
+        );
       }
     }
-  </script>
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  const supabase = createClient(
+    // Send status update email if enabled and status changed
+    if (previousStatus !== status && emailSettings.sendToCustomers) {
+      const statusParams = {
+        to_name: booking.name,
+        to_email: booking.email,
+        booking_date: formatDate(booking.date),
+        booking_time: `${booking.time.start} - ${booking.time.end}`,
+        booking_status: status,
+        booking_id: booking.id,
+        services_list: booking.services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price.toFixed(2)}`).join('<br>'),
+        total_price: `AED ${booking.totalPrice.toFixed(2)}`
+      };
+
+      sendEmail(statusParams, false);
+
+      const adminStatusParams = {
+        to_name: 'Admin',
+        to_email: 'nailsk2022@gmail.com',
+        customer_name: booking.name,
+        customer_email: booking.email,
+        booking_date: formatDate(booking.date),
+        booking_time: `${booking.time.start} - ${booking.time.end}`,
+        booking_status: status,
+        booking_id: booking.id,
+        services_list: booking.services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price.toFixed(2)}`).join('<br>'),
+        total_price: `AED ${booking.totalPrice.toFixed(2)}`
+      };
+
+      sendEmail(adminStatusParams, true);
+    }
+
+    populateBookingsList();
+  }
+}
+
+  </script>
+<!-- Supabase UMD script for GitHub Pages -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.5/dist/umd/supabase.min.js"></script>
+
+<script>
+  const supabase = supabase.createClient(
     'https://fyphrauehrmotfderfey.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0'
   );
@@ -1963,7 +1964,6 @@ async function deleteService(serviceId) {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('bookingDate').min = today;
 
-    // Logo upload preview
     document.getElementById('logoUpload').addEventListener('change', function (event) {
       const file = event.target.files[0];
       if (file) {
@@ -2023,6 +2023,7 @@ async function deleteService(serviceId) {
     loadEmailSettingsToForm();
   }
 </script>
+
 
 </body>
 </html>
