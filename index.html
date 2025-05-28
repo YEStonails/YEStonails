@@ -1894,16 +1894,38 @@ function populateServices() {
       }</script>
 <script>
   function detectEnvironment() {
-    console.log('detectEnvironment placeholder called.');
+    console.log("Environment detected.");
   }
 
-  document.addEventListener('DOMContentLoaded', async function () {
-    detectEnvironment();               // ✅ Now it's defined
-    initializeEmailJS?.();            // Optional: only if it's defined
+  function initializeEmailJS() {
+    emailjs.init("X4BsAVt7IRjazbu8C"); // Your actual EmailJS public key
+  }
 
-    // your other code...
-  });
+  function sendUnifiedEmail(booking) {
+    const templateParams = {
+      to_name: booking.name,
+      to_email: booking.email,
+      name: booking.name,
+      email: booking.email,
+      phone: booking.phone,
+      booking_date: booking.date,
+      booking_time: `${booking.time_start} - ${booking.time_end}`,
+      services_list: booking.services,
+      total_price: booking.total_price,
+      notes: booking.notes,
+      admin_email: "nailsk2022@gmail.com"
+    };
+
+    emailjs.send("service_7ge36du", "template_booking_summary", templateParams)
+      .then(() => {
+        console.log("Unified email sent successfully.");
+      })
+      .catch(error => {
+        console.error("Unified email error:", error);
+      });
+  }
 </script>
+
 
     // Load services from Supabase
     try {
