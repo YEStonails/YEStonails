@@ -1944,12 +1944,8 @@ function populateServices() {
     const { data, error } = await supabase.from('services').select('*');
     if (error) return console.error("Service load error:", error);
     services = data;
-    if (typeof populateServices === 'function') {
-      populateServices();
-    }
-    if (typeof populateCategories === 'function') {
-      populateCategories();
-    }
+    if (typeof populateServices === 'function') populateServices();
+    if (typeof populateCategories === 'function') populateCategories();
   }
 
   async function saveBookingToSupabase(booking) {
@@ -1961,9 +1957,7 @@ function populateServices() {
     const { data, error } = await supabase.from('business_settings').select('*').single();
     if (error) return console.error("Business settings error:", error);
     businessHours = JSON.parse(data.business_hours);
-    if (typeof loadBusinessHoursToForm === 'function') {
-      loadBusinessHoursToForm();
-    }
+    if (typeof loadBusinessHoursToForm === 'function') loadBusinessHoursToForm();
   }
 
   async function saveBusinessSettings() {
@@ -2033,20 +2027,14 @@ function populateServices() {
     alert("Booking submitted successfully!");
     document.getElementById('bookingForm').reset();
     cart = [];
-    if (typeof updateCart === 'function') {
-      updateCart();
-    }
+    if (typeof updateCart === 'function') updateCart();
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     loadServicesFromSupabase();
-    if (typeof updateCart === 'function') {
-      updateCart();
-    }
+    if (typeof updateCart === 'function') updateCart();
   });
-</script>
 
-<script>
   function showAdminLogin() {
     document.getElementById('adminLoginSection').classList.remove('hidden');
     document.getElementById('userPanel').classList.add('hidden');
@@ -2060,14 +2048,39 @@ function populateServices() {
   function showAdminDashboard() {
     document.getElementById('adminPanel').classList.remove('hidden');
   }
-</script>
-</body>
-<script>
+
   function updateCart() {
     console.log('updateCart function placeholder executed.');
   }
+
   function populateServices() {
-    console.log('populateServices function placeholder executed.');
+    const container = document.getElementById('services');
+    container.innerHTML = '';
+    services.forEach((service, index) => {
+      const div = document.createElement('div');
+      div.className = 'service-card';
+      div.innerHTML = `
+        <h3>${service.name}</h3>
+        <p>${service.category}</p>
+        <p>${service.description}</p>
+        <p>AED ${service.price} – ${service.duration} mins</p>
+        <button onclick='addToCartByIndex(${index})'>Add</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function addToCartByIndex(index) {
+    const service = services[index];
+    addToCart(service);
+  }
+
+  function addToCart(service) {
+    cart.push(service);
+    updateCart();
   }
 </script>
+</body>
 </html>
+
+
