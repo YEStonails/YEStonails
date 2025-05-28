@@ -601,238 +601,204 @@
 </section>
 </main>
 <div id="adminPanelWrapper">
-<section id="adminLoginSection">
-<h2>Admin Login</h2>
-<form id="adminLogin" onsubmit="adminAuth(event)">
-<label for="adminUser">Username</label>
-<input id="adminUser" placeholder="Admin Username" required="" type="text"/>
-<label for="adminPass">Password</label>
-<input id="adminPass" placeholder="Admin Password" required="" type="password"/>
-<button class="btn">Login</button>
-</form>
-<div id="adminLoginMessage"></div>
-<p style="text-align: center; margin-top: 1em;">
-<a onclick="showUserPanel()" style="color: var(--dark-pink); cursor: pointer;">Back to Services</a>
-</p>
-</section>
-<section class="hidden" id="adminPanel">
-<div class="logout-link" onclick="logoutAdmin()">Logout</div>
-<h2>Admin Panel</h2>
-<div class="admin-actions">
-<div class="admin-card">
-<h3>Services</h3>
-<p>Manage your salon services</p>
-<button class="btn" onclick="showServiceManager()">Manage Services</button>
-</div>
-<div class="admin-card">
-<h3>Bookings</h3>
-<p>View and manage appointments</p>
-<button class="btn" onclick="showBookingManager()">View Bookings</button>
-</div>
-<div class="admin-card">
-<h3>Business Settings</h3>
-<p>Manage hours and logo</p>
-<button class="btn" onclick="showBusinessSettings()">Business Settings</button>
-</div>
-</div>
-<div class="hidden" id="serviceManager">
-<button class="back-btn" onclick="showAdminDashboard()">Back to Dashboard</button>
-<h3>Manage Services</h3>
-<form id="addServiceForm" onsubmit="addService(event)">
-<h4>Add New Service</h4>
-<div class="form-row">
-<div>
-<label for="serviceName">Service Name</label>
-<input id="serviceName" required="" type="text"/>
-</div>
-<div>
-<label for="serviceCategory">Category</label>
-<input id="serviceCategory" required="" type="text"/>
-</div>
-</div>
-<div class="form-row">
-<div>
-<label for="servicePrice">Price (AED)</label>
-<input id="servicePrice" min="0" required="" step="0.01" type="number"/>
-</div>
-<div>
-<label for="serviceDuration">Duration (mins)</label>
-<input id="serviceDuration" min="5" required="" step="5" type="number"/>
-</div>
-</div>
-<label for="serviceDescription">Description</label>
-<textarea id="serviceDescription" rows="2"></textarea>
-<button class="btn" type="submit">Add Service</button>
-</form>
-<h4>Current Services</h4>
-<table class="admin-table">
-<thead>
-<tr>
-<th>Name</th>
-<th>Category</th>
-<th>Price</th>
-<th>Duration</th>
-<th>Actions</th>
-</tr>
-</thead>
-<tbody id="adminServiceList"></tbody>
-</table>
-</div>
-<div class="hidden" id="bookingManager">
-<button class="back-btn" onclick="showAdminDashboard()">Back to Dashboard</button>
-<h3>Booking Management</h3>
-<table class="admin-table">
-<thead>
-<tr>
-<th>Date &amp; Time</th>
-<th>Client</th>
-<th>Services</th>
-<th>Total</th>
-<th>Status</th>
-<th>Actions</th>
-</tr>
-</thead>
-<tbody id="bookingsList"></tbody>
-</table>
-</div>
-<div class="hidden" id="businessSettings">
-<button class="back-btn" onclick="showAdminDashboard()">Back to Dashboard</button>
-<h3>Business Settings</h3>
-<div class="tab-container">
-<div class="tab-buttons">
-<button class="tab-button active" onclick="openTab(event, 'hoursTab')">Business Hours</button>
-<button class="tab-button" onclick="openTab(event, 'logoTab')">Company Logo</button>
-<button class="tab-button" onclick="openTab(event, 'emailTab')">Email Settings</button>
-</div>
-<div class="tab-panel active" id="hoursTab">
-<h4>Set Business Hours</h4>
-<form id="businessHoursForm" onsubmit="saveBusinessHours(event)">
-<div class="form-row">
-<div>
-<label for="appointmentInterval">Appointment Interval (minutes)</label>
-<select id="appointmentInterval" required=""><option disabled="" selected="" value="">Select an option</option><option value="15">15 minutes</option>
-<option value="30">30 minutes</option>
-<option value="60">60 minutes</option>
-</select>
-</div>
-</div>
-<table class="business-hours-table">
-<thead>
-<tr>
-<th>Day</th>
-<th>Open</th>
-<th>Close</th>
-<th>Closed</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Monday</td>
-<td><input id="mondayOpen" type="time" value="09:00"/></td>
-<td><input id="mondayClose" type="time" value="18:00"/></td>
-<td><input id="mondayClosed" type="checkbox"/></td>
-</tr>
-<tr>
-<td>Tuesday</td>
-<td><input id="tuesdayOpen" type="time" value="09:00"/></td>
-<td><input id="tuesdayClose" type="time" value="18:00"/></td>
-<td><input id="tuesdayClosed" type="checkbox"/></td>
-</tr>
-<tr>
-<td>Wednesday</td>
-<td><input id="wednesdayOpen" type="time" value="09:00"/></td>
-<td><input id="wednesdayClose" type="time" value="18:00"/></td>
-<td><input id="wednesdayClosed" type="checkbox"/></td>
-</tr>
-<tr>
-<td>Thursday</td>
-<td><input id="thursdayOpen" type="time" value="09:00"/></td>
-<td><input id="thursdayClose" type="time" value="18:00"/></td>
-<td><input id="thursdayClosed" type="checkbox"/></td>
-</tr>
-<tr>
-<td>Friday</td>
-<td><input id="fridayOpen" type="time" value="09:00"/></td>
-<td><input id="fridayClose" type="time" value="18:00"/></td>
-<td><input id="fridayClosed" type="checkbox"/></td>
-</tr>
-<tr>
-<td>Saturday</td>
-<td><input id="saturdayOpen" type="time" value="09:00"/></td>
-<td><input id="saturdayClose" type="time" value="18:00"/></td>
-<td><input id="saturdayClosed" type="checkbox"/></td>
-</tr>
-<tr>
-<td>Sunday</td>
-<td><input id="sundayOpen" type="time" value="09:00"/></td>
-<td><input id="sundayClose" type="time" value="18:00"/></td>
-<td><input id="sundayClosed" type="checkbox"/></td>
-</tr>
-</tbody>
-</table>
-<button class="btn" type="submit">Save Business Hours</button>
-</form>
-<div id="hoursMessage"></div>
-</div>
-<div class="tab-panel" id="logoTab">
-<h4>Upload Company Logo</h4>
-<div class="logo-upload-container">
-<input accept="image/*" id="logoUpload" type="file"/>
-<div>
-<h5>Logo Preview</h5>
-<div class="logo-preview" id="logoPreview">
-<p>No logo uploaded</p>
-</div>
-</div>
-<button class="btn" onclick="saveLogo()">Save Logo</button>
-</div>
-<div id="logoMessage"></div>
-</div>
-<div class="tab-panel" id="emailTab">
-<h4>Email Notification Settings</h4>
-<div class="email-settings">
-<div class="env-warning">
-<strong>Note:</strong> For production use, you'll need to set up a server-side component to handle emails securely.
+  <section id="adminLoginSection">
+    <h2>Admin Login</h2>
+    <form id="adminLogin" onsubmit="adminAuth(event)">
+      <label for="adminUser">Username</label>
+      <input id="adminUser" placeholder="Admin Username" required type="text" />
+      <label for="adminPass">Password</label>
+      <input id="adminPass" placeholder="Admin Password" required type="password" />
+      <button class="btn">Login</button>
+    </form>
+    <div id="adminLoginMessage"></div>
+    <p style="text-align: center; margin-top: 1em;">
+      <a onclick="showUserPanel()" style="color: var(--dark-pink); cursor: pointer;">Back to Services</a>
+    </p>
+  </section>
+
+  <section class="hidden" id="adminPanel">
+    <div class="logout-link" onclick="logoutAdmin()">Logout</div>
+    <h2>Admin Panel</h2>
+    <div class="admin-actions">
+      <div class="admin-card">
+        <h3>Services</h3>
+        <p>Manage your salon services</p>
+        <button class="btn" onclick="showServiceManager()">Manage Services</button>
+      </div>
+      <div class="admin-card">
+        <h3>Bookings</h3>
+        <p>View and manage appointments</p>
+        <button class="btn" onclick="showBookingManager()">View Bookings</button>
+      </div>
+      <div class="admin-card">
+        <h3>Business Settings</h3>
+        <p>Manage hours and logo</p>
+        <button class="btn" onclick="showBusinessSettings()">Business Settings</button>
+      </div>
+    </div>
+
+    <div class="hidden" id="serviceManager">
+      <button class="back-btn" onclick="showAdminDashboard()">Back to Dashboard</button>
+      <h3>Manage Services</h3>
+      <form id="addServiceForm" onsubmit="addService(event)">
+        <h4>Add New Service</h4>
+        <div class="form-row">
+          <div>
+            <label for="serviceName">Service Name</label>
+            <input id="serviceName" required type="text" />
+          </div>
+          <div>
+            <label for="serviceCategory">Category</label>
+            <input id="serviceCategory" required type="text" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="servicePrice">Price (AED)</label>
+            <input id="servicePrice" min="0" required step="0.01" type="number" />
+          </div>
+          <div>
+            <label for="serviceDuration">Duration (mins)</label>
+            <input id="serviceDuration" min="5" required step="5" type="number" />
+          </div>
+        </div>
+        <label for="serviceDescription">Description</label>
+        <textarea id="serviceDescription" rows="2"></textarea>
+        <button class="btn" type="submit">Add Service</button>
+      </form>
+      <h4>Current Services</h4>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Duration</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="adminServiceList"></tbody>
+      </table>
+    </div>
+
+    <div class="hidden" id="bookingManager">
+      <button class="back-btn" onclick="showAdminDashboard()">Back to Dashboard</button>
+      <h3>Booking Management</h3>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Client</th>
+            <th>Services</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bookingsList"></tbody>
+      </table>
+    </div>
+
+    <div class="hidden" id="businessSettings">
+      <button class="back-btn" onclick="showAdminDashboard()">Back to Dashboard</button>
+      <h3>Business Settings</h3>
+      <div class="tab-container">
+        <div class="tab-buttons">
+          <button class="tab-button active" onclick="openTab(event, 'hoursTab')">Business Hours</button>
+          <button class="tab-button" onclick="openTab(event, 'logoTab')">Company Logo</button>
+          <button class="tab-button" onclick="openTab(event, 'emailTab')">Email Settings</button>
+        </div>
+
+        <div class="tab-panel active" id="hoursTab">
+          <h4>Set Business Hours</h4>
+          <form id="businessHoursForm" onsubmit="saveBusinessHours(event)">
+            <div class="form-row">
+              <div>
+                <label for="appointmentInterval">Appointment Interval (minutes)</label>
+                <select id="appointmentInterval" required>
+                  <option disabled selected value="">Select an option</option>
+                  <option value="15">15 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="60">60 minutes</option>
+                </select>
               </div>
-<div class="email-toggle">
-<label class="switch">
-<input checked="" id="customerEmailToggle" type="checkbox"/>
-<span class="slider"></span>
-</label>
-<label for="customerEmailToggle">Send confirmation emails to customers</label>
-</div>
-<div class="email-toggle">
-<label class="switch">
-<input checked="" id="adminEmailToggle" type="checkbox"/>
-<span class="slider"></span>
-</label>
-<label for="adminEmailToggle">Send notification emails to admin</label>
-</div>
-<div class="form-row">
-<div>
-<label for="adminEmail">Admin Email Address</label>
-<input id="adminEmail" placeholder="Admin email for notifications" type="email" value="nailsk2022@gmail.com"/>
-</div>
-</div>
-<button class="btn" onclick="saveEmailSettings()">Save Email Settings</button>
-<div id="emailSettingsMessage"></div>
-</div>
-<div class="email-settings">
-<h4>Test Email Functionality</h4>
-<p>Send a test email to verify your email settings are working correctly.</p>
-<div class="form-row">
-<div>
-<label for="testEmail">Email Address</label>
-<input id="testEmail" placeholder="Enter email for test" type="email"/>
-</div>
-</div>
-<button class="btn" onclick="sendTestEmail()">Send Test Email</button>
-<div id="testEmailMessage"></div>
-</div>
-</div>
-</div>
-</div>
-</section>
+            </div>
+            <table class="business-hours-table">
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th>Open</th>
+                  <th>Close</th>
+                  <th>Closed</th>
+                </tr>
+              </thead>
+              <tbody id="businessHoursTableBody"></tbody>
+            </table>
+            <button class="btn" type="submit">Save Business Hours</button>
+          </form>
+          <div id="hoursMessage"></div>
+        </div>
+
+        <div class="tab-panel" id="logoTab">
+          <h4>Upload Company Logo</h4>
+          <div class="logo-upload-container">
+            <input accept="image/*" id="logoUpload" type="file" />
+            <div>
+              <h5>Logo Preview</h5>
+              <div class="logo-preview" id="logoPreview">
+                <p>No logo uploaded</p>
+              </div>
+            </div>
+            <button class="btn" onclick="saveLogo()">Save Logo</button>
+          </div>
+          <div id="logoMessage"></div>
+        </div>
+
+        <div class="tab-panel" id="emailTab">
+          <h4>Email Notification Settings</h4>
+          <div class="email-settings">
+            <div class="env-warning">
+              <strong>Note:</strong> For production use, you'll need to set up a server-side component to handle emails securely.
+            </div>
+            <div class="email-toggle">
+              <label class="switch">
+                <input checked id="customerEmailToggle" type="checkbox" />
+                <span class="slider"></span>
+              </label>
+              <label for="customerEmailToggle">Send confirmation emails to customers</label>
+            </div>
+            <div class="email-toggle">
+              <label class="switch">
+                <input checked id="adminEmailToggle" type="checkbox" />
+                <span class="slider"></span>
+              </label>
+              <label for="adminEmailToggle">Send notification emails to admin</label>
+            </div>
+            <div class="form-row">
+              <div>
+                <label for="adminEmail">Admin Email Address</label>
+                <input id="adminEmail" placeholder="Admin email for notifications" type="email" value="nailsk2022@gmail.com" />
+              </div>
+            </div>
+            <button class="btn" onclick="saveEmailSettings()">Save Email Settings</button>
+            <div id="emailSettingsMessage"></div>
+          </div>
+          <div class="email-settings">
+            <h4>Test Email Functionality</h4>
+            <p>Send a test email to verify your email settings are working correctly.</p>
+            <div class="form-row">
+              <div>
+                <label for="testEmail">Email Address</label>
+                <input id="testEmail" placeholder="Enter email for test" type="email" />
+              </div>
+            </div>
+            <button class="btn" onclick="sendTestEmail()">Send Test Email</button>
+            <div id="testEmailMessage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 <footer>
 <p>© 2025 Yes to Nails. All rights reserved.</p>
