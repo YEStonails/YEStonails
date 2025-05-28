@@ -1909,55 +1909,49 @@
         populateBookingsList();
       }</script>
 <script>
-  const SHEET_URL = "https://script.google.com/macros/s/AKfycbzk-plJKMaPEZsoeMWjmOj5wGfLiwqWFaOrKFNqEC9dQ1q4FH5c9BGfcy3MAv9lQ9JC5g/exec";
+  document.addEventListener('DOMContentLoaded', async function () {
+    detectEnvironment?.();         // Optional helper, if defined
+    initializeEmailJS?.();         // Optional EmailJS setup
 
-  // Load services from Google Sheet
-  async   }
+    // Load services from Supabase
+    try {
+      await loadServicesFromSupabase();
+      populateCategories?.();     // Make sure this function exists
+    } catch (e) {
+      console.error("Failed to load from Supabase:", e);
+    }
 
-  // Initialize with Google Sheets data on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    detectEnvironment();
-    initializeEmailJS();
-    
-    // Load data from localStorage if available
-    loadDataFromStorage();
-    
-    // Try to load services from Google Sheets, fallback to localStorage
-    loadServicesFromSheet().then(() => {
-      populateCategories();
-    }).catch(() => {
-      // If Google Sheets fails, use localStorage data
-      populateServices();
-      populateCategories();
-    });
-    
-    updateCart();
-    displayLogo();
-    
+    updateCart?.();
+    displayLogo?.();
+
     // Set minimum date for booking to today
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('bookingDate').min = today;
-    
+
     // Set up logo upload preview
-    document.getElementById('logoUpload').addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const preview = document.getElementById('logoPreview');
-          preview.innerHTML = `<img src="${e.target.result}" alt="Logo Preview" style="max-width: 100%; max-height: 100px;">`;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    const logoUpload = document.getElementById('logoUpload');
+    if (logoUpload) {
+      logoUpload.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const preview = document.getElementById('logoPreview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Logo Preview" style="max-width: 100%; max-height: 100px;">`;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
   });
 </script>
+
 <!-- Supabase & EmailJS Setup -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
   const SUPABASE_URL = 'https://fyphrauehrmotfderfey.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz...
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let services = [], cart = [], bookings = [], businessHours = {}, emailSettings = {};
