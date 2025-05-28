@@ -1892,56 +1892,10 @@ function populateServices() {
         
         populateBookingsList();
       }</script>
-<script>
-  function detectEnvironment() {
-    console.log("Environment detected.");
-  }
-
-  function initializeEmailJS() {
-    emailjs.init("X4BsAVt7IRjazbu8C"); // Your actual EmailJS public key
-  }
-
-  function populateCategories() {
-    console.log("populateCategories placeholder executed.");
-  }
-
-  document.addEventListener('DOMContentLoaded', async function () {
-    detectEnvironment();
-    initializeEmailJS();
-
-    try {
-      await loadServicesFromSupabase();
-      populateCategories?.();
-    } catch (e) {
-      console.error("Failed to load from Supabase:", e);
-    }
-
-    updateCart?.();
-    displayLogo?.();
-
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('bookingDate').min = today;
-
-    const logoUpload = document.getElementById('logoUpload');
-    if (logoUpload) {
-      logoUpload.addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            const preview = document.getElementById('logoPreview');
-            preview.innerHTML = `<img src="${e.target.result}" alt="Logo Preview" style="max-width: 100%; max-height: 100px;">`;
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    }
-  });
-</script>
-
 <!-- Supabase & EmailJS Setup -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
 <script>
   const SUPABASE_URL = 'https://fyphrauehrmotfderfey.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0';
@@ -1949,12 +1903,24 @@ function populateServices() {
 
   let services = [], cart = [], bookings = [], businessHours = {}, emailSettings = {};
 
+  function detectEnvironment() {
+    console.log("Environment detected.");
+  }
+
+  function initializeEmailJS() {
+    emailjs.init("X4BsAVt7IRjazbu8C");
+  }
+
+  function populateCategories() {
+    console.log("populateCategories placeholder executed.");
+  }
+
   async function loadServicesFromSupabase() {
     const { data, error } = await supabase.from('services').select('*');
     if (error) return console.error("Service load error:", error);
     services = data;
-    if (typeof populateServices === 'function') populateServices();
-    if (typeof populateCategories === 'function') populateCategories();
+    populateServices();
+    populateCategories?.();
   }
 
   async function saveBookingToSupabase(booking) {
@@ -1962,100 +1928,18 @@ function populateServices() {
     if (error) console.error("Booking save error:", error);
   }
 
-  async function loadBusinessSettings() {
-    const { data, error } = await supabase.from('business_settings').select('*').single();
-    if (error) return console.error("Business settings error:", error);
-    businessHours = JSON.parse(data.business_hours);
-    if (typeof loadBusinessHoursToForm === 'function') loadBusinessHoursToForm();
-  }
-
-  async function saveBusinessSettings() {
-    const settings = { business_hours: JSON.stringify(businessHours) };
-    const { error } = await supabase.from('business_settings').update(settings).eq('id', 1);
-    if (error) console.error("Business settings save error:", error);
-  }
-
-  async function loadEmailSettings() {
-    const { data, error } = await supabase.from('email_settings').select('*').single();
-    if (error) return console.error("Email settings error:", error);
-    emailSettings = data;
-    document.getElementById('customerEmailToggle').checked = data.send_to_customers;
-    document.getElementById('adminEmailToggle').checked = data.send_to_admin;
-    document.getElementById('adminEmail').value = data.admin_email;
-  }
-
-  async function saveEmailSettings() {
-    const settings = {
-      send_to_customers: document.getElementById('customerEmailToggle').checked,
-      send_to_admin: document.getElementById('adminEmailToggle').checked,
-      admin_email: document.getElementById('adminEmail').value
-    };
-    const { error } = await supabase.from('email_settings').update(settings).eq('id', 1);
-    if (error) console.error("Email settings save error:", error);
-  }
-
-  async function adminAuth(event) {
-    event.preventDefault();
-    const username = document.getElementById('adminUser').value;
-    const password = document.getElementById('adminPass').value;
-    const { data, error } = await supabase.from('admins').select('*').eq('username', username).eq('password', password);
-    if (error || data.length === 0) {
-      document.getElementById('adminLoginMessage').innerHTML = '<div class="error-box">Invalid credentials</div>';
+  async function displayLogo() {
+    const { data, error } = await supabase.from('business_settings').select('logo_url').eq('id', 1).single();
+    if (error) {
+      console.error('Error loading logo:', error);
       return;
     }
-    document.getElementById('adminLoginSection').classList.add('hidden');
-    document.getElementById('adminPanel').classList.remove('hidden');
-    showAdminDashboard();
-    loadBusinessSettings();
-    loadEmailSettings();
-  }
-
-  function submitBooking(event) {
-    event.preventDefault();
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
-    const date = document.getElementById('bookingDate').value;
-    const notes = document.getElementById('notes').value;
-    const selectedTime = JSON.parse(document.getElementById('selectedTime').value);
-    const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-    const totalDuration = cart.reduce((sum, item) => sum + item.duration, 0);
-
-    const booking = {
-      name, email, phone, date,
-      time_start: selectedTime.start,
-      time_end: selectedTime.end,
-      notes,
-      services: JSON.stringify(cart || []),
-      total_price: totalPrice,
-      total_duration: totalDuration,
-      status: 'Pending'
-    };
-
-    saveBookingToSupabase(booking);
-    alert("Booking submitted successfully!");
-    document.getElementById('bookingForm').reset();
-    cart = [];
-    if (typeof updateCart === 'function') updateCart();
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    loadServicesFromSupabase();
-    if (typeof updateCart === 'function') updateCart();
-  });
-
-  function showAdminLogin() {
-    document.getElementById('adminLoginSection').classList.remove('hidden');
-    document.getElementById('userPanel').classList.add('hidden');
-  }
-
-  function showUserPanel() {
-    document.getElementById('adminLoginSection').classList.add('hidden');
-    document.getElementById('userPanel').classList.remove('hidden');
-  }
-
-  function showAdminDashboard() {
-    document.getElementById('adminPanel').classList.remove('hidden');
+    if (data?.logo_url) {
+      const logoContainer = document.getElementById('logoContainer');
+      if (logoContainer) {
+        logoContainer.innerHTML = `<img src="${data.logo_url}" alt="Logo" style="max-height: 100px;">`;
+      }
+    }
   }
 
   function updateCart() {
@@ -2088,30 +1972,44 @@ function populateServices() {
     cart.push(service);
     updateCart();
   }
-</script>
-    <script>
-  async function displayLogo() {
-    const { data, error } = await supabase
-      .from('business_settings')
-      .select('logo_url')
-      .eq('id', 1)
-      .single();
 
-    if (error) {
-      console.error('Error loading logo:', error);
-      return;
+  document.addEventListener('DOMContentLoaded', async () => {
+    detectEnvironment();
+    initializeEmailJS();
+
+    try {
+      await loadServicesFromSupabase();
+    } catch (e) {
+      console.error("Failed to load from Supabase:", e);
     }
 
-    if (data && data.logo_url) {
-      const logoContainer = document.getElementById('logoContainer');
-      if (logoContainer) {
-        logoContainer.innerHTML = `<img src="${data.logo_url}" alt="Logo" style="max-height: 100px;">`;
-      }
-    }
-  }
-</script>
+    updateCart?.();
+    displayLogo?.();
 
+    // Set min date
+    const today = new Date().toISOString().split('T')[0];
+    const bookingDate = document.getElementById('bookingDate');
+    if (bookingDate) bookingDate.min = today;
+
+    // Logo preview upload
+    const logoUpload = document.getElementById('logoUpload');
+    if (logoUpload) {
+      logoUpload.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const preview = document.getElementById('logoPreview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Logo Preview" style="max-width: 100%; max-height: 100px;">`;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  });
+</script>
 </body>
 </html>
+
 
 
