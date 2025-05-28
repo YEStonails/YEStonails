@@ -1894,7 +1894,9 @@ function populateServices() {
       }</script>
 <script>
   document.addEventListener('DOMContentLoaded', async function () {
-    detectEnvironment?.();         // Optional helper, if defined
+    function detectEnvironment() {
+  console.log('detectEnvironment placeholder called.');
+}
     initializeEmailJS?.();         // Optional EmailJS setup
 
     // Load services from Supabase
