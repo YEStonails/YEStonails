@@ -989,39 +989,23 @@
     }
 
     // Populate services list
-    function populateServices(category = 'all') {
-      const serviceList = document.getElementById('serviceList');
-      serviceList.innerHTML = '';
-      
-      const filteredServices = category === 'all' 
-        ? services 
-        : services.filter(service => service.category === category);
-      
-      if (filteredServices.length === 0) {
-        serviceList.innerHTML = '<p class="cart-empty">No services found in this category.</p>';
-        return;
-      }
-      
-      filteredServices.forEach(service => {
-        const serviceDiv = document.createElement('div');
-        serviceDiv.className = 'service';
-       serviceDiv.innerHTML = `
-  <div class="service-info">
-    <div class="service-name">${service.name}</div>
-    <div class="service-details">
-      <span class="category-badge">${service.category}</span>
-      ${service.description || ''}
-    </div>
-  </div>
-  <div class="service-meta">
-    <div class="service-duration">${service.duration} mins</div>
-    <div class="service-price">AED ${service.price.toFixed(2)}</div>
-    <button class="add-btn" onclick="addToCart(${service.id})">Add</button>
-  </div>
-        `;
-        serviceList.appendChild(serviceDiv);
-      });
-    }
+function populateServices() {
+  const container = document.getElementById('services');
+  container.innerHTML = '';
+  services.forEach(service => {
+    const div = document.createElement('div');
+    div.className = 'service-card';
+    div.innerHTML = `
+      <h3>${service.name}</h3>
+      <p>${service.category}</p>
+      <p>${service.description}</p>
+      <p>AED ${service.price} – ${service.duration} mins</p>
+      <button onclick='addToCart(${JSON.stringify(service)})'>Add</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
 
     // Populate category filter
     function populateCategories() {
