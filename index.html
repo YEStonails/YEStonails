@@ -1943,7 +1943,30 @@ function populateServices() {
   }
 
   function updateCart() {
-    console.log('updateCart function placeholder executed.');
+    const cartContainer = document.getElementById('cart');
+    if (!cartContainer) return;
+
+    cartContainer.innerHTML = '';
+    let total = 0;
+
+    cart.forEach((item, index) => {
+      total += item.price;
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <p>${item.name} - AED ${item.price}</p>
+        <button onclick="removeFromCart(${index})">Remove</button>
+      `;
+      cartContainer.appendChild(div);
+    });
+
+    const totalEl = document.createElement('p');
+    totalEl.innerHTML = `<strong>Total: AED ${total}</strong>`;
+    cartContainer.appendChild(totalEl);
+  }
+
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCart();
   }
 
   function populateServices() {
@@ -1973,6 +1996,54 @@ function populateServices() {
     updateCart();
   }
 
+  function submitBooking(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const date = document.getElementById('bookingDate').value;
+    const notes = document.getElementById('notes').value;
+    const selectedTime = JSON.parse(document.getElementById('selectedTime').value || '{}');
+
+    const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
+    const totalDuration = cart.reduce((sum, item) => sum + item.duration, 0);
+
+    const booking = {
+      name,
+      email,
+      phone,
+      date,
+      time_start: selectedTime.start,
+      time_end: selectedTime.end,
+      notes,
+      services: JSON.stringify(cart),
+      total_price: totalPrice,
+      total_duration: totalDuration,
+      status: 'Pending'
+    };
+
+    saveBookingToSupabase(booking);
+    alert("Booking submitted!");
+    document.getElementById('bookingForm').reset();
+    cart = [];
+    updateCart();
+  }
+
+  function showAdminLogin() {
+    document.getElementById('adminLoginSection')?.classList.remove('hidden');
+    document.getElementById('userPanel')?.classList.add('hidden');
+  }
+
+  function showUserPanel() {
+    document.getElementById('adminLoginSection')?.classList.add('hidden');
+    document.getElementById('userPanel')?.classList.remove('hidden');
+  }
+
+  function showAdminDashboard() {
+    document.getElementById('adminPanel')?.classList.remove('hidden');
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     detectEnvironment();
     initializeEmailJS();
@@ -1986,12 +2057,10 @@ function populateServices() {
     updateCart?.();
     displayLogo?.();
 
-    // Set min date
     const today = new Date().toISOString().split('T')[0];
     const bookingDate = document.getElementById('bookingDate');
     if (bookingDate) bookingDate.min = today;
 
-    // Logo preview upload
     const logoUpload = document.getElementById('logoUpload');
     if (logoUpload) {
       logoUpload.addEventListener('change', function (event) {
