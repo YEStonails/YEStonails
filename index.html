@@ -1893,11 +1893,17 @@ function populateServices() {
         populateBookingsList();
       }</script>
 <script>
+  function detectEnvironment() {
+    console.log('detectEnvironment placeholder called.');
+  }
+
   document.addEventListener('DOMContentLoaded', async function () {
-    function detectEnvironment() {
-  console.log('detectEnvironment placeholder called.');
-}
-    initializeEmailJS?.();         // Optional EmailJS setup
+    detectEnvironment();               // ✅ Now it's defined
+    initializeEmailJS?.();            // Optional: only if it's defined
+
+    // your other code...
+  });
+</script>
 
     // Load services from Supabase
     try {
