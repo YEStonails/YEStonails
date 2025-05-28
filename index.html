@@ -2001,6 +2001,51 @@
     if (error) console.error("Email settings save error:", error);
   }
 
+   async function loadServicesFromSupabase() {
+    const { data, error } = await supabase.from('services').select('*');
+    if (error) return console.error("Service load error:", error);
+    services = data;
+    populateServices();
+    populateCategories();
+  }
+
+  async function saveBookingToSupabase(booking) {
+    const { error } = await supabase.from('bookings').insert([booking]);
+    if (error) console.error("Booking save error:", error);
+  }
+
+  async function loadBusinessSettings() {
+    const { data, error } = await supabase.from('business_settings').select('*').single();
+    if (error) return console.error("Business settings error:", error);
+    businessHours = JSON.parse(data.business_hours);
+    loadBusinessHoursToForm();
+  }
+
+  async function saveBusinessSettings() {
+    const settings = { business_hours: JSON.stringify(businessHours) };
+    const { error } = await supabase.from('business_settings').update(settings).eq('id', 1);
+    if (error) console.error("Business settings save error:", error);
+  }
+
+  async function loadEmailSettings() {
+    const { data, error } = await supabase.from('email_settings').select('*').single();
+    if (error) return console.error("Email settings error:", error);
+    emailSettings = data;
+    document.getElementById('customerEmailToggle').checked = data.send_to_customers;
+    document.getElementById('adminEmailToggle').checked = data.send_to_admin;
+    document.getElementById('adminEmail').value = data.admin_email;
+  }
+
+  async function saveEmailSettings() {
+    const settings = {
+      send_to_customers: document.getElementById('customerEmailToggle').checked,
+      send_to_admin: document.getElementById('adminEmailToggle').checked,
+      admin_email: document.getElementById('adminEmail').value
+    };
+    const { error } = await supabase.from('email_settings').update(settings).eq('id', 1);
+    if (error) console.error("Email settings save error:", error);
+  }
+
   async function adminAuth(event) {
     event.preventDefault();
     const username = document.getElementById('adminUser').value;
@@ -2051,6 +2096,8 @@
     updateCart();
   });
 </script>
+
+
 <script>
   function showAdminLogin() {
     document.getElementById('adminLoginSection').classList.remove('hidden');
@@ -2067,4 +2114,12 @@
   }
 </script>
 </body>
+<script>
+  function updateCart() {
+    console.log('updateCart function placeholder executed.');
+  }
+  function populateServices() {
+    console.log('populateServices function placeholder executed.');
+  }
+</script>
 </html>
