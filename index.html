@@ -1901,10 +1901,14 @@ function populateServices() {
     emailjs.init("X4BsAVt7IRjazbu8C"); // Your actual EmailJS public key
   }
 
+  document.addEventListener('DOMContentLoaded', async function () {
+    detectEnvironment?.();
+    initializeEmailJS?.();
+
     // Load services from Supabase
     try {
       await loadServicesFromSupabase();
-      populateCategories?.();     // Make sure this function exists
+      populateCategories?.(); // Optional if the function exists
     } catch (e) {
       console.error("Failed to load from Supabase:", e);
     }
@@ -1914,9 +1918,10 @@ function populateServices() {
 
     // Set minimum date for booking to today
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('bookingDate').min = today;
-  });
-</script>
+    const bookingDateInput = document.getElementById('bookingDate');
+    if (bookingDateInput) {
+      bookingDateInput.min = today;
+    }
 
     // Set up logo upload preview
     const logoUpload = document.getElementById('logoUpload');
@@ -1935,6 +1940,7 @@ function populateServices() {
     }
   });
 </script>
+
 
 <!-- Supabase & EmailJS Setup -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
