@@ -2092,6 +2092,28 @@ function populateServices() {
     updateCart();
   }
 </script>
+    <script>
+  async function displayLogo() {
+    const { data, error } = await supabase
+      .from('business_settings')
+      .select('logo_url')
+      .eq('id', 1)
+      .single();
+
+    if (error) {
+      console.error('Error loading logo:', error);
+      return;
+    }
+
+    if (data && data.logo_url) {
+      const logoContainer = document.getElementById('logoContainer');
+      if (logoContainer) {
+        logoContainer.innerHTML = `<img src="${data.logo_url}" alt="Logo" style="max-height: 100px;">`;
+      }
+    }
+  }
+</script>
+
 </body>
 </html>
 
