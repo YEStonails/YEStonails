@@ -1334,17 +1334,19 @@ function populateServices() {
       }, 1500);
     }
 
-    // Admin Authentication
-   function adminAuth(event) {
+function adminAuth(event) {
   event.preventDefault();
-
-  const username = document.getElementById('adminUser').value.trim();
-  const password = document.getElementById('adminPass').value.trim();
+  const username = document.getElementById('adminUser').value;
+  const password = document.getElementById('adminPass').value;
 
   if (username === CONFIG.ADMIN_USERNAME && password === CONFIG.ADMIN_PASSWORD) {
+    // ✅ FIX: Show the admin wrapper and hide user panel
+    document.getElementById('adminPanelWrapper').style.display = 'block';
+    document.getElementById('userPanel').style.display = 'none';
+
     document.getElementById('adminLoginSection').classList.add('hidden');
     document.getElementById('adminPanel').classList.remove('hidden');
-    showAdminDashboard(); // shows the full admin dashboard
+    showAdminDashboard();
     loadBusinessHoursToForm();
     loadEmailSettings();
   } else {
@@ -1353,6 +1355,7 @@ function populateServices() {
     `;
   }
 }
+
     // Logout admin
     function logoutAdmin() {
       document.getElementById('adminLoginSection').classList.remove('hidden');
