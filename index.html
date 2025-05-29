@@ -644,10 +644,11 @@
 </div>
 <div>
 <label>Select Time Slot</label>
-<div class="time-slots-container" id="timeSlots">
-<p>Please select a date first</p>
+<div id="timeSlotContainer" class="hidden" style="margin-top: 1em;">
+  <div id="timeSlotButtons"></div>
 </div>
-<input id="selectedTime" type="hidden"/>
+<input type="hidden" id="selectedTime" name="selectedTime">
+<button type="button" onclick="showTimeSlots()">Select Time Slot</button>
 </div>
 <label for="notes">Special Requests</label>
 <textarea id="notes" placeholder="Any special requests or notes" rows="3"></textarea>
