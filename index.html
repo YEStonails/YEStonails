@@ -2100,6 +2100,17 @@ function renderFilteredServices(category) {
   function showAdminDashboard() {
     document.getElementById('adminPanel')?.classList.remove('hidden');
   }
+<script>
+  // ⬇️ Add this first
+  window.showTimeSlots = async function () {
+    // ... full logic here ...
+  };
+
+  window.generateTimeSlots = function (...) { ... };
+  window.filterAvailableSlots = function (...) { ... };
+  window.renderTimeSlotButtons = function (...) { ... };
+  window.highlightSelectedSlot = function (...) { ... };
+  function formatTime(date) { ... }
 
   document.addEventListener('DOMContentLoaded', async () => {
     detectEnvironment();
