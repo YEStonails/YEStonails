@@ -1328,18 +1328,6 @@ function populateServices() {
         cart = [];
         updateCart();
         
-        // Reset button
-        submitBtn.innerHTML = originalBtnText;
-        submitBtn.disabled = false;
-      }, 1500);
-    }
-
-function adminAuth(event) {
-  event.preventDefault();
-  console.log("Login form submitted");
-
-  const username = document.getElementById('adminUser').value.trim();
-  const password = document.getElementById('adminPass').value.trim();
 
   if (username === CONFIG.ADMIN_USERNAME && password === CONFIG.ADMIN_PASSWORD) {
     // Show admin panel and hide login
@@ -2113,6 +2101,31 @@ function showAdminLogin() {
     }
     window.logoutAdmin = logoutAdmin;
   });
+        function adminAuth(event) {
+  event.preventDefault();
+  console.log("Login form submitted");
+
+  const username = document.getElementById('adminUser').value.trim();
+  const password = document.getElementById('adminPass').value.trim();
+
+  const correctUsername = 'admin';
+  const correctPassword = 'admin123';
+
+  if (username === correctUsername && password === correctPassword) {
+    document.getElementById('adminLoginSection').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+    document.getElementById('adminPanelWrapper').style.display = 'block';
+    document.getElementById('userPanel').style.display = 'none';
+    showAdminDashboard();
+    loadBusinessHoursToForm();
+    loadEmailSettings();
+  } else {
+    document.getElementById('adminLoginMessage').innerHTML = `
+      <div class="error-box">Invalid username or password.</div>
+    `;
+  }
+}
+
 </script>
 
 </body>
