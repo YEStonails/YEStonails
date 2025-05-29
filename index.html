@@ -2093,159 +2093,124 @@ function showAdminLogin() {
     window.showBusinessSettings = showBusinessSettings;
 
 <script>
-  // ✅ Admin Login (from Supabase)
-  async function adminAuth(event) {
-    event.preventDefault();
-    const username = document.getElementById('adminUser').value.trim();
-    const password = document.getElementById('adminPass').value.trim();
-
-    const { data, error } = await supabase
-      .from('admins')
-      .select('*')
-      .eq('username', username)
-      .eq('password', password)
-      .single();
-
-    if (error || !data) {
-      document.getElementById('adminLoginMessage').innerHTML = `
-        <div class="error-box">Invalid username or password.</div>`;
-      return;
+  // Logout admin
+    function logoutAdmin() {
+      document.getElementById('adminLoginSection').classList.remove('hidden');
+      document.getElementById('adminPanel').classList.add('hidden');
+      document.getElementById('adminLogin').reset();
+      document.getElementById('adminLoginMessage').innerHTML = '';
     }
+    window.logoutAdmin = logoutAdmin;
+  });
+        function showAdminDashboard() {
+  document.getElementById('adminLoginSection').classList.add('hidden');
+  document.getElementById('adminPanel').classList.remove('hidden');
+  document.getElementById('serviceManager').classList.add('hidden');
+  document.getElementById('bookingManager').classList.add('hidden');
+  document.getElementById('businessSettings').classList.add('hidden');
+}
+window.showAdminDashboard = showAdminDashboard;
 
+function showServiceManager() {
+  document.getElementById('serviceManager').classList.remove('hidden');
+  document.getElementById('bookingManager').classList.add('hidden');
+  document.getElementById('businessSettings').classList.add('hidden');
+  populateAdminServiceList();
+}
+window.showServiceManager = showServiceManager;
+
+function showBookingManager() {
+  document.getElementById('serviceManager').classList.add('hidden');
+  document.getElementById('bookingManager').classList.remove('hidden');
+  document.getElementById('businessSettings').classList.add('hidden');
+  populateBookingsList();
+}
+window.showBookingManager = showBookingManager;
+
+function showBusinessSettings() {
+  document.getElementById('serviceManager').classList.add('hidden');
+  document.getElementById('bookingManager').classList.add('hidden');
+  document.getElementById('businessSettings').classList.remove('hidden');
+  loadBusinessHoursToForm();
+  loadEmailSettings();
+}
+window.showBusinessSettings = showBusinessSettings;
+
+function openTab(event, tabId) {
+  const tabPanels = document.getElementsByClassName('tab-panel');
+  for (let i = 0; i < tabPanels.length; i++) {
+    tabPanels[i].classList.remove('active');
+  }
+
+  const tabButtons = document.getElementsByClassName('tab-button');
+  for (let i = 0; i < tabButtons.length; i++) {
+    tabButtons[i].classList.remove('active');
+  }
+
+  document.getElementById(tabId).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+window.openTab = openTab;
+
+function populateAdminServiceList() {
+  // Placeholder: You need to add your actual Supabase service fetch logic here
+  console.log("populateAdminServiceList called (fetch from Supabase)");
+}
+window.populateAdminServiceList = populateAdminServiceList;
+
+function populateBookingsList() {
+  // Placeholder: You need to add your actual Supabase booking fetch logic here
+  console.log("populateBookingsList called (fetch from Supabase)");
+}
+window.populateBookingsList = populateBookingsList;
+
+function loadBusinessHoursToForm() {
+  // Placeholder: Add logic to fetch and display business hours in the form
+  console.log("loadBusinessHoursToForm executed (fetch from Supabase)");
+}
+window.loadBusinessHoursToForm = loadBusinessHoursToForm;
+
+function loadEmailSettings() {
+  // Placeholder: Add logic to fetch email settings from Supabase
+  console.log("loadEmailSettings executed (fetch from Supabase)");
+}
+window.loadEmailSettings = loadEmailSettings;
+
+        function adminAuth(event) {
+  event.preventDefault();
+  console.log("Login form submitted");
+
+  const username = document.getElementById('adminUser').value.trim();
+  const password = document.getElementById('adminPass').value.trim();
+
+  const correctUsername = 'admin';
+  const correctPassword = 'admin123';
+
+  if (username === correctUsername && password === correctPassword) {
     document.getElementById('adminLoginSection').classList.add('hidden');
     document.getElementById('adminPanel').classList.remove('hidden');
     document.getElementById('adminPanelWrapper').style.display = 'block';
     document.getElementById('userPanel').style.display = 'none';
-
     showAdminDashboard();
     loadBusinessHoursToForm();
     loadEmailSettings();
+  } else {
+    document.getElementById('adminLoginMessage').innerHTML = 
+      <div class="error-box">Invalid username or password.</div>
+    ;
   }
-  window.adminAuth = adminAuth;
+}
+        window.adminAuth = adminAuth;
+window.showAdminDashboard = showAdminDashboard;
+window.loadBusinessHoursToForm = loadBusinessHoursToForm;
+window.populateAdminServiceList = populateAdminServiceList;
+window.populateBookingsList = populateBookingsList;
+window.showServiceManager = showServiceManager;
+window.showBookingManager = showBookingManager;
+window.showBusinessSettings = showBusinessSettings;
+window.openTab = openTab;
+window.logoutAdmin = logoutAdmin;
 
-  // ✅ Logout Admin
-  function logoutAdmin() {
-    document.getElementById('adminLoginSection').classList.remove('hidden');
-    document.getElementById('adminPanel').classList.add('hidden');
-    document.getElementById('adminLogin').reset();
-    document.getElementById('adminLoginMessage').innerHTML = '';
-  }
-  window.logoutAdmin = logoutAdmin;
-
-  // ✅ Admin Navigation Controls
-  function showAdminDashboard() {
-    document.getElementById('adminLoginSection').classList.add('hidden');
-    document.getElementById('adminPanel').classList.remove('hidden');
-    document.getElementById('serviceManager').classList.add('hidden');
-    document.getElementById('bookingManager').classList.add('hidden');
-    document.getElementById('businessSettings').classList.add('hidden');
-  }
-  window.showAdminDashboard = showAdminDashboard;
-
-  function showServiceManager() {
-    document.getElementById('serviceManager').classList.remove('hidden');
-    document.getElementById('bookingManager').classList.add('hidden');
-    document.getElementById('businessSettings').classList.add('hidden');
-    populateAdminServiceList();
-  }
-  window.showServiceManager = showServiceManager;
-
-  function showBookingManager() {
-    document.getElementById('serviceManager').classList.add('hidden');
-    document.getElementById('bookingManager').classList.remove('hidden');
-    document.getElementById('businessSettings').classList.add('hidden');
-    populateBookingsList();
-  }
-  window.showBookingManager = showBookingManager;
-
-  function showBusinessSettings() {
-    document.getElementById('serviceManager').classList.add('hidden');
-    document.getElementById('bookingManager').classList.add('hidden');
-    document.getElementById('businessSettings').classList.remove('hidden');
-    loadBusinessHoursToForm();
-    loadEmailSettings();
-  }
-  window.showBusinessSettings = showBusinessSettings;
-
-  // ✅ Tab Switching
-  function openTab(event, tabId) {
-    const tabPanels = document.getElementsByClassName('tab-panel');
-    for (let i = 0; i < tabPanels.length; i++) {
-      tabPanels[i].classList.remove('active');
-    }
-
-    const tabButtons = document.getElementsByClassName('tab-button');
-    for (let i = 0; i < tabButtons.length; i++) {
-      tabButtons[i].classList.remove('active');
-    }
-
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
-  }
-  window.openTab = openTab;
-
-  // ✅ Services (Supabase)
-  async function populateAdminServiceList() {
-    const { data, error } = await supabase.from('services').select('*');
-    const adminServiceList = document.getElementById('adminServiceList');
-    adminServiceList.innerHTML = '';
-
-    if (error || !data) {
-      adminServiceList.innerHTML = '<tr><td colspan="5">Error loading services.</td></tr>';
-      return;
-    }
-
-    data.forEach(service => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${service.name}</td>
-        <td>${service.category}</td>
-        <td>AED ${parseFloat(service.price).toFixed(2)}</td>
-        <td>${service.duration} mins</td>
-        <td>
-          <button class="btn" onclick="editService(${service.id})">Edit</button>
-          <button class="remove-btn" onclick="deleteService(${service.id})">Delete</button>
-        </td>
-      `;
-      adminServiceList.appendChild(row);
-    });
-  }
-  window.populateAdminServiceList = populateAdminServiceList;
-
-  // ✅ Bookings (Supabase)
-  async function populateBookingsList() {
-    const { data, error } = await supabase.from('bookings').select('*');
-    const bookingsList = document.getElementById('bookingsList');
-    bookingsList.innerHTML = '';
-
-    if (error || !data.length) {
-      bookingsList.innerHTML = '<tr><td colspan="6">No bookings found.</td></tr>';
-      return;
-    }
-
-    data.forEach(booking => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${formatDate(booking.date)}<br>${booking.time_start} - ${booking.time_end}</td>
-        <td>${booking.name}<br><small>${booking.phone}</small><br><small>${booking.email}</small></td>
-        <td>${JSON.parse(booking.services).map(s => s.name).join(', ')}</td>
-        <td>AED ${booking.total_price.toFixed(2)}<br>${booking.total_duration} mins</td>
-        <td>${booking.status}</td>
-        <td>
-          <button class="btn" onclick="updateBookingStatus(${booking.id}, 'Confirmed')">Confirm</button>
-          <button class="remove-btn" onclick="updateBookingStatus(${booking.id}, 'Cancelled')">Cancel</button>
-        </td>
-      `;
-      bookingsList.appendChild(row);
-    });
-  }
-  window.populateBookingsList = populateBookingsList;
-
-  // ✅ Business Hours Loader (already declared elsewhere)
-  window.loadBusinessHoursToForm = loadBusinessHoursToForm;
-  window.loadEmailSettings = loadEmailSettings;
 </script>
-
-
 </body>
 </html>
