@@ -1335,26 +1335,24 @@ function populateServices() {
     }
 
     // Admin Authentication
-    function adminAuth(event) {
-      event.preventDefault();
-      const username = document.getElementById('adminUser').value;
-      const password = document.getElementById('adminPass').value;
-      
-      // In a production environment, this would be a secure API call
-      // that would hash the password and verify against a database
-      if (username === CONFIG.ADMIN_USERNAME && password === CONFIG.ADMIN_PASSWORD) {
-        document.getElementById('adminLoginSection').classList.add('hidden');
-        document.getElementById('adminPanel').classList.remove('hidden');
-        showAdminDashboard();
-        loadBusinessHoursToForm();
-        loadEmailSettings();
-      } else {
-        document.getElementById('adminLoginMessage').innerHTML = `
-          <div class="error-box">Invalid username or password.</div>
-        `;
-      }
-    }
+   function adminAuth(event) {
+  event.preventDefault();
 
+  const username = document.getElementById('adminUser').value.trim();
+  const password = document.getElementById('adminPass').value.trim();
+
+  if (username === CONFIG.ADMIN_USERNAME && password === CONFIG.ADMIN_PASSWORD) {
+    document.getElementById('adminLoginSection').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+    showAdminDashboard(); // shows the full admin dashboard
+    loadBusinessHoursToForm();
+    loadEmailSettings();
+  } else {
+    document.getElementById('adminLoginMessage').innerHTML = `
+      <div class="error-box">Invalid username or password.</div>
+    `;
+  }
+}
     // Logout admin
     function logoutAdmin() {
       document.getElementById('adminLoginSection').classList.remove('hidden');
