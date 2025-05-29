@@ -1369,11 +1369,12 @@ function populateServices() {
       document.getElementById('adminLoginMessage').innerHTML = '';
     }
 
-    // Show admin login
-    function showAdminLogin() {
-      document.getElementById('userPanel').style.display = 'none';
-      document.getElementById('adminPanelWrapper').style.display = 'block';
-    }
+   function showAdminLogin() {
+  document.getElementById('userPanel').style.display = 'none';
+  document.getElementById('adminPanelWrapper').style.display = 'block';
+  document.getElementById('adminLoginSection').classList.remove('hidden');
+  document.getElementById('adminPanel').classList.add('hidden'); // hide dashboard initially
+}
 
     // Show user panel
     function showUserPanel() {
