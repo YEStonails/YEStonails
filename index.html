@@ -599,15 +599,15 @@
  </form>
 <div id="confirmation"></div>
 </section>
-</main> <!-- 🔽 START: Admin Panel Wrapper -->
-<div id="adminPanelWrapper">
-  <section id="adminLoginSection">
+</main> 
+    <div id="adminPanelWrapper">
+  <section id="adminLoginSection" class="hidden">
     <h2>Admin Login</h2>
     <form id="adminLogin" onsubmit="adminAuth(event)">
       <label for="adminUser">Username</label>
-      <input id="adminUser" placeholder="Admin Username" required type="text" />
+      <input id="adminUser" placeholder="Admin Username" required type="text">
       <label for="adminPass">Password</label>
-      <input id="adminPass" placeholder="Admin Password" required type="password" />
+      <input id="adminPass" placeholder="Admin Password" required type="password">
       <button class="btn">Login</button>
     </form>
     <div id="adminLoginMessage"></div>
@@ -615,16 +615,7 @@
       <a onclick="showUserPanel()" style="color: var(--dark-pink); cursor: pointer;">Back to Services</a>
     </p>
   </section>
-
-  <section id="adminPanel" class="hidden">
-    <div class="logout-link" onclick="logoutAdmin()">Logout</div>
-    <h2>Admin Panel</h2>
-    <!-- Add your cards and sections here -->
-  </section>
 </div>
-<!-- 🔼 END: Admin Panel Wrapper -->
-
-
  
   <section class="hidden" id="adminPanel">
     <div class="logout-link" onclick="logoutAdmin()">Logout</div>
