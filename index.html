@@ -2309,7 +2309,7 @@ window.logoutAdmin = logoutAdmin;
 
 
 </script>
-    <script>
+<script>
   window.showTimeSlots = async function () {
     const bookingDate = document.getElementById('bookingDate').value;
     if (!bookingDate) return alert("Please select a date first");
@@ -2324,16 +2324,20 @@ window.logoutAdmin = logoutAdmin;
 
     const selectedDay = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long' });
 
-    const { data: hours } = await supabase
+    const { data: hours, error } = await supabase
       .from('business_hours')
       .select('open_time, close_time')
       .eq('day', selectedDay)
       .single();
 
-    if (!hours) return alert("No business hours found for selected day");
+    if (error || !hours || !hours.open_time || !hours.close_time) {
+      console.warn("Business hours not found or invalid for:", selectedDay, hours);
+      alert("No valid business hours found for " + selectedDay);
+      return;
+    }
 
     const slots = generateTimeSlots(hours.open_time, hours.close_time, totalDuration);
-    const available = filterAvailableSlots(slots, bookings);
+    const available = filterAvailableSlots(slots, bookings || []);
     renderTimeSlotButtons(available);
   };
 
