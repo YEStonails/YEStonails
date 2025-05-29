@@ -600,14 +600,14 @@
 <div id="confirmation"></div>
 </section>
 </main> 
-    <div id="adminPanelWrapper">
-  <section id="adminLoginSection" class="hidden">
+<div id="adminPanelWrapper" style="display: none;">
+  <section id="adminLoginSection">
     <h2>Admin Login</h2>
     <form id="adminLogin" onsubmit="adminAuth(event)">
       <label for="adminUser">Username</label>
-      <input id="adminUser" placeholder="Admin Username" required type="text">
+      <input id="adminUser" placeholder="Admin Username" required type="text" />
       <label for="adminPass">Password</label>
-      <input id="adminPass" placeholder="Admin Password" required type="password">
+      <input id="adminPass" placeholder="Admin Password" required type="password" />
       <button class="btn">Login</button>
     </form>
     <div id="adminLoginMessage"></div>
