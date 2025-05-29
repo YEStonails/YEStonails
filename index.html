@@ -177,7 +177,7 @@
     .btn:hover {
       background-color: var(--dark-pink);
     }
-    #adminPanelWrapper {
+    #adminPanelpper {
       display: none;
       max-width: 800px;
       margin: 2em auto;
@@ -600,7 +600,7 @@
 <div id="confirmation"></div>
 </section>
 </main> 
-<div id="adminPanelWrapper" style="display: none;">
+
   <section id="adminLoginSection">
     <h2>Admin Login</h2>
     <form id="adminLogin" onsubmit="adminAuth(event)">
@@ -615,7 +615,9 @@
       <a onclick="showUserPanel()" style="color: var(--dark-pink); cursor: pointer;">Back to Services</a>
     </p>
   </section>
+    <div id="adminPanelWrapper" style="display: none;">
 </div>
+    
  
   <section class="hidden" id="adminPanel">
     <div class="logout-link" onclick="logoutAdmin()">Logout</div>
