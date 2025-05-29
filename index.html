@@ -1336,16 +1336,18 @@ function populateServices() {
 
 function adminAuth(event) {
   event.preventDefault();
-  const username = document.getElementById('adminUser').value;
-  const password = document.getElementById('adminPass').value;
+  console.log("Login form submitted");
+
+  const username = document.getElementById('adminUser').value.trim();
+  const password = document.getElementById('adminPass').value.trim();
 
   if (username === CONFIG.ADMIN_USERNAME && password === CONFIG.ADMIN_PASSWORD) {
-    // ✅ FIX: Show the admin wrapper and hide user panel
+    // Show admin panel and hide login
+    document.getElementById('adminLoginSection').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
     document.getElementById('adminPanelWrapper').style.display = 'block';
     document.getElementById('userPanel').style.display = 'none';
 
-    document.getElementById('adminLoginSection').classList.add('hidden');
-    document.getElementById('adminPanel').classList.remove('hidden');
     showAdminDashboard();
     loadBusinessHoursToForm();
     loadEmailSettings();
@@ -1355,7 +1357,6 @@ function adminAuth(event) {
     `;
   }
 }
-
     // Logout admin
     function logoutAdmin() {
       document.getElementById('adminLoginSection').classList.remove('hidden');
