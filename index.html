@@ -1421,114 +1421,152 @@ function showAdminLogin() {
       event.currentTarget.classList.add('active');
     }
 
-    // Load business hours to form
-    function loadBusinessHoursToForm() {
-      document.getElementById('appointmentInterval').value = businessHours.interval;
-      
-      for (const day in businessHours.days) {
-        const settings = businessHours.days[day];
-        document.getElementById(`${day}Open`).value = settings.open;
-        document.getElementById(`${day}Close`).value = settings.close;
-        document.getElementById(`${day}Closed`).checked = settings.closed;
-      }
+   <script>
+  // Existing code...
+
+  // ⬇️ ADD THIS FULL BLOCK BELOW any existing Supabase config or utility functions
+
+  // 1. Load business hours to form
+  async function loadBusinessHoursToForm() {
+    const { data, error } = await supabase
+      .from('BusinessHours')
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('Failed to load business hours:', error.message);
+      return;
     }
 
-    // Load email settings to form
-    function loadEmailSettings() {
-      document.getElementById('customerEmailToggle').checked = emailSettings.sendToCustomers;
-      document.getElementById('adminEmailToggle').checked = emailSettings.sendToAdmin;
-      document.getElementById('adminEmail').value = emailSettings.adminEmail || CONFIG.ADMIN_EMAIL;
+    businessHours.interval = data.interval || '30';
+    document.getElementById('appointmentInterval').value = businessHours.interval;
+
+    for (const day in data.days) {
+      const settings = data.days[day];
+      document.getElementById(`${day}Open`).value = settings.open;
+      document.getElementById(`${day}Close`).value = settings.close;
+      document.getElementById(`${day}Closed`).checked = settings.closed;
     }
 
-    // Save business hours
-    function saveBusinessHours(event) {
-      event.preventDefault();
-      
-      businessHours.interval = document.getElementById('appointmentInterval').value;
-      
-      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      days.forEach(day => {
-        businessHours.days[day] = {
-          open: document.getElementById(`${day}Open`).value,
-          close: document.getElementById(`${day}Close`).value,
-          closed: document.getElementById(`${day}Closed`).checked
-        };
-      });
-      
-      // Save to localStorage
-      saveDataToStorage();
-      
-      document.getElementById('hoursMessage').innerHTML = `
-        <div class="success-message">Business hours saved successfully!</div>
-      `;
-      
-      setTimeout(() => {
-        document.getElementById('hoursMessage').innerHTML = '';
-      }, 3000);
-    }
+    businessHours.days = data.days;
+  }
 
-    // Save email settings
-    function saveEmailSettings() {
-      emailSettings.sendToCustomers = document.getElementById('customerEmailToggle').checked;
-      emailSettings.sendToAdmin = document.getElementById('adminEmailToggle').checked;
-      emailSettings.adminEmail = document.getElementById('adminEmail').value || CONFIG.ADMIN_EMAIL;
-      
-      // Save to localStorage
-      saveDataToStorage();
-      
-      document.getElementById('emailSettingsMessage').innerHTML = `
-        <div class="success-message">Email settings saved successfully!</div>
-      `;
-      
-      setTimeout(() => {
-        document.getElementById('emailSettingsMessage').innerHTML = '';
-      }, 3000);
-    }
+  // 2. Save business hours
+  async function saveBusinessHours(event) {
+    event.preventDefault();
 
-    // Send test email
-    function sendTestEmail() {
-      const testEmail = document.getElementById('testEmail').value;
-      
-      if (!testEmail) {
-        document.getElementById('testEmailMessage').innerHTML = `
-          <div class="error-box">Please enter an email address for testing.</div>
-        `;
-        return;
-      }
-      
-      document.getElementById('testEmailMessage').innerHTML = `
-        <div class="success-message">Sending test email... <span class="loading-spinner"></span></div>
-      `;
-      
-      const testParams = {
-        to_name: 'Test User',
-        to_email: testEmail,
-        booking_date: 'Test Date',
-        booking_time: 'Test Time',
-        services_list: 'Test Service 1<br>Test Service 2',
-        total_price: 'AED 100.00',
-        total_duration: '60 mins',
-        booking_id: 'TEST-123',
-        notes: 'This is a test email to verify email functionality.'
+    const interval = document.getElementById('appointmentInterval').value;
+    const updatedDays = {};
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+    days.forEach(day => {
+      updatedDays[day] = {
+        open: document.getElementById(`${day}Open`).value,
+        close: document.getElementById(`${day}Close`).value,
+        closed: document.getElementById(`${day}Closed`).checked
       };
-      
-      sendEmail(testParams, false,
-        function(response) {
-          document.getElementById('testEmailMessage').innerHTML = `
-            <div class="success-message">Test email sent successfully!</div>
-            ${CONFIG.EMAILJS_PUBLIC_KEY ? '' : '<p><small>Note: In this demo version, emails are simulated and not actually sent.</small></p>'}
-          `;
-          setTimeout(() => {
-            document.getElementById('testEmailMessage').innerHTML = '';
-          }, 3000);
-        },
-        function(error) {
-          document.getElementById('testEmailMessage').innerHTML = `
-            <div class="error-box">Failed to send test email. Error: ${error.text}</div>
-          `;
-        }
-      );
+    });
+
+    const { error } = await supabase
+      .from('BusinessHours')
+      .update({ interval: interval, days: updatedDays })
+      .eq('id', 1);
+
+    if (error) {
+      console.error('Error saving business hours:', error.message);
+      document.getElementById('hoursMessage').innerHTML = `<div class="error-box">Failed to save hours.</div>`;
+      return;
     }
+
+    document.getElementById('hoursMessage').innerHTML = `<div class="success-message">Business hours saved successfully!</div>`;
+    setTimeout(() => {
+      document.getElementById('hoursMessage').innerHTML = '';
+    }, 3000);
+  }
+
+  // 3. Load email settings
+  async function loadEmailSettings() {
+    const { data, error } = await supabase
+      .from('EmailSettings')
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('Failed to load email settings:', error.message);
+      return;
+    }
+
+    document.getElementById('customerEmailToggle').checked = data.sendToCustomers;
+    document.getElementById('adminEmailToggle').checked = data.sendToAdmin;
+    document.getElementById('adminEmail').value = data.adminEmail || CONFIG.ADMIN_EMAIL;
+  }
+
+  // 4. Save email settings
+  async function saveEmailSettings() {
+    const updatedSettings = {
+      sendToCustomers: document.getElementById('customerEmailToggle').checked,
+      sendToAdmin: document.getElementById('adminEmailToggle').checked,
+      adminEmail: document.getElementById('adminEmail').value || CONFIG.ADMIN_EMAIL,
+    };
+
+    const { error } = await supabase
+      .from('EmailSettings')
+      .update(updatedSettings)
+      .eq('id', 1);
+
+    if (error) {
+      console.error('Failed to save email settings:', error.message);
+      document.getElementById('emailSettingsMessage').innerHTML = `<div class="error-box">Error saving settings.</div>`;
+      return;
+    }
+
+    document.getElementById('emailSettingsMessage').innerHTML = `<div class="success-message">Email settings saved!</div>`;
+    setTimeout(() => {
+      document.getElementById('emailSettingsMessage').innerHTML = '';
+    }, 3000);
+  }
+
+  // 5. Send test email
+  function sendTestEmail() {
+    const testEmail = document.getElementById('testEmail').value;
+
+    if (!testEmail) {
+      document.getElementById('testEmailMessage').innerHTML = `
+        <div class="error-box">Please enter an email address for testing.</div>`;
+      return;
+    }
+
+    document.getElementById('testEmailMessage').innerHTML = `
+      <div class="success-message">Sending test email... <span class="loading-spinner"></span></div>`;
+
+    const testParams = {
+      to_name: 'Test User',
+      to_email: testEmail,
+      booking_date: 'Test Date',
+      booking_time: 'Test Time',
+      services_list: 'Test Service 1<br>Test Service 2',
+      total_price: 'AED 100.00',
+      total_duration: '60 mins',
+      booking_id: 'TEST-123',
+      notes: 'This is a test email to verify email functionality.'
+    };
+
+    sendEmail(testParams, false,
+      function () {
+        document.getElementById('testEmailMessage').innerHTML = `
+          <div class="success-message">Test email sent successfully!</div>`;
+        setTimeout(() => {
+          document.getElementById('testEmailMessage').innerHTML = '';
+        }, 3000);
+      },
+      function (error) {
+        document.getElementById('testEmailMessage').innerHTML = `
+          <div class="error-box">Failed to send test email. Error: ${error.text}</div>`;
+      }
+    );
+  }
+
+</script>
 
     // Save logo
     function saveLogo() {
