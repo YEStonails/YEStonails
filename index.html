@@ -2046,5 +2046,72 @@ function showAdminLogin() {
     }
   });
 </script>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Show admin login
+    function showAdminLogin() {
+      document.getElementById('userPanel').style.display = 'none';
+      document.getElementById('adminPanelWrapper').style.display = 'block';
+      document.getElementById('adminLoginSection').classList.remove('hidden');
+      document.getElementById('adminPanel').classList.add('hidden');
+    }
+    window.showAdminLogin = showAdminLogin;
+
+    // Show user panel
+    function showUserPanel() {
+      document.getElementById('userPanel').style.display = 'grid';
+      document.getElementById('adminPanelWrapper').style.display = 'none';
+    }
+    window.showUserPanel = showUserPanel;
+
+    // Show admin dashboard
+    function showAdminDashboard() {
+      document.getElementById('adminLoginSection').classList.add('hidden');
+      document.getElementById('adminPanel').classList.remove('hidden');
+      document.getElementById('serviceManager').classList.add('hidden');
+      document.getElementById('bookingManager').classList.add('hidden');
+      document.getElementById('businessSettings').classList.add('hidden');
+    }
+    window.showAdminDashboard = showAdminDashboard;
+
+    // Show service manager
+    function showServiceManager() {
+      document.getElementById('serviceManager').classList.remove('hidden');
+      document.getElementById('bookingManager').classList.add('hidden');
+      document.getElementById('businessSettings').classList.add('hidden');
+      populateAdminServiceList();
+    }
+    window.showServiceManager = showServiceManager;
+
+    // Show booking manager
+    function showBookingManager() {
+      document.getElementById('serviceManager').classList.add('hidden');
+      document.getElementById('bookingManager').classList.remove('hidden');
+      document.getElementById('businessSettings').classList.add('hidden');
+      populateBookingsList();
+    }
+    window.showBookingManager = showBookingManager;
+
+    // Show business settings
+    function showBusinessSettings() {
+      document.getElementById('serviceManager').classList.add('hidden');
+      document.getElementById('bookingManager').classList.add('hidden');
+      document.getElementById('businessSettings').classList.remove('hidden');
+      loadBusinessHoursToForm();
+      loadEmailSettings();
+    }
+    window.showBusinessSettings = showBusinessSettings;
+
+    // Logout admin
+    function logoutAdmin() {
+      document.getElementById('adminLoginSection').classList.remove('hidden');
+      document.getElementById('adminPanel').classList.add('hidden');
+      document.getElementById('adminLogin').reset();
+      document.getElementById('adminLoginMessage').innerHTML = '';
+    }
+    window.logoutAdmin = logoutAdmin;
+  });
+</script>
+
 </body>
 </html>
