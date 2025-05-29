@@ -1934,22 +1934,63 @@ function showAdminLogin() {
     updateCart();
   }
 
-  function populateServices() {
-    const container = document.getElementById('services');
-    container.innerHTML = '';
-    services.forEach((service, index) => {
-      const div = document.createElement('div');
-      div.className = 'service-card';
-      div.innerHTML = `
-        <h3>${service.name}</h3>
-        <p>${service.category}</p>
-        <p>${service.description}</p>
-        <p>AED ${service.price} – ${service.duration} mins</p>
-        <button onclick='addToCartByIndex(${index})'>Add</button>
-      `;
-      container.appendChild(div);
-    });
-  }
+ function populateServices() {
+  const container = document.getElementById('services');
+  container.innerHTML = '';
+
+  const serviceListWrapper = document.createElement('div');
+  serviceListWrapper.className = 'service-list-card';
+
+  const title = document.createElement('h2');
+  title.textContent = 'Browse Services';
+  serviceListWrapper.appendChild(title);
+
+  const select = document.createElement('select');
+  select.id = 'categoryFilter';
+  select.innerHTML = `<option value="all">All Categories</option>`;
+  const uniqueCategories = [...new Set(services.map(s => s.category))];
+  uniqueCategories.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat;
+    option.textContent = cat;
+    select.appendChild(option);
+  });
+  select.onchange = () => {
+    renderFilteredServices(select.value);
+  };
+  serviceListWrapper.appendChild(select);
+
+  const serviceList = document.createElement('div');
+  serviceList.id = 'serviceList';
+  serviceListWrapper.appendChild(serviceList);
+  container.appendChild(serviceListWrapper);
+
+  renderFilteredServices('all');
+}
+
+function renderFilteredServices(category) {
+  const list = document.getElementById('serviceList');
+  list.innerHTML = '';
+  const filtered = category === 'all' ? services : services.filter(s => s.category === category);
+
+  filtered.forEach((service, index) => {
+    const div = document.createElement('div');
+    div.className = 'service-item';
+    div.innerHTML = `
+      <div class="service-info">
+        <p class="service-title">${service.name}</p>
+        <span class="service-category">${service.category}</span>
+        <p class="service-description">${service.description}</p>
+      </div>
+      <div class="service-meta">
+        <p>${service.duration} mins</p>
+        <p>AED ${service.price}</p>
+        <button class="add-btn" onclick='addToCartByIndex(${index})'>Add</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
 
   function addToCartByIndex(index) {
     const service = services[index];
