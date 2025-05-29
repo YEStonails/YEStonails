@@ -596,27 +596,30 @@
 <label for="notes">Special Requests</label>
 <textarea id="notes" placeholder="Any special requests or notes" rows="3"></textarea>
 <button class="btn" id="bookingSubmitBtn" type="submit">Confirm Booking</button>
-</form>
+ </form>
 <div id="confirmation"></div>
 </section>
-    <!-- 🔽 START: Admin Login Section -->
-    <div id="adminPanelWrapper">
-<section id="adminLoginSection" class="hidden">
-  <h2>Admin Login</h2>
-  <form id="adminLogin" onsubmit="adminAuth(event)">
-    <label for="adminUser">Username</label>
-    <input id="adminUser" placeholder="Admin Username" required type="text" />
-    <label for="adminPass">Password</label>
-    <input id="adminPass" placeholder="Admin Password" required type="password" />
-    <button class="btn">Login</button>
-  </form>
-  <div id="adminLoginMessage"></div>
-  <p style="text-align: center; margin-top: 1em;">
-    <a onclick="showUserPanel()" style="color: var(--dark-pink); cursor: pointer;">Back to Services</a>
-  </p>
-</section>
-<!-- 🔼 END: Admin Login Section -->
-</main>
+</main> <!-- 👈 close the main user panel -->
+
+<!-- 🔽 START: Admin Panel Wrapper -->
+<div id="adminPanelWrapper" style="display: none;">
+  <section id="adminLoginSection">
+    <h2>Admin Login</h2>
+    <form id="adminLogin" onsubmit="adminAuth(event)">
+      <label for="adminUser">Username</label>
+      <input id="adminUser" placeholder="Admin Username" required type="text" />
+      <label for="adminPass">Password</label>
+      <input id="adminPass" placeholder="Admin Password" required type="password" />
+      <button class="btn">Login</button>
+    </form>
+    <div id="adminLoginMessage"></div>
+    <p style="text-align: center; margin-top: 1em;">
+      <a onclick="showUserPanel()" style="color: var(--dark-pink); cursor: pointer;">Back to Services</a>
+    </p>
+  </section>
+</div>
+<!-- 🔼 END: Admin Panel Wrapper -->
+
     
 
   <section class="hidden" id="adminPanel">
