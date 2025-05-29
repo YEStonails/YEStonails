@@ -601,6 +601,7 @@
 </section>
 </main>
     <!-- 🔽 START: Admin Login Section -->
+    <div id="adminPanelWrapper">
 <section id="adminLoginSection" class="hidden">
   <h2>Admin Login</h2>
   <form id="adminLogin" onsubmit="adminAuth(event)">
@@ -616,22 +617,6 @@
   </p>
 </section>
 <!-- 🔼 END: Admin Login Section -->
-
-<div id="adminPanelWrapper">
-  <section id="adminLoginSection">
-    <h2>Admin Login</h2>
-    <form id="adminLogin" onsubmit="adminAuth(event)">
-      <label for="adminUser">Username</label>
-      <input id="adminUser" placeholder="Admin Username" required type="text" />
-      <label for="adminPass">Password</label>
-      <input id="adminPass" placeholder="Admin Password" required type="password" />
-      <button class="btn">Login</button>
-    </form>
-    <div id="adminLoginMessage"></div>
-    <p style="text-align: center; margin-top: 1em;">
-      <a onclick="showUserPanel()" style="color: var(--dark-pink); cursor: pointer;">Back to Services</a>
-    </p>
-  </section>
 
   <section class="hidden" id="adminPanel">
     <div class="logout-link" onclick="logoutAdmin()">Logout</div>
