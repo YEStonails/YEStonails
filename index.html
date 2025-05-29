@@ -539,12 +539,14 @@
     <a onclick="showAdminLogin()">Admin</a>
 </nav>
 <main id="userPanel">
-<section id="services">
-<h2>Browse Services</h2>
-<select id="categoryFilter" onchange="filterServices()">
-<option value="all">All Categories</option>
-</select>
-<div id="serviceList"></div>
+<section id="services-v2">
+  <div class="service-list-card">
+    <h2>Browse Services</h2>
+    <select id="categoryFilter" onchange="filterServices()">
+      <option value="all">All Categories</option>
+    </select>
+    <div id="serviceList"></div>
+  </div>
 </section>
 <section id="cartSection">
 <h2>Your Selection</h2>
