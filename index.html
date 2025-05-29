@@ -599,8 +599,8 @@
  </form>
 <div id="confirmation"></div>
 </section>
-</main> 
-
+</main> <!-- 🔽 START: Admin Panel Wrapper -->
+<div id="adminPanelWrapper" style="display: none;">
   <section id="adminLoginSection">
     <h2>Admin Login</h2>
     <form id="adminLogin" onsubmit="adminAuth(event)">
@@ -615,10 +615,13 @@
       <a onclick="showUserPanel()" style="color: var(--dark-pink); cursor: pointer;">Back to Services</a>
     </p>
   </section>
-    <div id="adminPanelWrapper" style="display: none;">
+
+  <!-- 🔽 Admin Dashboard (this will be shown after login) -->
+  <section id="adminPanel" class="hidden">
+    <!-- Your admin dashboard content goes here -->
+  </section>
 </div>
-    
- 
+<!-- 🔼 END: Admin Panel Wrapper -->
   <section class="hidden" id="adminPanel">
     <div class="logout-link" onclick="logoutAdmin()">Logout</div>
     <h2>Admin Panel</h2>
@@ -1362,11 +1365,13 @@ function populateServices() {
       document.getElementById('adminLoginMessage').innerHTML = '';
     }
 
-   function showAdminLogin() {
+function showAdminLogin() {
   document.getElementById('userPanel').style.display = 'none';
   document.getElementById('adminPanelWrapper').style.display = 'block';
+
+  // Fix: Ensure login section is shown and dashboard is hidden initially
   document.getElementById('adminLoginSection').classList.remove('hidden');
-  document.getElementById('adminPanel').classList.add('hidden'); // hide dashboard initially
+  document.getElementById('adminPanel').classList.add('hidden');
 }
 
     // Show user panel
