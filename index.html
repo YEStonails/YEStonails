@@ -1412,12 +1412,14 @@ function removeFromCart(index) {
   }
 }
     // Logout admin
-    function logoutAdmin() {
-      document.getElementById('adminLoginSection').classList.remove('hidden');
-      document.getElementById('adminPanel').classList.add('hidden');
-      document.getElementById('adminLogin').reset();
-      document.getElementById('adminLoginMessage').innerHTML = '';
-    }
+function logoutAdmin() {
+  document.getElementById('adminLoginSection').classList.remove('hidden');
+  document.getElementById('adminPanel').classList.add('hidden');
+  document.getElementById('adminLogin').reset();
+  document.getElementById('adminLoginMessage').innerHTML = '';
+}
+window.logoutAdmin = logoutAdmin;
+
 
 function showAdminLogin() {
   document.getElementById('userPanel').style.display = 'none';
@@ -2342,12 +2344,13 @@ async function populateAdminServiceList() {
   data.forEach(service => {
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td><input value="${service.name}" onchange="updateService(${service.id}, 'name', this.value)" /></td>
-      <td><input value="${service.category}" onchange="updateService(${service.id}, 'category', this.value)" /></td>
-      <td><input value="${service.price}" type="number" onchange="updateService(${service.id}, 'price', this.value)" /></td>
-      <td><input value="${service.duration}" type="number" onchange="updateService(${service.id}, 'duration', this.value)" /></td>
-      <td><button onclick="deleteService(${service.id})">Delete</button></td>
-    `;
+  <td><input value="${service.name}" onchange="updateService(${service.id}, 'name', this.value)" /></td>
+  <td><input value="${service.category}" onchange="updateService(${service.id}, 'category', this.value)" /></td>
+  <td><input value="${service.price}" type="number" onchange="updateService(${service.id}, 'price', this.value)" /></td>
+  <td><input value="${service.duration}" type="number" onchange="updateService(${service.id}, 'duration', this.value)" /></td>
+  <td><button onclick='deleteService(${service.id})'>Delete</button></td>
+`;
+
     list.appendChild(row);
   });
 }
