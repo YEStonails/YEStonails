@@ -1420,7 +1420,6 @@ function logoutAdmin() {
 }
 window.logoutAdmin = logoutAdmin;
 
-
 function showAdminLogin() {
   document.getElementById('userPanel').style.display = 'none';
   document.getElementById('adminPanelWrapper').style.display = 'block';
@@ -2349,6 +2348,7 @@ async function populateAdminServiceList() {
   <td><input value="${service.price}" type="number" onchange="updateService(${service.id}, 'price', this.value)" /></td>
   <td><input value="${service.duration}" type="number" onchange="updateService(${service.id}, 'duration', this.value)" /></td>
   <td><button onclick='deleteService(${service.id})'>Delete</button></td>
+
 `;
 
     list.appendChild(row);
