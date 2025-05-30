@@ -2104,6 +2104,25 @@ async function populateBookingsList() {
     emailjs.init("X4BsAVt7IRjazbu8C");
   }
 
+  function sendEmail(params, isClient, onSuccess, onError) {
+    const templateParams = {
+      to_email: isClient ? params.to_email : "nailsk2022@gmail.com",
+      to_name: params.to_name,
+      booking_date: params.booking_date,
+      booking_time: params.booking_time,
+      services_list: params.services_list,
+      total_price: params.total_price,
+      total_duration: params.total_duration,
+      booking_id: params.booking_id,
+      notes: params.notes,
+      from_name: "Yes to Nails",
+    };
+
+    emailjs.send("service_o9w7tsb", "template_tn6m5co", templateParams)
+      .then(onSuccess)
+      .catch(onError);
+  }
+
   async function loadServicesFromSupabase() {
     const { data, error } = await supabase.from('services').select('*');
     if (error) return console.error("Service load error:", error);
@@ -2185,6 +2204,8 @@ async function populateBookingsList() {
       list.appendChild(div);
     });
   }
+</script>
+
 
   function addToCartByIndex(index) {
     addToCart(services[index]);
