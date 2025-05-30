@@ -1840,33 +1840,44 @@ function showAdminLogin() {
     }
 
     // Populate bookings list
-    function populateBookingsList() {
-      const bookingsList = document.getElementById('bookingsList');
-      bookingsList.innerHTML = '';
-      
-      if (bookings.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="6" style="text-align: center;">No bookings found.</td>';
-        bookingsList.appendChild(row);
-        return;
-      }
-      
-      bookings.forEach(booking => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${formatDate(booking.date)}<br>${booking.time.start} - ${booking.time.end}</td>
-          <td>${booking.name}<br><small>${booking.phone}</small><br><small>${booking.email}</small></td>
-          <td>${booking.services.map(s => s.name).join(', ')}</td>
-          <td>AED ${booking.totalPrice.toFixed(2)}<br>${booking.totalDuration} mins</td>
-          <td>${booking.status}</td>
-          <td>
-            <button class="btn" onclick="updateBookingStatus(${booking.id}, 'Confirmed')">Confirm</button>
-            <button class="remove-btn" onclick="updateBookingStatus(${booking.id}, 'Cancelled')">Cancel</button>
-          </td>
-        `;
-        bookingsList.appendChild(row);
-      });
+function populateBookingsList() {
+  const bookingsList = document.getElementById('bookingsList');
+  bookingsList.innerHTML = '';
+
+  if (!bookings || bookings.length === 0) {
+    const row = document.createElement('tr');
+    row.innerHTML = '<td colspan="6" style="text-align: center;">No bookings found.</td>';
+    bookingsList.appendChild(row);
+    return;
+  }
+
+  bookings.forEach(booking => {
+    let servicesArray = [];
+
+    try {
+      servicesArray = typeof booking.services === 'string'
+        ? JSON.parse(booking.services)
+        : booking.services || [];
+    } catch (e) {
+      console.warn("Invalid services JSON:", booking.services);
     }
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${formatDate(booking.date)}<br>${booking.time_start || '-'} - ${booking.time_end || '-'}</td>
+      <td>${booking.name}<br><small>${booking.phone}</small><br><small>${booking.email}</small></td>
+      <td>${servicesArray.map(s => s.name).join(', ') || '-'}</td>
+      <td>AED ${Number(booking.total_price || 0).toFixed(2)}<br>${booking.total_duration || 0} mins</td>
+      <td>${booking.status || 'Pending'}</td>
+      <td>
+        <button class="btn" onclick="updateBookingStatus(${booking.id}, 'Confirmed')">Confirm</button>
+        <button class="remove-btn" onclick="updateBookingStatus(${booking.id}, 'Cancelled')">Cancel</button>
+      </td>
+    `;
+    bookingsList.appendChild(row);
+  });
+}
+
 
     // Update booking status
     function updateBookingStatus(bookingId, status) {
