@@ -2387,28 +2387,36 @@ window.logoutAdmin = logoutAdmin;
     });
   }
 
-  function renderTimeSlotButtons(slots) {
-    const container = document.getElementById('timeSlotButtons');
-    const wrapper = document.getElementById('timeSlotContainer');
-    container.innerHTML = '';
-    wrapper.classList.remove('hidden');
+function renderTimeSlotButtons(slots) {
+  const container = document.getElementById('timeSlotButtons');
+  const wrapper = document.getElementById('timeSlotContainer');
+  container.innerHTML = '';
+  wrapper.classList.remove('hidden');
 
-    if (slots.length === 0) {
-      container.innerHTML = "<p>No available slots for the selected date and duration.</p>";
-      return;
+  if (!slots || slots.length === 0) {
+    container.innerHTML = "<p>No available slots for the selected date and duration.</p>";
+    return;
+  }
+
+  slots.forEach(slot => {
+    const btn = document.createElement('button');
+    btn.textContent = `${slot.start} - ${slot.end}`;
+    btn.className = 'time-slot-btn';
+    btn.disabled = !slot.available;
+
+    if (!slot.available) {
+      btn.classList.add('disabled');
     }
 
-    slots.forEach(slot => {
-      const btn = document.createElement('button');
-      btn.textContent = `${slot.start} - ${slot.end}`;
-      btn.className = 'time-slot-btn';
-      btn.onclick = () => {
-        document.getElementById('selectedTime').value = JSON.stringify({ start: slot.start, end: slot.end });
-        highlightSelectedSlot(btn);
-      };
-      container.appendChild(btn);
-    });
-  }
+    btn.onclick = () => {
+      document.getElementById('selectedTime').value = JSON.stringify({ start: slot.start, end: slot.end });
+      highlightSelectedSlot(btn);
+    };
+
+    container.appendChild(btn);
+  });
+}
+
 
   function highlightSelectedSlot(selectedBtn) {
     const allBtns = document.querySelectorAll('#timeSlotButtons button');
