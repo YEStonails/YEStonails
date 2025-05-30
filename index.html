@@ -2061,15 +2061,29 @@ function renderFilteredServices(category) {
     updateCart();
   }
 
-  function submitBooking(event) {
+<script>
+  async function submitBooking(event) {
     event.preventDefault();
 
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
     const date = document.getElementById('bookingDate').value;
-    const notes = document.getElementById('notes').value;
-    const selectedTime = JSON.parse(document.getElementById('selectedTime').value || '{}');
+    const notes = document.getElementById('notes').value.trim();
+    const selectedTimeRaw = document.getElementById('selectedTime').value;
+    
+    if (!selectedTimeRaw) {
+      alert("Please select a time slot.");
+      return;
+    }
+
+    let selectedTime;
+    try {
+      selectedTime = JSON.parse(selectedTimeRaw);
+    } catch (e) {
+      alert("Invalid time slot format.");
+      return;
+    }
 
     const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
     const totalDuration = cart.reduce((sum, item) => sum + item.duration, 0);
@@ -2088,12 +2102,20 @@ function renderFilteredServices(category) {
       status: 'Pending'
     };
 
-    saveBookingToSupabase(booking);
-    alert("Booking submitted!");
-    document.getElementById('bookingForm').reset();
-    cart = [];
-    updateCart();
- 
+    try {
+      const { error } = await supabase.from('bookings').insert([booking]);
+      if (error) throw error;
+
+      alert("Booking submitted successfully!");
+      document.getElementById('bookingForm').reset();
+      cart = [];
+      updateCart();
+
+      // Optional: Send confirmation email using EmailJS here if integrated
+    } catch (err) {
+      console.error("Booking submission failed:", err);
+      alert("Something went wrong while submitting the booking. Please try again.");
+    }
   }
 
   function showUserPanel() {
