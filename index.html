@@ -2594,6 +2594,23 @@ window.loadBusinessHoursToForm = loadBusinessHoursToForm;
 async function loadEmailSettings() {
   console.log("loadEmailSettings executed (fetch from Supabase)");
 
+  const { data, error } = await supabase
+    .from('email_settings')
+    .select('*')
+    .eq('id', 1)
+    .single(); // Fetch the single row where id = 1
+
+  if (error) {
+    console.error('Failed to load email settings:', error.message);
+    return;
+  }
+
+  // Apply values to the form fields
+  document.getElementById('customerEmailToggle').checked = data.sendToCustomers;
+  document.getElementById('adminEmailToggle').checked = data.sendToAdmin;
+  document.getElementById('adminEmail').value = data.adminEmail || CONFIG.ADMIN_EMAIL;
+}
+
   try {
     const { data, error } = await supabase
       .from('email_settings')
