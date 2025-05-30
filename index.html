@@ -2340,19 +2340,18 @@ async function populateAdminServiceList() {
     return;
   }
 
-  data.forEach(service => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-  <td><input value="${service.name}" onchange="updateService(${service.id}, 'name', this.value)" /></td>
-  <td><input value="${service.category}" onchange="updateService(${service.id}, 'category', this.value)" /></td>
-  <td><input value="${service.price}" type="number" onchange="updateService(${service.id}, 'price', this.value)" /></td>
-  <td><input value="${service.duration}" type="number" onchange="updateService(${service.id}, 'duration', this.value)" /></td>
-  <td><button onclick='deleteService(${service.id})'>Delete</button></td>
+ data.forEach(service => {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><input value="${service.name}" onchange="updateService(${service.id}, &quot;name&quot;, this.value)" /></td>
+    <td><input value="${service.category}" onchange="updateService(${service.id}, &quot;category&quot;, this.value)" /></td>
+    <td><input value="${service.price}" type="number" onchange="updateService(${service.id}, &quot;price&quot;, this.value)" /></td>
+    <td><input value="${service.duration}" type="number" onchange="updateService(${service.id}, &quot;duration&quot;, this.value)" /></td>
+    <td><button onclick="deleteService(${service.id})">Delete</button></td>
+  `;
+  list.appendChild(row);
+});
 
-`;
-
-    list.appendChild(row);
-  });
 }
 window.populateAdminServiceList = populateAdminServiceList;
         async function updateService(id, field, value) {
