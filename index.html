@@ -285,7 +285,7 @@
       cursor: not-allowed;
       text-decoration: line-through;
     }
-    .time-slots- {
+    .time-slots-container {
       margin: 1em 0;
     }
     .business-hours-table {
@@ -525,20 +525,11 @@
 .service-list-card {
   background-color: #fff;
   border-radius: 12px;
-  padding: 1.5em;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  margin: 2em auto;
-  max-width: 600px;
+  margin: 1.5em 0;           /* vertical margin only */
+  width: 100%;
   box-sizing: border-box;
 }
-
-/* Optional: Smaller padding on small screens */
-@media (max-width: 600px) {
-  .service-list-card {
-    padding: 2em 1em;
-  }
-}
-
 .service-item {
   display: flex;
   justify-content: space-between;
@@ -601,7 +592,7 @@
 <a onclick="showUserPanel()">Services</a> | 
     <a onclick="showAdminLogin()">Admin</a>
 </nav>
-<section id="services" class="section-container">
+<section id="services" style="grid-column: span 2; padding: 0 1em; margin: 2em 1em;">
   <div class="service-list-card">
     <h2>Browse Services</h2>
     <select id="categoryFilter" onchange="filterServices()">
@@ -610,12 +601,8 @@
     <div id="serviceList"></div>
   </div>
 </section>
-
-    <div id="serviceList"></div>
-  </div>
-</section>
-<section id="cartSection" style="grid-column: span 2;">
-  <div class="service-list-card">
+<section id="cartSection" class="service-list-card">
+<div class="service-list-card">
 <h2>Your Selection</h2>
 <div id="cart"></div>
 <div class="total-section">
