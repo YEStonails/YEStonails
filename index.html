@@ -583,94 +583,82 @@
   </style>
 </head>
 <body>
-  <header>
-    <div id="logoContainer">
-      <!-- Logo will be inserted here -->
-    </div>
-    <h1 class="shimmer-text">Yes to Nails <sup>®</sup></h1>
-  </header>
-
-  <nav>
-    <a onclick="showUserPanel()">Services</a> | 
+<header>
+<div id="logoContainer">
+<!-- Logo will be inserted here -->
+</div>
+<h1 class="shimmer-text">Yes to Nails ®</h1>
+</header>
+<nav>
+<a onclick="showUserPanel()">Services</a> | 
     <a onclick="showAdminLogin()">Admin</a>
-  </nav>
-
-  <main id="userPanel">
-    <!-- Services Section -->
-    <section id="services">
-      <div class="service-list-card">
-        <h2>Browse Services</h2>
-        <select id="categoryFilter" onchange="filterServices()">
-          <option value="all">All Categories</option>
-        </select>
-        <div id="serviceList"></div>
+</nav>
+<main id="userPanel">
+<section id="services">
+  <div class="service-list-card">
+    <h2>Browse Services</h2>
+    <select id="categoryFilter" onchange="filterServices()">
+      <option value="all">All Categories</option>
+    </select>
+    <div id="serviceList"></div>
+  </div>
+</section>
+<section id="cartSection" class="service-list-card">
+<div class="service-list-card">
+<h2>Your Selection</h2>
+<div id="cart"></div>
+<div class="total-section">
+<div class="total-row">
+<span>Total Duration:</span>
+<span id="totalDuration">0 mins</span>
+</div>
+<div class="total-row">
+<span>Total Price:</span>
+<span>AED <span id="totalPrice">0.00</span></span>
+</div>
+</div>
+</section>
+<section class="embossed-box" style="grid-column: span 2;">
+<div class="service-list-card">
+<h2>Book Your Appointment</h2>
+<div class="env-warning" id="envWarning">
+<strong>Note:</strong> Email functionality requires server-side configuration. In this GitHub Pages deployment, emails will be simulated but not actually sent.
       </div>
-    </section>
-
-    <!-- Cart Section -->
-    <section id="cartSection" class="service-list-card">
-      <div class="service-list-card">
-        <h2>Your Selection</h2>
-        <div id="cart"></div>
-        <div class="total-section">
-          <div class="total-row">
-            <span>Total Duration:</span>
-            <span id="totalDuration">0 mins</span>
-          </div>
-          <div class="total-row">
-            <span>Total Price:</span>
-            <span>AED <span id="totalPrice">0.00</span></span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Booking Section -->
-    <section class="embossed-box" style="grid-column: span 2;">
-      <div class="service-list-card">
-        <h2>Book Your Appointment</h2>
-        <div class="env-warning" id="envWarning">
-          <strong>Note:</strong> Email functionality requires server-side configuration. In this GitHub Pages deployment, emails will be simulated but not actually sent.
-        </div>
-
-        <form id="bookingForm" onsubmit="submitBooking(event)">
-          <div class="form-row">
-            <div>
-              <label for="name">Full Name</label>
-              <input id="name" placeholder="Your Name" required type="text" />
-            </div>
-            <div>
-              <label for="email">Email</label>
-              <input id="email" placeholder="Your Email" required type="email" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div>
-              <label for="phone">Phone Number</label>
-              <input id="phone" placeholder="Your Phone Number" required type="tel" />
-            </div>
-
-            <label for="bookingDate">Preferred Date</label>
-            <input id="bookingDate" onchange="window.showTimeSlots()" required type="date" />
-
-            <label>Select Time Slot</label>
-            <div id="timeSlotContainer" class="hidden" style="margin: 10px 0;">
-              <div id="timeSlotButtons" class="time-slots-wrapper" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-            </div>
-            <input id="selectedTime" type="hidden" />
-
-            <label for="notes">Special Requests</label>
-            <textarea id="notes" placeholder="Any special requests or notes" rows="3"></textarea>
-
-            <button class="btn" id="bookingSubmitBtn" type="submit">Confirm Booking</button>
-
-            <div id="confirmation"></div>
-          </div> <!-- closes .form-row -->
-        </form>
-      </div>
-    </section>
- </main> <!-- 🔽 START: Admin Panel Wrapper -->
+<form id="bookingForm" onsubmit="submitBooking(event)">
+<div class="form-row">
+<div>
+<label for="name">Full Name</label>
+<input id="name" placeholder="Your Name" required="" type="text"/>
+</div>
+<div>
+<label for="email">Email</label>
+<input id="email" placeholder="Your Email" required="" type="email"/>
+</div>
+</div>
+<div class="form-row">
+<div>
+<label for="phone">Phone Number</label>
+<input id="phone" placeholder="Your Phone Number" required="" type="tel"/>
+</div>
+<div>
+<label for="bookingDate">Preferred Date</label>
+<input id="bookingDate" onchange="window.showTimeSlots()" required type="date" />
+</div>
+</div>
+<div>
+<label>Select Time Slot</label>
+<div class="time-slots-container" id="timeSlots">
+<p>Please select a date first</p>
+</div>
+<input id="selectedTime" type="hidden"/>
+</div>
+<label for="notes">Special Requests</label>
+<textarea id="notes" placeholder="Any special requests or notes" rows="3"></textarea>
+<button class="btn" id="bookingSubmitBtn" type="submit">Confirm Booking</button>
+ </form>
+<div id="confirmation"></div>
+</section>
+</main> <!-- 🔽 START: Admin Panel Wrapper -->
 <div id="adminPanelWrapper" style="display: none;">
   <section id="adminLoginSection">
     <h2>Admin Login</h2>
