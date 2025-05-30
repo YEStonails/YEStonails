@@ -1411,14 +1411,15 @@ function removeFromCart(index) {
     `;
   }
 }
-    // Logout admin
-function logoutAdmin() {
+   function logoutAdmin() {
   document.getElementById('adminLoginSection').classList.remove('hidden');
   document.getElementById('adminPanel').classList.add('hidden');
   document.getElementById('adminLogin').reset();
   document.getElementById('adminLoginMessage').innerHTML = '';
 }
 window.logoutAdmin = logoutAdmin;
+
+
 
 function showAdminLogin() {
   document.getElementById('userPanel').style.display = 'none';
