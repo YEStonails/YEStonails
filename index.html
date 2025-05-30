@@ -117,189 +117,135 @@
 
 <body>
 <header>
-  <div id="logoContainer">
-    <!-- Logo from Supabase setting -->
-  </div>
+  <div id="logoContainer"></div>
   <h1 class="shimmer-text">Yes to Nails<sup>&reg;</sup></h1>
 </header>
 
 <nav>
-  <a onclick="showUserPanel()">Book</a>
+  <a onclick="showUserPanel()">Book Now</a>
   <a onclick="showAdminLogin()">Admin</a>
 </nav>
-<main id="userPanel">
-  <section id="services" class="service-list-card">
-    <!-- Services from Supabase will populate here -->
+
+<main>
+  <!-- Services Section -->
+  <section id="servicesSection">
+    <h2>Services</h2>
+    <div id="services" class="service-list-card"></div>
   </section>
 
+  <!-- Cart Section -->
   <section id="cartSection">
-    <h2>Your Cart</h2>
-    <div id="cartItems"></div>
+    <h2>Selected Services</h2>
+    <div id="cartItems" class="service-list-card"></div>
     <div class="total-section">
-      <div class="total-row"><span>Total:</span><span id="totalPrice">AED 0.00</span></div>
       <div class="total-row"><span>Total Duration:</span><span id="totalDuration">0 mins</span></div>
+      <div class="total-row"><span>Total Price:</span><span id="totalPrice">AED 0.00</span></div>
+      <button class="btn" onclick="showBookingForm()">Proceed to Book</button>
     </div>
-  </section>
-
-  <section>
-    <h2>Book Appointment</h2>
-    <form id="bookingForm" onsubmit="submitBooking(event)">
-      <input type="text" id="name" placeholder="Your Name" required>
-      <input type="email" id="email" placeholder="Your Email" required>
-      <input type="tel" id="phone" placeholder="Your Phone" required>
-      <input type="date" id="bookingDate" required onchange="showTimeSlots()">
-
-      <div id="timeSlotContainer" class="time-slots-container"></div>
-
-      <textarea id="notes" placeholder="Notes (optional)"></textarea>
-      <button class="btn" type="submit">Confirm Booking</button>
-    </form>
   </section>
 </main>
 
+<!-- Booking Form Section -->
+<section id="userPanel" class="hidden">
+  <h2>Book Appointment</h2>
+  <form id="bookingForm">
+    <input type="text" id="name" placeholder="Your Name" required />
+    <input type="email" id="email" placeholder="Your Email" required />
+    <input type="tel" id="phone" placeholder="Your Phone Number" required />
+    <input type="date" id="bookingDate" required onchange="showTimeSlots()" />
+    <div class="time-slots-container" id="timeSlotsContainer"></div>
+    <textarea id="notes" placeholder="Additional Notes"></textarea>
+    <button type="submit" class="btn">Confirm Booking</button>
+  </form>
+</section>
 
-  <script type="module">
-    // ✅ Declare shared variables
-    let bookings = [];
-    let cart = [];
-    const businessHours = { days: {} };
-    const emailSettings = {};
+<!-- Admin Login Panel -->
+<section id="adminLoginSection" class="hidden">
+  <h2>Admin Login</h2>
+  <form id="adminLogin">
+    <input type="password" id="adminPassword" placeholder="Enter Admin Password" required />
+    <button class="btn" type="submit">Login</button>
+  </form>
+  <div id="adminLoginMessage"></div>
+</section>
 
-    // ✅ Supabase already initialized above in head
+<!-- Admin Panel -->
+<section id="adminPanel" class="hidden">
+  <div class="logout-link" onclick="logoutAdmin()">Logout</div>
+  <div class="tab-container">
+    <div class="tab-buttons">
+      <button class="tab-button active" onclick="switchTab('servicesTab')">Manage Services</button>
+      <button class="tab-button" onclick="switchTab('bookingsTab')">Bookings</button>
+      <button class="tab-button" onclick="switchTab('settingsTab')">Settings</button>
+    </div>
 
-    // ========== SERVICES ==========
-    async function fetchServices() {
-      const { data, error } = await supabase.from('services').select('*');
-      if (error) console.error('Error fetching services:', error.message);
-      else renderServices(data || []);
-    }
+    <div class="tab-content">
+      <div id="servicesTab" class="tab-panel active">
+        <!-- Service Manager Content -->
+        <div class="admin-card">
+          <h3>Service Manager</h3>
+          <div id="serviceManagerSection"></div>
+        </div>
+      </div>
 
-    function renderServices(services) {
-      const container = document.getElementById('services');
-      container.innerHTML = '';
-      services.forEach(service => {
-        const div = document.createElement('div');
-        div.className = 'service-item';
-        div.innerHTML = `
-          <div class="service-info">
-            <p class="service-title">${service.name}</p>
-            <p class="service-category">${service.category}</p>
-            <p class="service-description">${service.description}</p>
+      <div id="bookingsTab" class="tab-panel">
+        <!-- Booking Manager -->
+        <div class="admin-card">
+          <h3>Booking List</h3>
+          <table class="admin-table">
+            <thead>
+              <tr><th>Date/Time</th><th>Client</th><th>Services</th><th>Price</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody id="bookingsList"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="settingsTab" class="tab-panel">
+        <div class="admin-card">
+          <h3>Business Hours</h3>
+          <form id="businessHoursForm"></form>
+          <div id="hoursMessage" class="success-message"></div>
+        </div>
+
+        <div class="admin-card">
+          <h3>Upload Logo</h3>
+          <div class="logo-upload-container">
+            <input type="file" id="logoUpload" />
+            <button class="btn" onclick="saveLogo()">Upload</button>
           </div>
-          <div class="service-meta">
-            <p>${service.duration} min</p>
-            <p>AED ${service.price.toFixed(2)}</p>
-            <button class="add-btn" onclick='addToCart(${JSON.stringify(service)})'>Add</button>
-          </div>`;
-        container.appendChild(div);
-      });
-    }
+          <div id="logoPreview" class="logo-preview"></div>
+        </div>
 
+        <div class="admin-card">
+          <h3>Email Settings</h3>
+          <form onsubmit="saveEmailSettings(); return false;">
+            <input type="email" id="adminEmail" placeholder="Admin Email" />
+            <div class="email-toggle">
+              <label class="switch">
+                <input type="checkbox" id="adminEmailToggle" />
+                <span class="slider"></span>
+              </label>
+              <label>Send email to admin</label>
+            </div>
+            <div class="email-toggle">
+              <label class="switch">
+                <input type="checkbox" id="customerEmailToggle" />
+                <span class="slider"></span>
+              </label>
+              <label>Send confirmation to customer</label>
+            </div>
+            <button type="submit" class="btn">Save Settings</button>
+            <div id="emailSettingsMessage" class="success-message"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    // ========== BOOKINGS ==========
-    async function fetchBookings() {
-      const { data, error } = await supabase.from('bookings').select('*');
-      if (error) console.error('Error fetching bookings:', error.message);
-      bookings = data || [];
-      populateBookingsList(); // You can implement this if needed
-    }
+<footer>&copy; 2025 Yes to Nails. All rights reserved.</footer>
 
-    async function createBooking(newBooking) {
-      const { error } = await supabase.from('bookings').insert([newBooking]);
-      if (error) {
-        alert('Booking failed.');
-        console.error(error);
-      } else {
-        alert('Booking confirmed!');
-        document.getElementById('bookingForm').reset();
-        cart = [];
-        updateCart();
-        fetchBookings();
-      }
-    }
-
-    // Placeholder to avoid error if not implemented yet
-    function populateBookingsList() {
-      console.log('populateBookingsList() not yet implemented');
-    }
-
-    // ========== BUSINESS HOURS ==========
-    async function fetchBusinessHours() {
-      const { data, error } = await supabase.from('business_hours').select('*');
-      if (error) return console.error('Error fetching hours:', error.message);
-      const daysMap = {};
-      data.forEach(day => daysMap[day.day.toLowerCase()] = day);
-      businessHours.days = daysMap;
-    }
-
-    async function saveBusinessHours(event) {
-      event.preventDefault();
-      const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-      for (const day of days) {
-        const open = document.getElementById(`${day}Open`).value;
-        const close = document.getElementById(`${day}Close`).value;
-        const closed = document.getElementById(`${day}Closed`).checked;
-        await supabase.from('business_hours').upsert({ day, open, close, closed }, { onConflict: ['day'] });
-      }
-      document.getElementById('hoursMessage').innerText = 'Hours saved!';
-    }
-
-    // ========== SETTINGS (Email + Logo) ==========
-    async function fetchSettings() {
-      const { data, error } = await supabase.from('settings').select('*');
-      if (error) return console.error('Settings fetch error:', error.message);
-      data.forEach(setting => {
-        if (setting.key === 'admin_email') document.getElementById('adminEmail').value = setting.value;
-        if (setting.key === 'send_to_admin') document.getElementById('adminEmailToggle').checked = setting.value === 'true';
-        if (setting.key === 'send_to_customer') document.getElementById('customerEmailToggle').checked = setting.value === 'true';
-        if (setting.key === 'logo_url') {
-          document.getElementById('logoContainer').innerHTML = `<img src="${setting.value}" alt="Logo" style="max-height:60px;">`;
-        }
-      });
-    }
-
-    async function saveEmailSettings() {
-      const updates = [
-        { key: 'admin_email', value: document.getElementById('adminEmail').value },
-        { key: 'send_to_admin', value: document.getElementById('adminEmailToggle').checked.toString() },
-        { key: 'send_to_customer', value: document.getElementById('customerEmailToggle').checked.toString() },
-      ];
-      for (const setting of updates) await supabase.from('settings').upsert(setting, { onConflict: ['key'] });
-      document.getElementById('emailSettingsMessage').innerText = 'Saved!';
-    }
-
-    async function saveLogo() {
-      const file = document.getElementById('logoUpload').files[0];
-      if (!file) return;
-      const fileName = `logo.${file.name.split('.').pop()}`;
-      const { error: uploadError } = await supabase.storage.from('assets').upload(fileName, file, { upsert: true });
-      if (uploadError) return console.error(uploadError.message);
-
-      const { data } = supabase.storage.from('assets').getPublicUrl(fileName);
-      const logoUrl = data.publicUrl;
-      await supabase.from('settings').upsert({ key: 'logo_url', value: logoUrl });
-      document.getElementById('logoPreview').innerHTML = `<img src="${logoUrl}" style="max-width:200px;">`;
-    }
-
-    // ========== PAGE LOAD ==========
-    document.addEventListener('DOMContentLoaded', () => {
-      fetchServices();
-      fetchBookings();
-      fetchBusinessHours();
-      fetchSettings();
-    });
-  </script>
-  <footer>
-  &copy; 2025 Yes to Nails. All rights reserved.
-</footer>
-
-<div id="adminLoginSection" class="hidden">
-  <!-- Add your Admin login form here if needed -->
-</div>
-
-<div id="adminPanel" class="hidden">
-  <!-- Add your Admin dashboard tabs and forms here -->
-</div>
 
 </body>
 </html>
