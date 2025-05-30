@@ -5,6 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Yes to Nails - Service Calculator</title>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <header>
+  <h1 class="shimmer-text">Yes to Nails<sup>&reg;</sup></h1>
+</header>
+
+<section id="userPanel">
+  <div id="logoContainer" class="centered"></div>
+  <div id="services" class="service-list-card"></div>
+  <div id="cartSection" class="service-list-card">
+    <h2>Cart</h2>
+    <ul id="cartItems"></ul>
+    <p><strong>Total:</strong> AED <span id="cartTotal">0.00</span></p>
+    <button class="btn" onclick="clearCart()">Clear</button>
+  </div>
+
+  <form id="bookingForm" class="service-list-card">
+    <h2>Book Appointment</h2>
+    <input type="text" id="name" placeholder="Your Name" required />
+    <input type="email" id="email" placeholder="Your Email" required />
+    <input type="tel" id="phone" placeholder="Phone Number" required />
+    <input type="date" id="bookingDate" required />
+    <div id="timeSlots"></div>
+    <textarea id="notes" placeholder="Notes (optional)"></textarea>
+    <button type="submit" class="btn">Confirm Booking</button>
+  </form>
+</section>
+
+<section id="adminLoginSection" class="service-list-card">
+  <h2>Admin Login</h2>
+  <form id="adminLogin">
+    <input type="password" id="adminPassword" placeholder="Enter Admin Password" required />
+    <button type="submit" class="btn">Login</button>
+  </form>
+  <p id="adminLoginMessage" class="error"></p>
+</section>
+
+<section id="adminPanel" class="hidden">
+  <div class="tab-buttons">
+    <button onclick="showServiceManager()">Services</button>
+    <button onclick="showBookingManager()">Bookings</button>
+    <button onclick="showBusinessSettings()">Settings</button>
+    <button onclick="logoutAdmin()" class="logout-btn">Logout</button>
+  </div>
+
+  <div id="serviceManager" class="tab-section">
+    <h2>Manage Services</h2>
+    <form id="addServiceForm">
+      <input type="text" id="serviceName" placeholder="Name" required />
+      <input type="text" id="serviceCategory" placeholder="Category" />
+      <input type="number" id="servicePrice" placeholder="Price (AED)" required />
+      <input type="number" id="serviceDuration" placeholder="Duration (min)" required />
+      <textarea id="serviceDescription" placeholder="Description"></textarea>
+      <button type="submit" class="btn">Add Service</button>
+    </form>
+    <div id="serviceList"></div>
+  </div>
+
+  <div id="bookingManager" class="tab-section hidden">
+    <h2>Manage Bookings</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Client</th>
+          <th>Services</th>
+          <th>Price & Duration</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="bookingsList"></tbody>
+    </table>
+  </div>
+
+  <div id="businessSettings" class="tab-section hidden">
+    <h2>Business Hours</h2>
+    <form id="businessHoursForm">
+      <div id="businessHoursFields"></div>
+      <button type="submit" class="btn">Save Hours</button>
+      <p id="hoursMessage" class="success"></p>
+    </form>
+
+    <h2>Logo</h2>
+    <input type="file" id="logoUpload" />
+    <button class="btn" onclick="saveLogo()">Save Logo</button>
+    <div id="logoPreview"></div>
+
+    <h2>Email Settings</h2>
+    <label>Email for Admin Notifications</label>
+    <input type="email" id="adminEmail" />
+    <label><input type="checkbox" id="adminEmailToggle" /> Send Email to Admin</label><br />
+    <label><input type="checkbox" id="customerEmailToggle" /> Send Email to Customer</label><br />
+    <button class="btn" onclick="saveEmailSettings()">Save Email Settings</button>
+    <p id="emailSettingsMessage" class="success"></p>
+  </div>
+</section>
+
 
   <!-- Supabase -->
   <script type="module">
