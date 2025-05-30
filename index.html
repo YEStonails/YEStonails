@@ -116,136 +116,175 @@
 </head>
 
 <body>
-<header>
-  <div id="logoContainer"></div>
-  <h1 class="shimmer-text">Yes to Nails<sup>&reg;</sup></h1>
-</header>
+<body>
+  <header>
+    <div id="logoContainer"></div>
+    <h1 class="shimmer-text">Yes to Nails<sup>&reg;</sup></h1>
+  </header>
 
-<nav>
-  <a onclick="showUserPanel()">Book Now</a>
-  <a onclick="showAdminLogin()">Admin</a>
-</nav>
+  <nav>
+    <a onclick="showUserPanel()">Services</a> |
+    <a onclick="showAdminLogin()">Admin</a>
+  </nav>
 
-<main>
-  <!-- Services Section -->
-  <section id="servicesSection">
-    <h2>Services</h2>
-    <div id="services" class="service-list-card"></div>
+  <!-- === MAIN USER PANEL === -->
+  <main id="userPanel">
+    <section id="services">
+      <h2>Browse Services</h2>
+      <select id="categoryFilter" onchange="filterServices()">
+        <option value="all">All Categories</option>
+      </select>
+      <div id="serviceList"></div>
+    </section>
+
+    <section id="cartSection">
+      <h2>Your Selection</h2>
+      <div id="cart"></div>
+      <div class="total-section">
+        <div class="total-row"><span>Total Duration:</span><span id="totalDuration">0 mins</span></div>
+        <div class="total-row"><span>Total Price:</span><span>AED <span id="totalPrice">0.00</span></span></div>
+      </div>
+    </section>
+
+    <section style="grid-column: span 2;">
+      <h2>Book Your Appointment</h2>
+      <form id="bookingForm" onsubmit="submitBooking(event)">
+        <div class="form-row">
+          <div>
+            <label for="name">Full Name</label>
+            <input id="name" placeholder="Your Name" required type="text" />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" placeholder="Your Email" required type="email" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label for="phone">Phone Number</label>
+            <input id="phone" placeholder="Your Phone Number" required type="tel" />
+          </div>
+          <div>
+            <label for="bookingDate">Preferred Date</label>
+            <input id="bookingDate" required type="date" onchange="generateTimeSlots()" />
+          </div>
+        </div>
+
+        <div>
+          <label>Select Time Slot</label>
+          <div class="time-slots-container" id="timeSlots">
+            <p>Please select a date first</p>
+          </div>
+          <input type="hidden" id="selectedTime" required />
+        </div>
+
+        <label for="notes">Special Requests</label>
+        <textarea id="notes" placeholder="Any special requests or notes" rows="3"></textarea>
+
+        <button class="btn" id="bookingSubmitBtn" type="submit">Confirm Booking</button>
+      </form>
+      <div id="confirmation"></div>
+    </section>
+  </main>
+
+  <!-- === ADMIN LOGIN === -->
+  <section id="adminLoginSection" class="hidden">
+    <h2>Admin Login</h2>
+    <form id="adminLogin" onsubmit="adminAuth(event)">
+      <label for="adminUser">Username</label>
+      <input id="adminUser" required type="text" placeholder="Admin Username" />
+      <label for="adminPass">Password</label>
+      <input id="adminPass" required type="password" placeholder="Admin Password" />
+      <button type="submit" class="btn">Login</button>
+    </form>
+    <div id="adminLoginMessage" class="warning-message"></div>
   </section>
 
-  <!-- Cart Section -->
-  <section id="cartSection">
-    <h2>Selected Services</h2>
-    <div id="cartItems" class="service-list-card"></div>
-    <div class="total-section">
-      <div class="total-row"><span>Total Duration:</span><span id="totalDuration">0 mins</span></div>
-      <div class="total-row"><span>Total Price:</span><span id="totalPrice">AED 0.00</span></div>
-      <button class="btn" onclick="showBookingForm()">Proceed to Book</button>
-    </div>
-  </section>
-</main>
+  <!-- === ADMIN PANEL === -->
+  <section id="adminPanel" class="hidden">
+    <h2>Admin Dashboard</h2>
+    <div class="logout-link" onclick="logoutAdmin()">Logout</div>
 
-<!-- Booking Form Section -->
-<section id="userPanel" class="hidden">
-  <h2>Book Appointment</h2>
-  <form id="bookingForm">
-    <input type="text" id="name" placeholder="Your Name" required />
-    <input type="email" id="email" placeholder="Your Email" required />
-    <input type="tel" id="phone" placeholder="Your Phone Number" required />
-    <input type="date" id="bookingDate" required onchange="showTimeSlots()" />
-    <div class="time-slots-container" id="timeSlotsContainer"></div>
-    <textarea id="notes" placeholder="Additional Notes"></textarea>
-    <button type="submit" class="btn">Confirm Booking</button>
-  </form>
-</section>
-
-<!-- Admin Login Panel -->
-<section id="adminLoginSection" class="hidden">
-  <h2>Admin Login</h2>
-  <form id="adminLogin">
-    <input type="password" id="adminPassword" placeholder="Enter Admin Password" required />
-    <button class="btn" type="submit">Login</button>
-  </form>
-  <div id="adminLoginMessage"></div>
-</section>
-
-<!-- Admin Panel -->
-<section id="adminPanel" class="hidden">
-  <div class="logout-link" onclick="logoutAdmin()">Logout</div>
-  <div class="tab-container">
-    <div class="tab-buttons">
-      <button class="tab-button active" onclick="switchTab('servicesTab')">Manage Services</button>
-      <button class="tab-button" onclick="switchTab('bookingsTab')">Bookings</button>
-      <button class="tab-button" onclick="switchTab('settingsTab')">Settings</button>
-    </div>
-
-    <div class="tab-content">
-      <div id="servicesTab" class="tab-panel active">
-        <!-- Service Manager Content -->
-        <div class="admin-card">
-          <h3>Service Manager</h3>
-          <div id="serviceManagerSection"></div>
-        </div>
+    <div class="tab-container">
+      <div class="tab-buttons">
+        <button class="tab-button active" onclick="switchTab('servicesTab')">Manage Services</button>
+        <button class="tab-button" onclick="switchTab('bookingsTab')">Bookings</button>
+        <button class="tab-button" onclick="switchTab('settingsTab')">Settings</button>
       </div>
 
-      <div id="bookingsTab" class="tab-panel">
-        <!-- Booking Manager -->
-        <div class="admin-card">
-          <h3>Booking List</h3>
-          <table class="admin-table">
-            <thead>
-              <tr><th>Date/Time</th><th>Client</th><th>Services</th><th>Price</th><th>Status</th><th>Action</th></tr>
-            </thead>
-            <tbody id="bookingsList"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="settingsTab" class="tab-panel">
-        <div class="admin-card">
-          <h3>Business Hours</h3>
-          <form id="businessHoursForm"></form>
-          <div id="hoursMessage" class="success-message"></div>
+      <div class="tab-content">
+        <!-- SERVICES MANAGER -->
+        <div id="servicesTab" class="tab-panel active">
+          <div class="admin-card">
+            <h3>Service Manager</h3>
+            <div id="serviceManagerSection"></div>
+          </div>
         </div>
 
-        <div class="admin-card">
-          <h3>Upload Logo</h3>
-          <div class="logo-upload-container">
+        <!-- BOOKINGS TABLE -->
+        <div id="bookingsTab" class="tab-panel">
+          <div class="admin-card">
+            <h3>Booking List</h3>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Date/Time</th>
+                  <th>Client</th>
+                  <th>Services</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="settingsTab" class="tab-panel">
+          <div class="admin-card">
+            <h3>Business Hours</h3>
+            <form id="businessHoursForm"></form>
+            <div id="hoursMessage" class="success-message"></div>
+          </div>
+
+          <div class="admin-card">
+            <h3>Upload Logo</h3>
             <input type="file" id="logoUpload" />
             <button class="btn" onclick="saveLogo()">Upload</button>
+            <div id="logoPreview"></div>
           </div>
-          <div id="logoPreview" class="logo-preview"></div>
-        </div>
 
-        <div class="admin-card">
-          <h3>Email Settings</h3>
-          <form onsubmit="saveEmailSettings(); return false;">
-            <input type="email" id="adminEmail" placeholder="Admin Email" />
-            <div class="email-toggle">
-              <label class="switch">
-                <input type="checkbox" id="adminEmailToggle" />
-                <span class="slider"></span>
-              </label>
-              <label>Send email to admin</label>
-            </div>
-            <div class="email-toggle">
-              <label class="switch">
-                <input type="checkbox" id="customerEmailToggle" />
-                <span class="slider"></span>
-              </label>
-              <label>Send confirmation to customer</label>
-            </div>
-            <button type="submit" class="btn">Save Settings</button>
-            <div id="emailSettingsMessage" class="success-message"></div>
-          </form>
+          <div class="admin-card">
+            <h3>Email Settings</h3>
+            <form onsubmit="saveEmailSettings(); return false;">
+              <input type="email" id="adminEmail" placeholder="Admin Email" />
+              <div class="email-toggle">
+                <label class="switch">
+                  <input type="checkbox" id="adminEmailToggle" />
+                  <span class="slider"></span>
+                </label>
+                <label>Send email to admin</label>
+              </div>
+              <div class="email-toggle">
+                <label class="switch">
+                  <input type="checkbox" id="customerEmailToggle" />
+                  <span class="slider"></span>
+                </label>
+                <label>Send confirmation to customer</label>
+              </div>
+              <button type="submit" class="btn">Save Settings</button>
+              <div id="emailSettingsMessage" class="success-message"></div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<footer>&copy; 2025 Yes to Nails. All rights reserved.</footer>
-
+  <footer>&copy; 2025 Yes to Nails. All rights reserved.</footer>
 
 </body>
 </html>
