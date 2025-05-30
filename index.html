@@ -2327,7 +2327,9 @@ window.logoutAdmin = logoutAdmin;
       .select('time_start, time_end')
       .eq('date', bookingDate);
 
-    const selectedDay = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long' });
+    const selectedDay = new Date(bookingDate)
+      .toLocaleDateString('en-US', { weekday: 'long' })
+      .trim();
 
     const { data: hours, error } = await supabase
       .from('business_hours')
@@ -2341,94 +2343,90 @@ window.logoutAdmin = logoutAdmin;
       return;
     }
 
-  let slots = generateTimeSlots(hours.open_time, hours.close_time, totalDuration);
+    let slots = generateTimeSlots(hours.open_time, hours.close_time, totalDuration);
 
-// Remove slots that fall during break
-if (hours.break_start && hours.break_end) {
-  const breakStart = new Date(`1970-01-01T${hours.break_start}`);
-  const breakEnd = new Date(`1970-01-01T${hours.break_end}`);
-  slots = slots.filter(slot => {
-    const slotStart = new Date(`1970-01-01T${slot.start}`);
-    const slotEnd = new Date(`1970-01-01T${slot.end}`);
-    return slotEnd <= breakStart || slotStart >= breakEnd;
-  });
-}
-
-const available = filterAvailableSlots(slots, bookings || []);
-renderTimeSlotButtons(available);
-
-
-// Generate slots based on duration (non-overlapping)
-function generateTimeSlots(openTime, closeTime, duration) {
-  const slots = [];
-  if (!openTime || !closeTime || !duration) return slots;
-
-  const [startHour, startMin] = openTime.split(':').map(Number);
-  const [endHour, endMin] = closeTime.split(':').map(Number);
-
-  let current = new Date('1970-01-01T00:00:00');
-  current.setHours(startHour, startMin, 0, 0);
-
-  const end = new Date('1970-01-01T00:00:00');
-  end.setHours(endHour, endMin, 0, 0);
-
-  while (current.getTime() + duration * 60000 <= end.getTime()) {
-    const slotStart = new Date(current);
-    const slotEnd = new Date(current.getTime() + duration * 60000);
-    slots.push({ start: formatTime(slotStart), end: formatTime(slotEnd) });
-    current = slotEnd; // step forward by full duration (non-overlapping)
-  }
-
-  return slots;
-}
-
-// Exclude slots that overlap existing bookings
-function filterAvailableSlots(slots, bookings) {
-  return slots.map(slot => {
-    const slotStart = new Date(`1970-01-01T${slot.start}`);
-    const slotEnd = new Date(`1970-01-01T${slot.end}`);
-
-    const isAvailable = !bookings.some(b => {
-      const bookedStart = new Date(`1970-01-01T${b.time_start}`);
-      const bookedEnd = new Date(`1970-01-01T${b.time_end}`);
-      return slotStart < bookedEnd && slotEnd > bookedStart;
-    });
-
-    return { ...slot, available: isAvailable };
-  });
-}
-
-// Render buttons only for slots
-function renderTimeSlotButtons(slots) {
-  const container = document.getElementById('timeSlotButtons');
-  const wrapper = document.getElementById('timeSlotContainer');
-  container.innerHTML = '';
-  wrapper.classList.remove('hidden');
-
-  if (!slots || slots.length === 0) {
-    container.innerHTML = "<p>No available slots for the selected date and duration.</p>";
-    return;
-  }
-
-  slots.forEach(slot => {
-    const btn = document.createElement('button');
-    btn.textContent = `${slot.start} - ${slot.end}`;
-    btn.className = 'time-slot-btn';
-    btn.disabled = !slot.available;
-
-    if (!slot.available) {
-      btn.classList.add('disabled');
+    // Remove slots that fall during break
+    if (hours.break_start && hours.break_end) {
+      const breakStart = new Date(`1970-01-01T${hours.break_start}`);
+      const breakEnd = new Date(`1970-01-01T${hours.break_end}`);
+      slots = slots.filter(slot => {
+        const slotStart = new Date(`1970-01-01T${slot.start}`);
+        const slotEnd = new Date(`1970-01-01T${slot.end}`);
+        return slotEnd <= breakStart || slotStart >= breakEnd;
+      });
     }
 
-    btn.onclick = () => {
-      document.getElementById('selectedTime').value = JSON.stringify({ start: slot.start, end: slot.end });
-      highlightSelectedSlot(btn);
-    };
+    const available = filterAvailableSlots(slots, bookings || []);
+    renderTimeSlotButtons(available);
+  };
 
-    container.appendChild(btn);
-  });
-}
+  function generateTimeSlots(openTime, closeTime, duration) {
+    const slots = [];
+    if (!openTime || !closeTime || !duration) return slots;
 
+    const [startHour, startMin] = openTime.split(':').map(Number);
+    const [endHour, endMin] = closeTime.split(':').map(Number);
+
+    let current = new Date('1970-01-01T00:00:00');
+    current.setHours(startHour, startMin, 0, 0);
+
+    const end = new Date('1970-01-01T00:00:00');
+    end.setHours(endHour, endMin, 0, 0);
+
+    while (current.getTime() + duration * 60000 <= end.getTime()) {
+      const slotStart = new Date(current);
+      const slotEnd = new Date(current.getTime() + duration * 60000);
+      slots.push({ start: formatTime(slotStart), end: formatTime(slotEnd) });
+      current = slotEnd; // step forward by full duration (non-overlapping)
+    }
+
+    return slots;
+  }
+
+  function filterAvailableSlots(slots, bookings) {
+    return slots.map(slot => {
+      const slotStart = new Date(`1970-01-01T${slot.start}`);
+      const slotEnd = new Date(`1970-01-01T${slot.end}`);
+
+      const isAvailable = !bookings.some(b => {
+        const bookedStart = new Date(`1970-01-01T${b.time_start}`);
+        const bookedEnd = new Date(`1970-01-01T${b.time_end}`);
+        return slotStart < bookedEnd && slotEnd > bookedStart;
+      });
+
+      return { ...slot, available: isAvailable };
+    });
+  }
+
+  function renderTimeSlotButtons(slots) {
+    const container = document.getElementById('timeSlotButtons');
+    const wrapper = document.getElementById('timeSlotContainer');
+    container.innerHTML = '';
+    wrapper.classList.remove('hidden');
+
+    if (!slots || slots.length === 0) {
+      container.innerHTML = "<p>No available slots for the selected date and duration.</p>";
+      return;
+    }
+
+    slots.forEach(slot => {
+      const btn = document.createElement('button');
+      btn.textContent = `${slot.start} - ${slot.end}`;
+      btn.className = 'time-slot-btn';
+      btn.disabled = !slot.available;
+
+      if (!slot.available) {
+        btn.classList.add('disabled');
+      }
+
+      btn.onclick = () => {
+        document.getElementById('selectedTime').value = JSON.stringify({ start: slot.start, end: slot.end });
+        highlightSelectedSlot(btn);
+      };
+
+      container.appendChild(btn);
+    });
+  }
 
   function highlightSelectedSlot(selectedBtn) {
     const allBtns = document.querySelectorAll('#timeSlotButtons button');
@@ -2440,6 +2438,7 @@ function renderTimeSlotButtons(slots) {
     return date.toTimeString().slice(0, 5);
   }
 </script>
+
     <div id="timeSlotContainer" class="hidden">
   <label for="timeSlotButtons">Available Time Slots</label>
   <div id="timeSlotButtons" class="time-slots-wrapper"></div>
