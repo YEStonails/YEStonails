@@ -1598,17 +1598,29 @@ function showAdminLogin() {
       event.currentTarget.classList.add('active');
     }
 
-    // Load business hours to form
-    function loadBusinessHoursToForm() {
-      document.getElementById('appointmentInterval').value = businessHours.interval;
-      
-      for (const day in businessHours.days) {
-        const settings = businessHours.days[day];
-        document.getElementById(`${day}Open`).value = settings.open;
-        document.getElementById(`${day}Close`).value = settings.close;
-        document.getElementById(`${day}Closed`).checked = settings.closed;
+  async function loadBusinessHoursToForm() {
+  try {
+    const { data, error } = await supabase
+      .from('business_hours')
+      .select('day, open_time, close_time');
+
+    if (error) throw error;
+
+    data.forEach(row => {
+      const day = row.day.toLowerCase();
+      const openInput = document.getElementById(`${day}Open`);
+      const closeInput = document.getElementById(`${day}Close`);
+
+      if (openInput && closeInput) {
+        openInput.value = row.open_time || '';
+        closeInput.value = row.close_time || '';
       }
-    }
+    });
+  } catch (err) {
+    console.error('Error loading business hours:', err);
+  }
+}
+
 
     // Load email settings to form
     function loadEmailSettings() {
@@ -1618,49 +1630,70 @@ function showAdminLogin() {
     }
 
     // Save business hours
-    function saveBusinessHours(event) {
-      event.preventDefault();
-      
-      businessHours.interval = document.getElementById('appointmentInterval').value;
-      
-      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      days.forEach(day => {
-        businessHours.days[day] = {
-          open: document.getElementById(`${day}Open`).value,
-          close: document.getElementById(`${day}Close`).value,
-          closed: document.getElementById(`${day}Closed`).checked
-        };
-      });
-      
-      // Save to localStorage
-      saveDataToStorage();
-      
-      document.getElementById('hoursMessage').innerHTML = `
-        <div class="success-message">Business hours saved successfully!</div>
-      `;
-      
-      setTimeout(() => {
-        document.getElementById('hoursMessage').innerHTML = '';
-      }, 3000);
+    async function saveBusinessHours(event) {
+  event.preventDefault();
+
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const updates = [];
+
+  for (const day of days) {
+    const open = document.getElementById(`${day.toLowerCase()}Open`).value;
+    const close = document.getElementById(`${day.toLowerCase()}Close`).value;
+
+    updates.push({ day, open_time: open, close_time: close });
+  }
+
+  try {
+    for (const row of updates) {
+      await supabase
+        .from('business_hours')
+        .update({
+          open_time: row.open_time,
+          close_time: row.close_time
+        })
+        .eq('day', row.day);
     }
 
-    // Save email settings
-    function saveEmailSettings() {
-      emailSettings.sendToCustomers = document.getElementById('customerEmailToggle').checked;
-      emailSettings.sendToAdmin = document.getElementById('adminEmailToggle').checked;
-      emailSettings.adminEmail = document.getElementById('adminEmail').value || CONFIG.ADMIN_EMAIL;
-      
-      // Save to localStorage
-      saveDataToStorage();
-      
-      document.getElementById('emailSettingsMessage').innerHTML = `
-        <div class="success-message">Email settings saved successfully!</div>
-      `;
-      
-      setTimeout(() => {
-        document.getElementById('emailSettingsMessage').innerHTML = '';
-      }, 3000);
-    }
+    document.getElementById('hoursMessage').innerHTML = `
+      <div class="success-message">Business hours updated successfully.</div>
+    `;
+    setTimeout(() => {
+      document.getElementById('hoursMessage').innerHTML = '';
+    }, 3000);
+  } catch (error) {
+    console.error('Error saving business hours:', error);
+    alert('Failed to save business hours');
+  }
+}
+   async function saveEmailSettings() {
+  const sendToCustomers = document.getElementById('customerEmailToggle').checked;
+  const sendToAdmin = document.getElementById('adminEmailToggle').checked;
+  const adminEmail = document.getElementById('adminEmail').value || CONFIG.ADMIN_EMAIL;
+
+  try {
+    const { error } = await supabase
+      .from('email_settings')
+      .update({
+        send_to_customers: sendToCustomers,
+        send_to_admin: sendToAdmin,
+        admin_email: adminEmail
+      })
+      .eq('id', 1); // assuming you have a single row with id=1
+
+    if (error) throw error;
+
+    document.getElementById('emailSettingsMessage').innerHTML = `
+      <div class="success-message">Email settings saved successfully!</div>
+    `;
+
+    setTimeout(() => {
+      document.getElementById('emailSettingsMessage').innerHTML = '';
+    }, 3000);
+  } catch (err) {
+    console.error("Failed to save email settings:", err);
+    alert("Failed to save email settings.");
+  }
+}
 
     // Send test email
     function sendTestEmail() {
@@ -2558,10 +2591,26 @@ function loadBusinessHoursToForm() {
 }
 window.loadBusinessHoursToForm = loadBusinessHoursToForm;
 
-function loadEmailSettings() {
-  // Placeholder: Add logic to fetch email settings from Supabase
+async function loadEmailSettings() {
   console.log("loadEmailSettings executed (fetch from Supabase)");
+
+  try {
+    const { data, error } = await supabase
+      .from('email_settings')
+      .select('*')
+      .eq('id', 1)
+      .single();
+
+    if (error) throw error;
+
+    document.getElementById('customerEmailToggle').checked = data.send_to_customers;
+    document.getElementById('adminEmailToggle').checked = data.send_to_admin;
+    document.getElementById('adminEmail').value = data.admin_email || '';
+  } catch (err) {
+    console.error("Failed to load email settings:", err);
+  }
 }
+
 window.loadEmailSettings = loadEmailSettings;
 
         function adminAuth(event) {
