@@ -652,8 +652,7 @@
             </div>
 
             <label for="bookingDate">Preferred Date</label>
-            <input id="bookingDate" onchange="window.showTimeSlots()" required type="date" />
-
+            <input id="bookingDate" required type="date" />
             <label>Select Time Slot</label>
             <div id="timeSlotContainer" class="hidden" style="margin: 10px 0;">
               <div id="timeSlotButtons" class="time-slots-wrapper" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
@@ -2450,6 +2449,16 @@ function renderTimeSlotButtons(slots) {
   <label for="timeSlotButtons">Available Time Slots</label>
   <div id="timeSlotButtons" class="time-slots-wrapper"></div>
 </div>
+    <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("bookingDate").addEventListener("change", window.showTimeSlots);
+  });
+
+  window.showTimeSlots = async function () {
+    // Your slot generation logic should already be defined here
+    // If not, paste the full working showTimeSlots function here
+  };
+</script>
 
 </body>
 </html>
