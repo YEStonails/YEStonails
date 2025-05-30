@@ -642,7 +642,7 @@
 </div>
 <div>
 <label for="bookingDate">Preferred Date</label>
-<input id="bookingDate" onchange="generateTimeSlots()" required="" type="date"/>
+<input id="bookingDate" onchange="window.showTimeSlots()" required type="date" />
 </div>
 </div>
 <div>
@@ -1058,29 +1058,29 @@ function populateServices() {
     }
 
     // Add service to cart
-    function addToCart(serviceId) {
-      const service = services.find(s => s.id === serviceId);
-      if (service) {
-        cart.push({...service});
-        updateCart();
-        // Regenerate time slots if date is already selected
-        const selectedDate = document.getElementById('bookingDate').value;
-        if (selectedDate) {
-          generateTimeSlots();
-        }
-      }
+ function addToCart(serviceId) {
+  const service = services.find(s => s.id === serviceId);
+  if (service) {
+    cart.push({ ...service });
+    updateCart();
+    // Regenerate time slots if date is already selected
+    const selectedDate = document.getElementById('bookingDate').value;
+    if (selectedDate) {
+      window.showTimeSlots();  // ✅ Correct main function
     }
+  }
+}
 
-    // Remove service from cart
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      updateCart();
-      // Regenerate time slots if date is already selected
-      const selectedDate = document.getElementById('bookingDate').value;
-      if (selectedDate) {
-        generateTimeSlots();
-      }
-
+// Remove service from cart
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  updateCart();
+  // Regenerate time slots if date is already selected
+  const selectedDate = document.getElementById('bookingDate').value;
+  if (selectedDate) {
+    window.showTimeSlots();  // ✅ Corrected function call
+  }
+}
     // Update cart display
     function updateCart() {
       const cartElement = document.getElementById('cart');
@@ -1125,11 +1125,7 @@ function populateServices() {
       return days[date.getDay()];
     }
 
-    // Generate available time slots based on selected date and services in cart
-    function generateTimeSlots() {
-      const selectedDate = document.getElementById('bookingDate').value;
-      const timeSlotsContainer = document.getElementById('timeSlots');
-      
+     
       if (!selectedDate) {
         timeSlotsContainer.innerHTML = '<p>Please select a date first</p>';
         return;
@@ -2358,6 +2354,8 @@ window.logoutAdmin = logoutAdmin;
 
   function generateTimeSlots(openTime, closeTime, duration) {
     const slots = [];
+    if (!openTime || !closeTime || !duration) return slots;
+
     const [startHour, startMin] = openTime.split(':').map(Number);
     const [endHour, endMin] = closeTime.split(':').map(Number);
 
@@ -2422,7 +2420,6 @@ window.logoutAdmin = logoutAdmin;
     return date.toTimeString().slice(0, 5);
   }
 </script>
-
 
 </body>
 </html>
