@@ -285,7 +285,7 @@
       cursor: not-allowed;
       text-decoration: line-through;
     }
-    .time-slots-container {
+    .time-slots- {
       margin: 1em 0;
     }
     .business-hours-table {
@@ -602,12 +602,16 @@
 <a onclick="showUserPanel()">Services</a> | 
     <a onclick="showAdminLogin()">Admin</a>
 </nav>
-<section id="services" style="grid-column: span 2; padding: 0 1em; margin: 2em 1em;">
+<section id="services" class="section-container">
   <div class="service-list-card">
     <h2>Browse Services</h2>
     <select id="categoryFilter" onchange="filterServices()">
       <option value="all">All Categories</option>
     </select>
+    <div id="serviceList"></div>
+  </div>
+</section>
+
     <div id="serviceList"></div>
   </div>
 </section>
