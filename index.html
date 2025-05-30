@@ -1,856 +1,158 @@
-
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-  <!-- Supabase CDN -->
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-  const supabaseUrl = 'https://fyphrauehrmotfderfey.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0'; // your anon key
-  window.supabase = createClient(supabaseUrl, supabaseKey);
-</script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Yes to Nails - Service Calculator</title>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Yes to Nails - Service Calculator</title>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js">
-  // ====================== BOOKINGS ======================
-  async function fetchBookings() {
-    const { data, error } = await supabase.from('bookings').select('*').order('date', { ascending: false });
-    if (error) {
-      console.error('Error fetching bookings:', error.message);
-      return;
-    }
-    window.bookings = data || [];
-    populateBookingsList();
-  }
+  <!-- Supabase -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabaseUrl = 'https://fyphrauehrmotfderfey.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0';
+    window.supabase = createClient(supabaseUrl, supabaseKey);
+  </script>
 
-  async function createBooking(newBooking) {
-    const { data, error } = await supabase.from('bookings').insert([newBooking]);
-    if (error) {
-      console.error('Error creating booking:', error.message);
-      alert('Failed to confirm booking. Please try again.');
-    } else {
-      alert('Booking confirmed!');
-      document.getElementById('bookingForm').reset();
-      cart = [];
-      updateCart();
-      fetchBookings(); // refresh bookings for time slot logic
-    }
-  }
-
-  // ====================== TIME SLOT CALCULATION ======================
-  function getBookedSlotsForDate(date) {
-    return bookings
-      .filter(b => b.date === date)
-      .map(b => ({ start: b.time.start, end: b.time.end }));
-  }
-
-  // ====================== BUSINESS HOURS ======================
-  async function fetchBusinessHours() {
-    const { data, error } = await supabase.from('business_hours').select('*');
-    if (error) {
-      console.error('Error fetching business hours:', error.message);
-      return;
-    }
-    const settings = data.reduce((acc, day) => {
-      acc[day.day.toLowerCase()] = {
-        open: day.open,
-        close: day.close,
-        closed: day.closed
-      };
-      return acc;
-    }, {});
-    businessHours.days = settings;
-  }
-
-  async function saveBusinessHours(event) {
-    event.preventDefault();
-    const updates = [];
-
-    const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-    days.forEach(day => {
-      updates.push({
-        day,
-        open: document.getElementById(day + 'Open').value,
-        close: document.getElementById(day + 'Close').value,
-        closed: document.getElementById(day + 'Closed').checked
-      });
-    });
-
-    for (const entry of updates) {
-      await supabase
-        .from('business_hours')
-        .upsert(entry, { onConflict: ['day'] });
-    }
-
-    document.getElementById('hoursMessage').innerText = 'Business hours saved!';
-  }
-
-  // ====================== SETTINGS (EMAIL + LOGO) ======================
-  async function fetchSettings() {
-    const { data, error } = await supabase.from('settings').select('*');
-    if (error) return console.error('Failed to load settings:', error.message);
-    data.forEach(setting => {
-      if (setting.key === 'admin_email') {
-        document.getElementById('adminEmail').value = setting.value;
-        emailSettings.adminEmail = setting.value;
-      }
-      if (setting.key === 'send_to_admin') {
-        document.getElementById('adminEmailToggle').checked = setting.value === 'true';
-      }
-      if (setting.key === 'send_to_customer') {
-        document.getElementById('customerEmailToggle').checked = setting.value === 'true';
-      }
-      if (setting.key === 'logo_url') {
-        const logoContainer = document.getElementById('logoContainer');
-        logoContainer.innerHTML = `<img src="${setting.value}" alt="Logo">`;
-      }
-    });
-  }
-
-  async function saveEmailSettings() {
-    const updates = [
-      { key: 'admin_email', value: document.getElementById('adminEmail').value },
-      { key: 'send_to_admin', value: document.getElementById('adminEmailToggle').checked.toString() },
-      { key: 'send_to_customer', value: document.getElementById('customerEmailToggle').checked.toString() },
-    ];
-
-    for (const row of updates) {
-      await supabase.from('settings').upsert(row, { onConflict: ['key'] });
-    }
-
-    document.getElementById('emailSettingsMessage').innerText = 'Email settings saved!';
-  }
-
-  async function saveLogo() {
-    const file = document.getElementById('logoUpload').files[0];
-    if (!file) return;
-
-    const fileExt = file.name.split('.').pop();
-    const fileName = `logo.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('assets')
-      .upload(filePath, file, { upsert: true });
-
-    if (uploadError) {
-      console.error('Upload failed:', uploadError.message);
-      return;
-    }
-
-    const { data } = supabase.storage.from('assets').getPublicUrl(filePath);
-    const logoUrl = data.publicUrl;
-
-    await supabase.from('settings').upsert({ key: 'logo_url', value: logoUrl });
-    document.getElementById('logoPreview').innerHTML = `<img src="${logoUrl}" style="max-width:200px;">`;
-    document.getElementById('logoMessage').innerText = 'Logo saved!';
-  }
-
-  // Re-run full loading on page load
-  document.addEventListener('DOMContentLoaded', () => {
-    fetchServices();
-    fetchBookings();
-    fetchBusinessHours();
-    fetchSettings();
-  });
-
-</script>
-<style>
-    :root {
-      --pink: #ffcce0;
-      --baby-pink: #ffe6f0;
-      --white: #ffffff;
-      --dark-pink: #d63384;
-      --button-pink: #ff99cc;
-    }
-    body {
-      font-family: 'Montserrat', Arial, sans-serif;
-      background-color: var(--baby-pink);
-      color: #333;
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-    }
-    header, footer {
-      background-color: var(--pink);
-      text-align: center;
-      padding: 1.5em;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    header img {
-      max-height: 80px;
-      margin-bottom: 0.5em;
-    }
-    header h1 {
-      margin: 0;
-      color: var(--dark-pink);
-      font-size: 1.8rem;
-    }
-    nav {
-      text-align: center;
-      padding: 0.8em;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    nav a {
-      text-decoration: none;
-      color: var(--dark-pink);
-      font-weight: bold;
-      cursor: pointer;
-      padding: 0.5em 1em;
-      border-radius: 4px;
-      transition: background-color 0.3s;
-    }
-    nav a:hover {
-      background-color: var(--pink);
-    }
-    main {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      padding: 2em;
-      gap: 1.5em;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    section {
-      background: var(--white);
-      padding: 1.5em;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.08);
-    }
-    h2 {
-      color: var(--dark-pink);
-      margin-top: 0;
-      border-bottom: 2px solid var(--pink);
-      padding-bottom: 0.5em;
-    }
-    .service {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.8em 0;
-      border-bottom: 1px solid #eee;
-    }
-    .service:hover {
-      background-color: #f9f9f9;
-    }
-    .service-info {
-      flex-grow: 1;
-    }
-    .service-name {
-      font-weight: bold;
-    }
-    .service-details {
-      font-size: 0.9em;
-      color: #666;
-    }
-    .service-price {
-      font-weight: bold;
-      margin: 0 1em;
-    }
-    .service-duration {
-      color: #666;
-      font-size: 0.9em;
-      margin-right: 1em;
-    }
-    .add-btn {
-      background-color: var(--button-pink);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 0.4em 0.8em;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .add-btn:hover {
-      background-color: var(--dark-pink);
-    }
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.8em 0;
-      border-bottom: 1px solid #eee;
-    }
-    .remove-btn {
-      background-color: #ff6b6b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 0.3em 0.6em;
-      cursor: pointer;
-      font-size: 0.8em;
-    }
-    .cart-empty {
-      text-align: center;
-      color: #999;
-      padding: 2em 0;
-    }
-    .total-section {
-      margin-top: 1em;
-      padding-top: 1em;
-      border-top: 2px dashed var(--pink);
-    }
-    .total-row {
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-    }
-    form input, form select, form textarea {
-      width: 100%;
-      padding: 0.8em;
-      margin: 0.5em 0 1em;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-family: inherit;
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1em;
-    }
-    .btn {
-      background-color: var(--button-pink);
-      color: white;
-      padding: 0.8em;
-      border: none;
-      width: 100%;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 1em;
-      transition: background-color 0.3s;
-    }
-    .btn:hover {
-      background-color: var(--dark-pink);
-    }
-    #adminPanelpper {
-      display: none;
-      max-width: 800px;
-      margin: 2em auto;
-      padding: 2em;
-      background: var(--white);
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    .hidden {
-      display: none !important;
-    }
-    .logout-link {
-      text-align: right;
-      margin: 0.5em;
-      font-size: 0.9em;
-      cursor: pointer;
-      color: var(--dark-pink);
-    }
-    .logout-link:hover {
-      text-decoration: underline;
-    }
-    .confirmation-box {
-      background-color: #d4edda;
-      color: #155724;
-      padding: 1em;
-      border-radius: 4px;
-      margin: 1em 0;
-      text-align: center;
-    }
-    .error-box {
-      background-color: #f8d7da;
-      color: #721c24;
-      padding: 1em;
-      border-radius: 4px;
-      margin: 1em 0;
-      text-align: center;
-    }
-    .admin-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 1em;
-      margin: 1em 0;
-    }
-    .admin-card {
-      background-color: #f8f9fa;
-      padding: 1em;
-      border-radius: 8px;
-      text-align: center;
-    }
-    .admin-card h3 {
-      margin-top: 0;
-      color: var(--dark-pink);
-    }
-    .admin-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1em 0;
-    }
-    .admin-table th, .admin-table td {
-      padding: 0.8em;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    .admin-table th {
-      background-color: var(--pink);
-    }
-    .admin-form {
-      margin: 1em 0;
-    }
-    .back-btn {
-      background-color: #6c757d;
-      color: white;
-      padding: 0.5em 1em;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 1em;
-    }
-    .category-badge {
-      display: inline-block;
-      background-color: var(--pink);
-      color: var(--dark-pink);
-      padding: 0.2em 0.6em;
-      border-radius: 12px;
-      font-size: 0.8em;
-      margin-right: 0.5em;
-    }
-    .time-slot {
-      display: inline-block;
-      padding: 0.5em 1em;
-      margin: 0.3em;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      cursor: pointer;
-      background-color: #f8f9fa;
-    }
-    .time-slot.selected {
-      background-color: var(--pink);
-      color: var(--dark-pink);
-      font-weight: bold;
-    }
-    .time-slot.booked {
-      background-color: #e9ecef;
-      color: #adb5bd;
-      cursor: not-allowed;
-      text-decoration: line-through;
-    }
-    .time-slots-container {
-      margin: 1em 0;
-    }
-    .business-hours-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1em 0;
-    }
-    .business-hours-table th, .business-hours-table td {
-      padding: 0.5em;
-      border: 1px solid #ddd;
-    }
-    .business-hours-table th {
-      background-color: var(--pink);
-      text-align: left;
-    }
-    .business-hours-table input[type="time"] {
-      width: 100%;
-      padding: 0.5em;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    .business-hours-table input[type="checkbox"] {
-      width: auto;
-      margin: 0;
-    }
-    .logo-preview {
-      max-width: 200px;
-      max-height: 100px;
-      margin: 1em 0;
-      border: 1px dashed #ddd;
-      padding: 0.5em;
-    }
-    .logo-upload-container {
-      margin: 1em 0;
-    }
-    .logo-upload-container input[type="file"] {
-      margin-bottom: 1em;
-    }
-    .tab-container {
-      margin: 1em 0;
-    }
-    .tab-buttons {
-      display: flex;
-      border-bottom: 1px solid #ddd;
-    }
-    .tab-button {
-      padding: 0.8em 1.5em;
-      background-color: #f8f9fa;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .tab-button.active {
-      background-color: var(--pink);
-      color: var(--dark-pink);
-      border-bottom: 2px solid var(--dark-pink);
-    }
-    .tab-content {
-      padding: 1em 0;
-    }
-    .tab-panel {
-      display: none;
-    }
-    .tab-panel.active {
-      display: block;
-    }
-    .success-message {
-      background-color: #d4edda;
-      color: #155724;
-      padding: 0.5em;
-      border-radius: 4px;
-      margin: 0.5em 0;
-      text-align: center;
-    }
-    .email-settings {
-      margin: 1em 0;
-      padding: 1em;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-    }
-    .email-settings h4 {
-      margin-top: 0;
-      color: var(--dark-pink);
-    }
-    .email-toggle {
-      display: flex;
-      align-items: center;
-      margin: 1em 0;
-    }
-    .email-toggle label {
-      margin-left: 0.5em;
-    }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: var(--button-pink);
-    }
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
-    .loading-spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 1s ease-in-out infinite;
-      margin-left: 10px;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    footer {
-      padding: 2em;
-      text-align: center;
-      color: var(--dark-pink);
-      font-size: 0.9em;
-    }
-    @media (max-width: 768px) {
-      main {
-        grid-template-columns: 1fr;
-        padding: 1em;
-      }
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-      header h1 {
-        font-size: 1.5rem;
-      }
-      .admin-actions {
-        grid-template-columns: 1fr;
-      }
-    }
-    
-    #cartSection {
-      grid-column: span 2;
-    }
-/* Logo SVG */
-    .logo-svg {
-      width: 80px;
-      height: 80px;
-    }
-    .env-warning {
-      background-color: #fff3cd;
-      color: #856404;
-      padding: 1em;
-      border-radius: 4px;
-      margin: 1em 0;
-      text-align: center;
-      display: none;
-    }
-    #editServiceForm {
-      background-color: #f8f9fa;
-      padding: 1.5em;
-      border-radius: 8px;
-      margin: 1em 0;
-      border: 2px solid var(--pink);
-      display: none;
-    }
-    #editServiceForm h4 {
-      margin-top: 0;
-      color: var(--dark-pink);
-      border-bottom: 2px solid var(--pink);
-      padding-bottom: 0.5em;
-    }
-.shimmer-text {
-  font-weight: bold;
-  font-size: 2rem;
-  background: linear-gradient(
-    to right,
-    red,
-    orange,
-    yellow,
-    green,
-    blue,
-    indigo,
-    violet
-  );
-  background-size: 300% auto;
-  color: transparent;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmerTextRainbow 10s ease-in-out infinite;
-}
-
-@keyframes shimmerTextRainbow {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-   .service-meta {
-  flex: 1;
-  min-width: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: center;
-  text-align: right;
-  gap: 0.5em;
-}
-.service-list-card {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 1.5em;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  margin: 1.5em 0;           /* vertical margin only */
-  width: 100%;
-  box-sizing: border-box;
-}
-.service-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1em 0;
-  border-bottom: 1px solid #eee;
-}
-.service-info {
-  flex-grow: 1;
-}
-.service-title {
-  font-weight: bold;
-  margin: 0;
-}
-.service-category {
-  font-size: 0.8em;
-  color: #d63384;
-  background-color: #ffe6f0;
-  padding: 0.2em 0.6em;
-  border-radius: 12px;
-  display: inline-block;
-  margin-top: 0.3em;
-}
-.service-description {
-  font-size: 0.9em;
-  margin: 0.5em 0;
-  color: #555;
-}
-.service-meta {
-  text-align: right;
-  min-width: 120px;
-}
-.service-meta p {
-  margin: 0.2em 0;
-}
-.add-btn {
-  background-color: #ff99cc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.4em 0.8em;
-  cursor: pointer;
-}
-.add-btn:hover {
-  background-color: #d63384;
-}
-
-
-
+  <style>
+    /* ✅ PASTE YOUR COMPLETE STYLE CSS HERE AS IS — already OK */
   </style>
 </head>
+
 <body>
-<script type="module">
-  // ========== SERVICES ==========
-  async function fetchServices() {
-    const { data, error } = await supabase.from('services').select('*');
-    if (error) console.error('Error fetching services:', error.message);
-    else renderServices(data || []);
-  }
+  <div id="logoContainer"></div>
+  <div id="services"></div>
+  <form id="bookingForm"></form>
 
-  function renderServices(services) {
-    const container = document.getElementById('services');
-    container.innerHTML = '';
-    services.forEach(service => {
-      const div = document.createElement('div');
-      div.className = 'service-item';
-      div.innerHTML = `
-        <div class="service-info">
-          <p class="service-title">${service.name}</p>
-          <p class="service-category">${service.category}</p>
-          <p class="service-description">${service.description}</p>
-        </div>
-        <div class="service-meta">
-          <p>${service.duration} min</p>
-          <p>AED ${service.price.toFixed(2)}</p>
-          <button class="add-btn" onclick='addToCart(${JSON.stringify(service)})'>Add</button>
-        </div>`;
-      container.appendChild(div);
-    });
-  }
+  <script type="module">
+    // ✅ Declare shared variables
+    let bookings = [];
+    let cart = [];
+    const businessHours = { days: {} };
+    const emailSettings = {};
 
-  // ========== BOOKINGS ==========
-  async function fetchBookings() {
-    const { data, error } = await supabase.from('bookings').select('*');
-    if (error) console.error('Error fetching bookings:', error.message);
-    window.bookings = data || [];
-    populateBookingsList();
-  }
+    // ✅ Supabase already initialized above in head
 
-  async function createBooking(newBooking) {
-    const { error } = await supabase.from('bookings').insert([newBooking]);
-    if (error) {
-      alert('Booking failed.');
-      console.error(error);
-    } else {
-      alert('Booking confirmed!');
-      document.getElementById('bookingForm').reset();
-      cart = [];
-      updateCart();
-      fetchBookings();
+    // ========== SERVICES ==========
+    async function fetchServices() {
+      const { data, error } = await supabase.from('services').select('*');
+      if (error) console.error('Error fetching services:', error.message);
+      else renderServices(data || []);
     }
-  }
 
-  // ========== BUSINESS HOURS ==========
-  async function fetchBusinessHours() {
-    const { data, error } = await supabase.from('business_hours').select('*');
-    if (error) return console.error('Error fetching hours:', error.message);
-    const daysMap = {};
-    data.forEach(day => daysMap[day.day.toLowerCase()] = day);
-    businessHours.days = daysMap;
-  }
-
-  async function saveBusinessHours(event) {
-    event.preventDefault();
-    const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-    for (const day of days) {
-      const open = document.getElementById(`${day}Open`).value;
-      const close = document.getElementById(`${day}Close`).value;
-      const closed = document.getElementById(`${day}Closed`).checked;
-      await supabase.from('business_hours').upsert({ day, open, close, closed }, { onConflict: ['day'] });
+    function renderServices(services) {
+      const container = document.getElementById('services');
+      container.innerHTML = '';
+      services.forEach(service => {
+        const div = document.createElement('div');
+        div.className = 'service-item';
+        div.innerHTML = `
+          <div class="service-info">
+            <p class="service-title">${service.name}</p>
+            <p class="service-category">${service.category}</p>
+            <p class="service-description">${service.description}</p>
+          </div>
+          <div class="service-meta">
+            <p>${service.duration} min</p>
+            <p>AED ${service.price.toFixed(2)}</p>
+            <button class="add-btn" onclick='addToCart(${JSON.stringify(service)})'>Add</button>
+          </div>`;
+        container.appendChild(div);
+      });
     }
-    document.getElementById('hoursMessage').innerText = 'Hours saved!';
-  }
 
-  // ========== SETTINGS (Email + Logo) ==========
-  async function fetchSettings() {
-    const { data, error } = await supabase.from('settings').select('*');
-    if (error) return console.error('Settings fetch error:', error.message);
-    data.forEach(setting => {
-      if (setting.key === 'admin_email') document.getElementById('adminEmail').value = setting.value;
-      if (setting.key === 'send_to_admin') document.getElementById('adminEmailToggle').checked = setting.value === 'true';
-      if (setting.key === 'send_to_customer') document.getElementById('customerEmailToggle').checked = setting.value === 'true';
-      if (setting.key === 'logo_url') {
-        document.getElementById('logoContainer').innerHTML = `<img src="${setting.value}" alt="Logo" style="max-height:60px;">`;
+    // ========== BOOKINGS ==========
+    async function fetchBookings() {
+      const { data, error } = await supabase.from('bookings').select('*');
+      if (error) console.error('Error fetching bookings:', error.message);
+      bookings = data || [];
+      populateBookingsList(); // You can implement this if needed
+    }
+
+    async function createBooking(newBooking) {
+      const { error } = await supabase.from('bookings').insert([newBooking]);
+      if (error) {
+        alert('Booking failed.');
+        console.error(error);
+      } else {
+        alert('Booking confirmed!');
+        document.getElementById('bookingForm').reset();
+        cart = [];
+        updateCart();
+        fetchBookings();
       }
+    }
+
+    // Placeholder to avoid error if not implemented yet
+    function populateBookingsList() {
+      console.log('populateBookingsList() not yet implemented');
+    }
+
+    // ========== BUSINESS HOURS ==========
+    async function fetchBusinessHours() {
+      const { data, error } = await supabase.from('business_hours').select('*');
+      if (error) return console.error('Error fetching hours:', error.message);
+      const daysMap = {};
+      data.forEach(day => daysMap[day.day.toLowerCase()] = day);
+      businessHours.days = daysMap;
+    }
+
+    async function saveBusinessHours(event) {
+      event.preventDefault();
+      const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+      for (const day of days) {
+        const open = document.getElementById(`${day}Open`).value;
+        const close = document.getElementById(`${day}Close`).value;
+        const closed = document.getElementById(`${day}Closed`).checked;
+        await supabase.from('business_hours').upsert({ day, open, close, closed }, { onConflict: ['day'] });
+      }
+      document.getElementById('hoursMessage').innerText = 'Hours saved!';
+    }
+
+    // ========== SETTINGS (Email + Logo) ==========
+    async function fetchSettings() {
+      const { data, error } = await supabase.from('settings').select('*');
+      if (error) return console.error('Settings fetch error:', error.message);
+      data.forEach(setting => {
+        if (setting.key === 'admin_email') document.getElementById('adminEmail').value = setting.value;
+        if (setting.key === 'send_to_admin') document.getElementById('adminEmailToggle').checked = setting.value === 'true';
+        if (setting.key === 'send_to_customer') document.getElementById('customerEmailToggle').checked = setting.value === 'true';
+        if (setting.key === 'logo_url') {
+          document.getElementById('logoContainer').innerHTML = `<img src="${setting.value}" alt="Logo" style="max-height:60px;">`;
+        }
+      });
+    }
+
+    async function saveEmailSettings() {
+      const updates = [
+        { key: 'admin_email', value: document.getElementById('adminEmail').value },
+        { key: 'send_to_admin', value: document.getElementById('adminEmailToggle').checked.toString() },
+        { key: 'send_to_customer', value: document.getElementById('customerEmailToggle').checked.toString() },
+      ];
+      for (const setting of updates) await supabase.from('settings').upsert(setting, { onConflict: ['key'] });
+      document.getElementById('emailSettingsMessage').innerText = 'Saved!';
+    }
+
+    async function saveLogo() {
+      const file = document.getElementById('logoUpload').files[0];
+      if (!file) return;
+      const fileName = `logo.${file.name.split('.').pop()}`;
+      const { error: uploadError } = await supabase.storage.from('assets').upload(fileName, file, { upsert: true });
+      if (uploadError) return console.error(uploadError.message);
+
+      const { data } = supabase.storage.from('assets').getPublicUrl(fileName);
+      const logoUrl = data.publicUrl;
+      await supabase.from('settings').upsert({ key: 'logo_url', value: logoUrl });
+      document.getElementById('logoPreview').innerHTML = `<img src="${logoUrl}" style="max-width:200px;">`;
+    }
+
+    // ========== PAGE LOAD ==========
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchServices();
+      fetchBookings();
+      fetchBusinessHours();
+      fetchSettings();
     });
-  }
-
-  async function saveEmailSettings() {
-    const updates = [
-      { key: 'admin_email', value: document.getElementById('adminEmail').value },
-      { key: 'send_to_admin', value: document.getElementById('adminEmailToggle').checked.toString() },
-      { key: 'send_to_customer', value: document.getElementById('customerEmailToggle').checked.toString() },
-    ];
-    for (const setting of updates) await supabase.from('settings').upsert(setting, { onConflict: ['key'] });
-    document.getElementById('emailSettingsMessage').innerText = 'Saved!';
-  }
-
-  async function saveLogo() {
-    const file = document.getElementById('logoUpload').files[0];
-    if (!file) return;
-    const fileName = `logo.${file.name.split('.').pop()}`;
-    const { error: uploadError } = await supabase.storage.from('assets').upload(fileName, file, { upsert: true });
-    if (uploadError) return console.error(uploadError.message);
-
-    const { data } = supabase.storage.from('assets').getPublicUrl(fileName);
-    const logoUrl = data.publicUrl;
-    await supabase.from('settings').upsert({ key: 'logo_url', value: logoUrl });
-    document.getElementById('logoPreview').innerHTML = `<img src="${logoUrl}" style="max-width:200px;">`;
-  }
-
-  // ========== ON PAGE LOAD ==========
-  document.addEventListener('DOMContentLoaded', () => {
-    fetchServices();
-    fetchBookings();
-    fetchBusinessHours();
-    fetchSettings();
-  });
-</script>
-
+  </script>
 </body>
 </html>
