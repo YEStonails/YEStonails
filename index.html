@@ -112,6 +112,340 @@
 
   <style>
     /* ✅ PASTE YOUR COMPLETE STYLE CSS HERE AS IS — already OK */
+    <style>
+:root {
+  --pink: #ffcce0;
+  --baby-pink: #ffe6f0;
+  --white: #ffffff;
+  --dark-pink: #d63384;
+  --button-pink: #ff99cc;
+}
+
+body {
+  font-family: 'Montserrat', Arial, sans-serif;
+  background-color: var(--baby-pink);
+  color: #333;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+header, footer {
+  background-color: var(--pink);
+  text-align: center;
+  padding: 1.5em;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header img {
+  max-height: 80px;
+  margin-bottom: 0.5em;
+}
+
+header h1 {
+  margin: 0;
+  color: var(--dark-pink);
+  font-size: 1.8rem;
+}
+
+nav {
+  text-align: center;
+  padding: 0.8em;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--dark-pink);
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+nav a:hover {
+  background-color: var(--pink);
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 2em;
+  gap: 1.5em;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+section {
+  background: var(--white);
+  padding: 1.5em;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.08);
+}
+
+h2 {
+  color: var(--dark-pink);
+  margin-top: 0;
+  border-bottom: 2px solid var(--pink);
+  padding-bottom: 0.5em;
+}
+
+.service-list-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1.5em;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  margin: 1.5em 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.service-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1em 0;
+  border-bottom: 1px solid #eee;
+}
+
+.service-title {
+  font-weight: bold;
+  margin: 0;
+}
+
+.service-category {
+  font-size: 0.8em;
+  color: var(--dark-pink);
+  background-color: var(--pink);
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  display: inline-block;
+  margin-top: 0.3em;
+}
+
+.service-description {
+  font-size: 0.9em;
+  margin: 0.5em 0;
+  color: #555;
+}
+
+.service-meta {
+  text-align: right;
+  min-width: 120px;
+}
+
+.service-meta p {
+  margin: 0.2em 0;
+}
+
+.add-btn {
+  background-color: var(--button-pink);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4em 0.8em;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background-color: var(--dark-pink);
+}
+
+.cart-item, .admin-table th, .admin-table td {
+  padding: 0.8em;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-empty {
+  text-align: center;
+  color: #999;
+  padding: 2em 0;
+}
+
+.total-section {
+  margin-top: 1em;
+  padding-top: 1em;
+  border-top: 2px dashed var(--pink);
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+form input, form select, form textarea {
+  width: 100%;
+  padding: 0.8em;
+  margin: 0.5em 0 1em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+}
+
+.btn {
+  background-color: var(--button-pink);
+  color: white;
+  padding: 0.8em;
+  border: none;
+  width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: var(--dark-pink);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.logout-link {
+  text-align: right;
+  margin: 0.5em;
+  font-size: 0.9em;
+  cursor: pointer;
+  color: var(--dark-pink);
+}
+
+.logout-link:hover {
+  text-decoration: underline;
+}
+
+.tab-container {
+  margin: 1em 0;
+}
+
+.tab-buttons {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-button {
+  padding: 0.8em 1.5em;
+  background-color: #f8f9fa;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.tab-button.active {
+  background-color: var(--pink);
+  color: var(--dark-pink);
+  border-bottom: 2px solid var(--dark-pink);
+}
+
+.tab-content {
+  padding: 1em 0;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.email-settings {
+  margin: 1em 0;
+  padding: 1em;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.email-settings h4 {
+  margin-top: 0;
+  color: var(--dark-pink);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--button-pink);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.logo-preview {
+  max-width: 200px;
+  max-height: 100px;
+  margin: 1em 0;
+  border: 1px dashed #ddd;
+  padding: 0.5em;
+}
+
+footer {
+  padding: 2em;
+  text-align: center;
+  color: var(--dark-pink);
+  font-size: 0.9em;
+}
+
+@media (max-width: 768px) {
+  main {
+    grid-template-columns: 1fr;
+    padding: 1em;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  header h1 {
+    font-size: 1.5rem;
+  }
+}
+</style>
+
   </style>
 </head>
 
