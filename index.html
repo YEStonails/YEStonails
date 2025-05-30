@@ -1841,7 +1841,8 @@ function showAdminLogin() {
 
     // Populate bookings list
 function populateBookingsList() {
- console.log("populateBookingsList called with:", bookings);
+  console.log("populateBookingsList called with:", bookings);
+
   const bookingsList = document.getElementById('bookingsList');
   bookingsList.innerHTML = '';
 
@@ -1858,9 +1859,11 @@ function populateBookingsList() {
     try {
       servicesArray = typeof booking.services === 'string'
         ? JSON.parse(booking.services)
-        : booking.services || [];
-    } catch (e) {
-      console.warn("Invalid services JSON:", booking.services);
+        : Array.isArray(booking.services)
+        ? booking.services
+        : [];
+    } catch (err) {
+      console.warn("⚠️ Error parsing services for booking:", booking.id, err);
     }
 
     const row = document.createElement('tr');
@@ -1878,6 +1881,7 @@ function populateBookingsList() {
     bookingsList.appendChild(row);
   });
 }
+
 
 
     // Update booking status
