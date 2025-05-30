@@ -603,6 +603,48 @@
   text-align: center;
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
 }
+    .admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+  font-size: 0.95rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.75em 1em;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+  background-color: #ffcce5;
+  color: #333;
+  font-weight: 600;
+}
+
+.admin-table td input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.admin-table button {
+  background-color: #ff4d6d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.admin-table button:hover {
+  background-color: #e43d5e;
+}
+
 
   </style>
 </head>
@@ -778,7 +820,7 @@
 
 <!-- 🔄 START: Booking Manager -->
 <div class="hidden" id="bookingManager">
-  <div class="admin-section-card">
+  <div class="admin-section">
     <button class="back-btn" onclick="showAdminDashboard()">Back to Dashboard</button>
     <h3>Booking Management</h3>
     <table class="admin-table">
