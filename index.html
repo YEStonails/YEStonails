@@ -116,9 +116,47 @@
 </head>
 
 <body>
-  <div id="logoContainer"></div>
-  <div id="services"></div>
-  <form id="bookingForm"></form>
+<header>
+  <div id="logoContainer">
+    <!-- Logo from Supabase setting -->
+  </div>
+  <h1 class="shimmer-text">Yes to Nails<sup>&reg;</sup></h1>
+</header>
+
+<nav>
+  <a onclick="showUserPanel()">Book</a>
+  <a onclick="showAdminLogin()">Admin</a>
+</nav>
+<main id="userPanel">
+  <section id="services" class="service-list-card">
+    <!-- Services from Supabase will populate here -->
+  </section>
+
+  <section id="cartSection">
+    <h2>Your Cart</h2>
+    <div id="cartItems"></div>
+    <div class="total-section">
+      <div class="total-row"><span>Total:</span><span id="totalPrice">AED 0.00</span></div>
+      <div class="total-row"><span>Total Duration:</span><span id="totalDuration">0 mins</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Book Appointment</h2>
+    <form id="bookingForm" onsubmit="submitBooking(event)">
+      <input type="text" id="name" placeholder="Your Name" required>
+      <input type="email" id="email" placeholder="Your Email" required>
+      <input type="tel" id="phone" placeholder="Your Phone" required>
+      <input type="date" id="bookingDate" required onchange="showTimeSlots()">
+
+      <div id="timeSlotContainer" class="time-slots-container"></div>
+
+      <textarea id="notes" placeholder="Notes (optional)"></textarea>
+      <button class="btn" type="submit">Confirm Booking</button>
+    </form>
+  </section>
+</main>
+
 
   <script type="module">
     // ✅ Declare shared variables
@@ -156,6 +194,7 @@
         container.appendChild(div);
       });
     }
+
 
     // ========== BOOKINGS ==========
     async function fetchBookings() {
@@ -250,5 +289,17 @@
       fetchSettings();
     });
   </script>
+  <footer>
+  &copy; 2025 Yes to Nails. All rights reserved.
+</footer>
+
+<div id="adminLoginSection" class="hidden">
+  <!-- Add your Admin login form here if needed -->
+</div>
+
+<div id="adminPanel" class="hidden">
+  <!-- Add your Admin dashboard tabs and forms here -->
+</div>
+
 </body>
 </html>
