@@ -618,56 +618,46 @@
 </div>
 </div>
 </section>
-<!-- Booking Section -->
 <section class="embossed-box" style="grid-column: span 2;">
-  <div class="service-list-card">
-    <h2>Book Your Appointment</h2>
-    <div class="env-warning" id="envWarning">
-      <strong>Note:</strong> Email functionality requires server-side configuration. In this GitHub Pages deployment, emails will be simulated but not actually sent.
-    </div>
-
-    <form id="bookingForm" onsubmit="submitBooking(event)">
-      <div class="form-row">
-        <div>
-          <label for="name">Full Name</label>
-          <input id="name" placeholder="Your Name" required type="text" />
-        </div>
-        <div>
-          <label for="email">Email</label>
-          <input id="email" placeholder="Your Email" required type="email" />
-        </div>
+<div class="service-list-card">
+<h2>Book Your Appointment</h2>
+<div class="env-warning" id="envWarning">
+<strong>Note:</strong> Email functionality requires server-side configuration. In this GitHub Pages deployment, emails will be simulated but not actually sent.
       </div>
-
-      <div class="form-row">
-        <div>
-          <label for="phone">Phone Number</label>
-          <input id="phone" placeholder="Your Phone Number" required type="tel" />
-        </div>
-        <div>
-          <label for="bookingDate">Preferred Date</label>
-          <input id="bookingDate" onchange="showTimeSlots()" required type="date" />
-        </div>
-      </div>
-
-      <div>
-        <label>Select Time Slot</label>
-        <div id="timeSlotContainer" class="hidden" style="margin: 10px 0;">
-          <div id="timeSlotButtons" class="time-slots-wrapper" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-        </div>
-        <input id="selectedTime" type="hidden" />
-      </div>
-
-      <div>
-        <label for="notes">Special Requests</label>
-        <textarea id="notes" placeholder="Any special requests or notes" rows="3"></textarea>
-      </div>
-
-      <button class="btn" id="bookingSubmitBtn" type="submit">Confirm Booking</button>
-      <div id="confirmation"></div>
-    </form>
-  </div>
+<form id="bookingForm" onsubmit="submitBooking(event)">
+<div class="form-row">
+<div>
+<label for="name">Full Name</label>
+<input id="name" placeholder="Your Name" required="" type="text"/>
+</div>
+<div>
+<label for="email">Email</label>
+<input id="email" placeholder="Your Email" required="" type="email"/>
+</div>
+</div>
+<div class="form-row">
+<div>
+<label for="phone">Phone Number</label>
+<input id="phone" placeholder="Your Phone Number" required="" type="tel"/>
+</div>
+<div>
+<label for="bookingDate">Preferred Date</label>
+<input id="bookingDate" onchange="window.showTimeSlots()" required type="date" />
+</div>
+</div>
+<div>
+<label>Select Time Slot</label>
+<div class="time-slots-container" id="timeSlots">
+<p>Please select a date first</p>
+</div>
+<input id="selectedTime" type="hidden"/>
+</div>
+<label for="notes">Special Requests</label>
+<textarea id="notes" placeholder="Any special requests or notes" rows="3"></textarea>
+<button class="btn" id="bookingSubmitBtn" type="submit">Confirm Booking</button>
+ </form>
+<div id="confirmation"></div>
 </section>
-
 </main> <!-- 🔽 START: Admin Panel Wrapper -->
 <div id="adminPanelWrapper" style="display: none;">
   <section id="adminLoginSection">
