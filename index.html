@@ -879,7 +879,7 @@
 </footer>
 <script>
     // Configuration
-    const CONFIG = {
+     CONFIG = {
       // EmailJS configuration
       EMAILJS_PUBLIC_KEY: "X4BsAVt7IRjazbu8C",
       EMAILJS_SERVICE_ID: "service_7ge36du",
@@ -934,7 +934,7 @@
 
     // Detect environment (GitHub Pages, localhost, etc.)
     function detectEnvironment() {
-      const hostname = window.location.hostname;
+       hostname = window.location.hostname;
       
       // Check if we're on GitHub Pages
       if (false) {
@@ -961,22 +961,22 @@
     // Load data from localStorage
     function loadDataFromStorage() {
       // Use a prefix for all storage keys to avoid conflicts
-      const prefix = 'yestonails_';
+       prefix = 'yestonails_';
       
       // Load services
-      const savedServices = localStorage.getItem(`${prefix}services`);
+       savedServices = localStorage.getItem(`${prefix}services`);
       if (savedServices) {
         services = JSON.parse(savedServices);
       }
       
       // Load bookings
-      const savedBookings = localStorage.getItem(`${prefix}bookings`);
+       savedBookings = localStorage.getItem(`${prefix}bookings`);
       if (savedBookings) {
         bookings = JSON.parse(savedBookings);
       }
       
       // Load booked time slots
-      const savedTimeSlots = localStorage.getItem(`${prefix}bookedTimeSlots`);
+       savedTimeSlots = localStorage.getItem(`${prefix}bookedTimeSlots`);
       if (savedTimeSlots) {
         bookedTimeSlots = JSON.parse(savedTimeSlots);
       }
@@ -1839,88 +1839,83 @@ function showAdminLogin() {
       }
     }
 
-    // Populate bookings list
-    function populateBookingsList() {
-      const bookingsList = document.getElementById('bookingsList');
-      bookingsList.innerHTML = '';
-      
-      if (bookings.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="6" style="text-align: center;">No bookings found.</td>';
-        bookingsList.appendChild(row);
-        return;
-      }
-      
-      bookings.forEach(booking => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${formatDate(booking.date)}<br>${booking.time.start} - ${booking.time.end}</td>
-          <td>${booking.name}<br><small>${booking.phone}</small><br><small>${booking.email}</small></td>
-          <td>${booking.services.map(s => s.name).join(', ')}</td>
-          <td>AED ${booking.totalPrice.toFixed(2)}<br>${booking.totalDuration} mins</td>
-          <td>${booking.status}</td>
-          <td>
-            <button class="btn" onclick="updateBookingStatus(${booking.id}, 'Confirmed')">Confirm</button>
-            <button class="remove-btn" onclick="updateBookingStatus(${booking.id}, 'Cancelled')">Cancel</button>
-          </td>
-        `;
-        bookingsList.appendChild(row);
-      });
-    }
+  // Populate bookings list from Supabase
+async function populateBookingsList() {
+  const bookingsList = document.getElementById('bookingsList');
+  bookingsList.innerHTML = '';
 
-    // Update booking status
-    function updateBookingStatus(bookingId, status) {
-      const booking = bookings.find(b => b.id === bookingId);
-      if (booking) {
-        const previousStatus = booking.status;
-        booking.status = status;
-        
-        // If cancelled, free up the time slot
-        if (status === 'Cancelled') {
-          const date = booking.date;
-          if (bookedTimeSlots[date]) {
-            bookedTimeSlots[date] = bookedTimeSlots[date].filter(slot => 
-              !(slot.start === booking.time.start && slot.end === booking.time.end)
-            );
-          }
-        
-        // Save to localStorage
-        saveDataToStorage();
-        
-        // Send status update email if enabled and status changed
-        if (previousStatus !== status && emailSettings.sendToCustomers) {
-          const statusParams = {
-            to_name: booking.name,
-            to_email: booking.email,
-            booking_date: formatDate(booking.date),
-            booking_time: `${booking.time.start} - ${booking.time.end}`,
-            booking_status: status,
-            booking_id: booking.id,
-            services_list: booking.services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price.toFixed(2)}`).join('<br>'),
-            total_price: `AED ${booking.totalPrice.toFixed(2)}`
-          };
-          
-          sendEmail(statusParams, false);
-          
-          // Also send notification to admin
-          const adminStatusParams = {
-            to_name: 'Admin',
-            to_email: 'nailsk2022@gmail.com',
-            customer_name: booking.name,
-            customer_email: booking.email,
-            booking_date: formatDate(booking.date),
-            booking_time: `${booking.time.start} - ${booking.time.end}`,
-            booking_status: status,
-            booking_id: booking.id,
-            services_list: booking.services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price.toFixed(2)}`).join('<br>'),
-            total_price: `AED ${booking.totalPrice.toFixed(2)}`
-          };
-          
-          sendEmail(adminStatusParams, true);
-        }
-        
-        populateBookingsList();
-      }</script>
+  const { data, error } = await supabase.from('bookings').select('*').order('date', { ascending: true });
+  if (error) {
+    console.error('Failed to fetch bookings:', error);
+    return;
+  }
+
+  bookings = data;
+
+  if (!bookings || bookings.length === 0) {
+    const row = document.createElement('tr');
+    row.innerHTML = '<td colspan="6" style="text-align: center;">No bookings found.</td>';
+    bookingsList.appendChild(row);
+    return;
+  }
+
+  bookings.forEach(booking => {
+    const services = JSON.parse(booking.services || '[]');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${formatDate(booking.date)}<br>${booking.time_start} - ${booking.time_end}</td>
+      <td>${booking.name}<br><small>${booking.phone}</small><br><small>${booking.email}</small></td>
+      <td>${services.map(s => s.name).join(', ')}</td>
+      <td>AED ${booking.total_price?.toFixed(2)}<br>${booking.total_duration} mins</td>
+      <td>${booking.status}</td>
+      <td>
+        <button class="btn" onclick="updateBookingStatus(${booking.id}, 'Confirmed')">Confirm</button>
+        <button class="remove-btn" onclick="updateBookingStatus(${booking.id}, 'Cancelled')">Cancel</button>
+      </td>
+    `;
+    bookingsList.appendChild(row);
+  });
+}
+
+// Update booking status in Supabase
+async function updateBookingStatus(bookingId, status) {
+  const booking = bookings.find(b => b.id === bookingId);
+  if (!booking) return;
+
+  const { error } = await supabase
+    .from('bookings')
+    .update({ status })
+    .eq('id', bookingId);
+
+  if (error) {
+    console.error('Error updating status:', error);
+    return;
+  }
+
+  // Send email if status changed and email sending is enabled
+  if (emailSettings.sendToCustomers && booking.status !== status) {
+    const services = JSON.parse(booking.services || '[]');
+    const params = {
+      to_name: booking.name,
+      to_email: booking.email,
+      booking_date: formatDate(booking.date),
+      booking_time: `${booking.time_start} - ${booking.time_end}`,
+      booking_status: status,
+      booking_id: booking.id,
+      services_list: services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price?.toFixed(2)}`).join('<br>'),
+      total_price: `AED ${booking.total_price?.toFixed(2)}`
+    };
+
+    sendEmail(params, false);
+
+    const adminParams = { ...params, to_name: 'Admin', to_email: 'nailsk2022@gmail.com', customer_name: booking.name, customer_email: booking.email };
+    sendEmail(adminParams, true);
+  }
+
+  // Refresh bookings list
+  await populateBookingsList();
+}
+</script>
 <!-- Supabase & EmailJS Setup -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
