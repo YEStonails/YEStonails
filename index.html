@@ -675,8 +675,9 @@
     </p>
   </section>
 
-  <!-- 🔽 Admin Dashboard (this will be shown after login) -->
-  <section id="adminPanel" class="hidden">
+<!-- 🔽 Admin Dashboard (this will be shown after login) -->
+<section id="adminPanel" class="hidden">
+  <div class="admin-section-card">
     <div class="logout-link" onclick="logoutAdmin()">Logout</div>
     <h2>Admin Panel</h2>
     <div class="admin-actions">
@@ -696,8 +697,8 @@
         <button class="btn" onclick="showBusinessSettings()">Business Settings</button>
       </div>
     </div>
-  </section>
-</div>
+  </div>
+</section>
 <!-- 🔼 END: Admin Panel Wrapper -->
 
 <!-- 🔄 START: Service Manager -->
@@ -1929,7 +1930,7 @@ function showAdminLogin() {
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5cGhyYXVlaHJtb3RmZGVyZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzcyMjIsImV4cCI6MjA2Mzg1MzIyMn0.OwrKxqDPYPcBl6D4tsfXlKNIcUlwdmCBb1CaAVUy-K0';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let services = [], cart = [], bookings = [], businessHours = {}, emailSettings = {};
+  let services = [], cart = [], bookings = [];
 
   function detectEnvironment() {
     console.log("Environment detected.");
@@ -1939,16 +1940,18 @@ function showAdminLogin() {
     emailjs.init("X4BsAVt7IRjazbu8C");
   }
 
-  function populateCategories() {
-    console.log("populateCategories placeholder executed.");
-  }
-
   async function loadServicesFromSupabase() {
     const { data, error } = await supabase.from('services').select('*');
     if (error) return console.error("Service load error:", error);
     services = data;
     populateServices();
-    populateCategories?.();
+  }
+
+  async function loadBookingsFromSupabase() {
+    const { data, error } = await supabase.from('bookings').select('*').order('date', { ascending: false });
+    if (error) return console.error("Error loading bookings:", error);
+    bookings = data;
+    populateBookingsList();
   }
 
   async function saveBookingToSupabase(booking) {
@@ -1958,16 +1961,79 @@ function showAdminLogin() {
 
   async function displayLogo() {
     const { data, error } = await supabase.from('business_settings').select('logo_url').eq('id', 1).single();
-    if (error) {
-      console.error('Error loading logo:', error);
-      return;
-    }
+    if (error) return console.error('Error loading logo:', error);
     if (data?.logo_url) {
-      const logoContainer = document.getElementById('logoContainer');
-      if (logoContainer) {
-        logoContainer.innerHTML = `<img src="${data.logo_url}" alt="Logo" style="max-height: 100px;">`;
-      }
+      document.getElementById('logoContainer').innerHTML = `<img src="${data.logo_url}" alt="Logo" style="max-height: 100px;">`;
     }
+  }
+
+  function populateServices() {
+    const container = document.getElementById('services');
+    container.innerHTML = '';
+
+    const card = document.createElement('div');
+    card.className = 'service-list-card';
+
+    const title = document.createElement('h2');
+    title.textContent = 'Browse Services';
+    card.appendChild(title);
+
+    const select = document.createElement('select');
+    select.id = 'categoryFilter';
+    select.innerHTML = `<option value="all">All Categories</option>`;
+    [...new Set(services.map(s => s.category))].forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = cat;
+      select.appendChild(option);
+    });
+    select.onchange = () => renderFilteredServices(select.value);
+    card.appendChild(select);
+
+    const serviceList = document.createElement('div');
+    serviceList.id = 'serviceList';
+    card.appendChild(serviceList);
+
+    container.appendChild(card);
+    renderFilteredServices('all');
+  }
+
+  function renderFilteredServices(category) {
+    const list = document.getElementById('serviceList');
+    list.innerHTML = '';
+    const filtered = category === 'all' ? services : services.filter(s => s.category === category);
+
+    filtered.forEach((service, index) => {
+      const div = document.createElement('div');
+      div.className = 'service-item';
+      div.innerHTML = `
+        <div class="service-info">
+          <p class="service-title">${service.name}</p>
+          <span class="service-category">${service.category}</span>
+          <p class="service-description">${service.description}</p>
+        </div>
+        <div class="service-meta">
+          <p>${service.duration} mins</p>
+          <p>AED ${service.price}</p>
+          <button class="add-btn" onclick='addToCartByIndex(${index})'>Add</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function addToCartByIndex(index) {
+    addToCart(services[index]);
+  }
+
+  function addToCart(service) {
+    cart.push(service);
+    updateCart();
+  }
+
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCart();
   }
 
   function updateCart() {
@@ -1976,7 +2042,6 @@ function showAdminLogin() {
 
     cartContainer.innerHTML = '';
     let total = 0;
-
     cart.forEach((item, index) => {
       total += item.price;
       const div = document.createElement('div');
@@ -1992,77 +2057,57 @@ function showAdminLogin() {
     cartContainer.appendChild(totalEl);
   }
 
-  function removeFromCart(index) {
-    cart.splice(index, 1);
-    updateCart();
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
   }
 
- function populateServices() {
-  const container = document.getElementById('services');
-  container.innerHTML = '';
+  function populateBookingsList() {
+    const bookingsList = document.getElementById('bookingsList');
+    bookingsList.innerHTML = '';
 
-  const serviceListWrapper = document.createElement('div');
-  serviceListWrapper.className = 'service-list-card';
+    if (bookings.length === 0) {
+      const row = document.createElement('tr');
+      row.innerHTML = '<td colspan="6" style="text-align: center;">No bookings found.</td>';
+      bookingsList.appendChild(row);
+      return;
+    }
 
-  const title = document.createElement('h2');
-  title.textContent = 'Browse Services';
-  serviceListWrapper.appendChild(title);
+    bookings.forEach(booking => {
+      const servicesArray = Array.isArray(booking.services)
+        ? booking.services
+        : JSON.parse(booking.services || '[]');
 
-  const select = document.createElement('select');
-  select.id = 'categoryFilter';
-  select.innerHTML = `<option value="all">All Categories</option>`;
-  const uniqueCategories = [...new Set(services.map(s => s.category))];
-  uniqueCategories.forEach(cat => {
-    const option = document.createElement('option');
-    option.value = cat;
-    option.textContent = cat;
-    select.appendChild(option);
-  });
-  select.onchange = () => {
-    renderFilteredServices(select.value);
-  };
-  serviceListWrapper.appendChild(select);
-
-  const serviceList = document.createElement('div');
-  serviceList.id = 'serviceList';
-  serviceListWrapper.appendChild(serviceList);
-  container.appendChild(serviceListWrapper);
-
-  renderFilteredServices('all');
-}
-
-function renderFilteredServices(category) {
-  const list = document.getElementById('serviceList');
-  list.innerHTML = '';
-  const filtered = category === 'all' ? services : services.filter(s => s.category === category);
-
-  filtered.forEach((service, index) => {
-    const div = document.createElement('div');
-    div.className = 'service-item';
-    div.innerHTML = `
-      <div class="service-info">
-        <p class="service-title">${service.name}</p>
-        <span class="service-category">${service.category}</span>
-        <p class="service-description">${service.description}</p>
-      </div>
-      <div class="service-meta">
-        <p>${service.duration} mins</p>
-        <p>AED ${service.price}</p>
-        <button class="add-btn" onclick='addToCartByIndex(${index})'>Add</button>
-      </div>
-    `;
-    list.appendChild(div);
-  });
-}
-
-  function addToCartByIndex(index) {
-    const service = services[index];
-    addToCart(service);
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${formatDate(booking.date)}<br>${booking.time_start} - ${booking.time_end}</td>
+        <td>${booking.name}<br><small>${booking.phone}</small><br><small>${booking.email}</small></td>
+        <td>${servicesArray.map(s => s.name).join(', ')}</td>
+        <td>AED ${Number(booking.total_price).toFixed(2)}<br>${booking.total_duration} mins</td>
+        <td>${booking.status}</td>
+        <td>
+          <button class="btn" onclick="updateBookingStatus(${booking.id}, 'Confirmed')">Confirm</button>
+          <button class="remove-btn" onclick="updateBookingStatus(${booking.id}, 'Cancelled')">Cancel</button>
+        </td>
+      `;
+      bookingsList.appendChild(row);
+    });
   }
 
-  function addToCart(service) {
-    cart.push(service);
-    updateCart();
+  function updateBookingStatus(bookingId, status) {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking) return;
+
+    booking.status = status;
+    populateBookingsList();
+
+    supabase
+      .from('bookings')
+      .update({ status })
+      .eq('id', bookingId)
+      .then(({ error }) => {
+        if (error) console.error("Failed to update status:", error);
+      });
   }
 
   function submitBooking(event) {
@@ -2095,9 +2140,9 @@ function renderFilteredServices(category) {
     saveBookingToSupabase(booking);
     alert("Booking submitted!");
     document.getElementById('bookingForm').reset();
+    document.getElementById('selectedTime').value = '';
     cart = [];
     updateCart();
- 
   }
 
   function showUserPanel() {
@@ -2109,18 +2154,19 @@ function renderFilteredServices(category) {
     document.getElementById('adminPanel')?.classList.remove('hidden');
   }
 
+  function showBookingManager() {
+    document.getElementById('serviceManager').classList.add('hidden');
+    document.getElementById('bookingManager').classList.remove('hidden');
+    document.getElementById('businessSettings').classList.add('hidden');
+    loadBookingsFromSupabase();
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     detectEnvironment();
     initializeEmailJS();
 
-    try {
-      await loadServicesFromSupabase();
-    } catch (e) {
-      console.error("Failed to load from Supabase:", e);
-    }
-
-    updateCart?.();
-    displayLogo?.();
+    await loadServicesFromSupabase();
+    displayLogo();
 
     const today = new Date().toISOString().split('T')[0];
     const bookingDate = document.getElementById('bookingDate');
@@ -2142,6 +2188,7 @@ function renderFilteredServices(category) {
     }
   });
 </script>
+
     <script>
   document.addEventListener("DOMContentLoaded", function () {
     // Show admin login
