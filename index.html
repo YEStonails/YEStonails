@@ -12,24 +12,7 @@
 <section id="userPanel">
   <div id="logoContainer" class="centered"></div>
   <div id="services" class="service-list-card"></div>
-  <div id="cartSection" class="service-list-card">
-    <h2>Cart</h2>
-    <ul id="cartItems"></ul>
-    <p><strong>Total:</strong> AED <span id="cartTotal">0.00</span></p>
-    <button class="btn" onclick="clearCart()">Clear</button>
-  </div>
-
-  <form id="bookingForm" class="service-list-card">
-    <h2>Book Appointment</h2>
-    <input type="text" id="name" placeholder="Your Name" required />
-    <input type="email" id="email" placeholder="Your Email" required />
-    <input type="tel" id="phone" placeholder="Phone Number" required />
-    <input type="date" id="bookingDate" required />
-    <div id="timeSlots"></div>
-    <textarea id="notes" placeholder="Notes (optional)"></textarea>
-    <button type="submit" class="btn">Confirm Booking</button>
-  </form>
-</section>
+  
 
 <section id="adminLoginSection" class="service-list-card">
   <h2>Admin Login</h2>
@@ -99,6 +82,24 @@
     <button class="btn" onclick="saveEmailSettings()">Save Email Settings</button>
     <p id="emailSettingsMessage" class="success"></p>
   </div>
+  <div id="cartSection" class="service-list-card">
+    <h2>Cart</h2>
+    <ul id="cartItems"></ul>
+    <p><strong>Total:</strong> AED <span id="cartTotal">0.00</span></p>
+    <button class="btn" onclick="clearCart()">Clear</button>
+  </div>
+
+  <form id="bookingForm" class="service-list-card">
+    <h2>Book Appointment</h2>
+    <input type="text" id="name" placeholder="Your Name" required />
+    <input type="email" id="email" placeholder="Your Email" required />
+    <input type="tel" id="phone" placeholder="Phone Number" required />
+    <input type="date" id="bookingDate" required />
+    <div id="timeSlots"></div>
+    <textarea id="notes" placeholder="Notes (optional)"></textarea>
+    <button type="submit" class="btn">Confirm Booking</button>
+  </form>
+</section>
 </section>
 
 
