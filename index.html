@@ -2632,25 +2632,6 @@ async function loadEmailSettings() {
   document.getElementById('adminEmail').value = data.adminEmail || CONFIG.ADMIN_EMAIL;
 }
 
-  try {
-    const { data, error } = await supabase
-      .from('email_settings')
-      .select('*')
-      .eq('id', 1)
-      .single();
-
-    if (error) throw error;
-
-    document.getElementById('customerEmailToggle').checked = data.send_to_customers;
-    document.getElementById('adminEmailToggle').checked = data.send_to_admin;
-    document.getElementById('adminEmail').value = data.admin_email || '';
-  } catch (err) {
-    console.error("Failed to load email settings:", err);
-  }
-}
-
-window.loadEmailSettings = loadEmailSettings;
-
         function adminAuth(event) {
   event.preventDefault();
   console.log("Login form submitted");
