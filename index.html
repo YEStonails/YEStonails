@@ -577,8 +577,32 @@
 .add-btn:hover {
   background-color: #d63384;
 }
+    .admin-section {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  padding: 2em;
+  margin: 2em auto;
+  max-width: 960px;
+  width: 100%;
+  box-sizing: border-box;
+}
+    .admin-actions {
+  display: flex;
+  gap: 1.5em;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 2em;
+}
 
-
+.admin-card {
+  flex: 1 1 30%;
+  background-color: #fff;
+  padding: 1.5em;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+}
 
   </style>
 </head>
@@ -874,6 +898,49 @@
           <button class="btn" onclick="sendTestEmail()">Send Test Email</button>
           <div id="testEmailMessage"></div>
 </div>
+          <div id="adminPanelWrapper" style="display: none;">
+  <!-- 🔑 Admin Login Section -->
+  <section id="adminLoginSection">
+    <h2>Admin Login</h2>
+    <form id="adminLogin" onsubmit="adminAuth(event)">
+      <label for="adminUser">Username</label>
+      <input id="adminUser" placeholder="Admin Username" required type="text" />
+      <label for="adminPass">Password</label>
+      <input id="adminPass" placeholder="Admin Password" required type="password" />
+      <button class="btn">Login</button>
+    </form>
+    <div id="adminLoginMessage"></div>
+    <p style="text-align: center; margin-top: 1em;">
+      <a onclick="showUserPanel()" style="color: var(--dark-pink); cursor: pointer;">Back to Services</a>
+    </p>
+  </section>
+
+  <!-- 📋 Admin Dashboard -->
+  <section id="adminPanel" class="hidden">
+    <div class="admin-section-card">
+      <div class="logout-link" onclick="logoutAdmin()">Logout</div>
+      <h2>Admin Panel</h2>
+      <div class="admin-actions">
+        <div class="admin-card">
+          <h3>Services</h3>
+          <p>Manage your salon services</p>
+          <button class="btn" onclick="showServiceManager()">Manage Services</button>
+        </div>
+        <div class="admin-card">
+          <h3>Bookings</h3>
+          <p>View and manage appointments</p>
+          <button class="btn" onclick="showBookingManager()">View Bookings</button>
+        </div>
+        <div class="admin-card">
+          <h3>Business Settings</h3>
+          <p>Manage hours and logo</p>
+          <button class="btn" onclick="showBusinessSettings()">Business Settings</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
 <footer>
 <p>© 2025 Yes to Nails. All rights reserved.</p>
 </footer>
