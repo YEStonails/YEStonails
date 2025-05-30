@@ -1629,25 +1629,33 @@ function showAdminLogin() {
     }
 
     // Populate admin service list
-    function populateAdminServiceList() {
-      const adminServiceList = document.getElementById('adminServiceList');
-      adminServiceList.innerHTML = '';
-      
-      services.forEach(service => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${service.name}</td>
-          <td>${service.category}</td>
-          <td>AED ${service.price.toFixed(2)}</td>
-          <td>${service.duration} mins</td>
-          <td>
-            <button class="btn" onclick="editService(${service.id})">Edit</button>
-            <button class="remove-btn" onclick="deleteService(${service.id})">Delete</button>
-          </td>
-        `;
-        adminServiceList.appendChild(row);
-      });
-    }
+async function populateAdminServiceList() {
+  console.log("📦 populateAdminServiceList called");
+
+  const { data, error } = await supabase.from('services').select('*');
+
+  if (error) {
+    console.error("❌ Error loading services:", error);
+    return;
+  }
+
+  const serviceTable = document.getElementById('adminServiceTableBody');
+  serviceTable.innerHTML = '';
+
+  data.forEach(service => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${service.name}</td>
+      <td>${service.category}</td>
+      <td>${service.duration}</td>
+      <td>AED ${service.price.toFixed(2)}</td>
+      <td>${service.description || '-'}</td>
+    `;
+    serviceTable.appendChild(row);
+  });
+}
+window.populateAdminServiceList = populateAdminServiceList;
+
 
     // Add new service
     function addService(event) {
