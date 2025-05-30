@@ -2329,8 +2329,42 @@ function openTab(event, tabId) {
 window.openTab = openTab;
 
 function populateAdminServiceList() {
-  // Placeholder: You need to add your actual Supabase service fetch logic here
-  console.log("populateAdminServiceList called (fetch from Supabase)");
+  console.log("populateAdminServiceList called");
+
+  const serviceTableBody = document.getElementById('adminServiceList');
+  serviceTableBody.innerHTML = '';
+
+  supabase
+    .from('services')
+    .select('*')
+    .then(({ data, error }) => {
+      if (error) {
+        console.error('Error loading services:', error);
+        serviceTableBody.innerHTML = '<tr><td colspan="6">Failed to load services</td></tr>';
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        serviceTableBody.innerHTML = '<tr><td colspan="6">No services found</td></tr>';
+        return;
+      }
+
+      data.forEach(service => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${service.name}</td>
+          <td>${service.category}</td>
+          <td>${service.description || ''}</td>
+          <td>${service.duration} mins</td>
+          <td>AED ${service.price}</td>
+          <td>
+            <button class="btn" onclick="editService(${service.id})">Edit</button>
+            <button class="remove-btn" onclick="deleteService(${service.id})">Delete</button>
+          </td>
+        `;
+        serviceTableBody.appendChild(row);
+      });
+    });
 }
 window.populateAdminServiceList = populateAdminServiceList;
 
