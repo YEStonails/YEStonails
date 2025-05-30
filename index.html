@@ -525,10 +525,10 @@
 .service-list-card {
   background-color: #fff;
   border-radius: 12px;
+  padding: 1.5em;
+  max-width: 600px;
+  margin: 2em auto;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  margin: 1.5em 0;           /* vertical margin only */
-  width: 100%;
-  box-sizing: border-box;
 }
 .service-item {
   display: flex;
@@ -592,7 +592,8 @@
 <a onclick="showUserPanel()">Services</a> | 
     <a onclick="showAdminLogin()">Admin</a>
 </nav>
-<section id="services" style="grid-column: span 2; padding: 0 1em; margin: 2em 1em;">
+<main id="userPanel">
+<section id="services">
   <div class="service-list-card">
     <h2>Browse Services</h2>
     <select id="categoryFilter" onchange="filterServices()">
@@ -602,7 +603,6 @@
   </div>
 </section>
 <section id="cartSection" class="service-list-card">
-<div class="service-list-card">
 <h2>Your Selection</h2>
 <div id="cart"></div>
 <div class="total-section">
@@ -617,7 +617,6 @@
 </div>
 </section>
 <section class="embossed-box" style="grid-column: span 2;">
-<div class="service-list-card">
 <h2>Book Your Appointment</h2>
 <div class="env-warning" id="envWarning">
 <strong>Note:</strong> Email functionality requires server-side configuration. In this GitHub Pages deployment, emails will be simulated but not actually sent.
