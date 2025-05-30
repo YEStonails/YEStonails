@@ -583,93 +583,82 @@
   </style>
 </head>
 <body>
-  <header>
-    <div id="logoContainer">
-      <!-- Logo will be inserted here -->
-    </div>
-    <h1 class="shimmer-text">Yes to Nails <sup>®</sup></h1>
-  </header>
-
-  <nav>
-    <a onclick="showUserPanel()">Services</a> | 
+<header>
+<div id="logoContainer">
+<!-- Logo will be inserted here -->
+</div>
+<h1 class="shimmer-text">Yes to Nails ®</h1>
+</header>
+<nav>
+<a onclick="showUserPanel()">Services</a> | 
     <a onclick="showAdminLogin()">Admin</a>
-  </nav>
-
-  <main id="userPanel">
-    <!-- Services Section -->
-    <section id="services">
-      <div class="service-list-card">
-        <h2>Browse Services</h2>
-        <select id="categoryFilter" onchange="filterServices()">
-          <option value="all">All Categories</option>
-        </select>
-        <div id="serviceList"></div>
+</nav>
+<main id="userPanel">
+<section id="services">
+  <div class="service-list-card">
+    <h2>Browse Services</h2>
+    <select id="categoryFilter" onchange="filterServices()">
+      <option value="all">All Categories</option>
+    </select>
+    <div id="serviceList"></div>
+  </div>
+</section>
+<section id="cartSection" class="service-list-card">
+<div class="service-list-card">
+<h2>Your Selection</h2>
+<div id="cart"></div>
+<div class="total-section">
+<div class="total-row">
+<span>Total Duration:</span>
+<span id="totalDuration">0 mins</span>
+</div>
+<div class="total-row">
+<span>Total Price:</span>
+<span>AED <span id="totalPrice">0.00</span></span>
+</div>
+</div>
+</section>
+<section class="embossed-box" style="grid-column: span 2;">
+<div class="service-list-card">
+<h2>Book Your Appointment</h2>
+<div class="env-warning" id="envWarning">
+<strong>Note:</strong> Email functionality requires server-side configuration. In this GitHub Pages deployment, emails will be simulated but not actually sent.
       </div>
-    </section>
-
-    <!-- Cart Section -->
-    <section id="cartSection" class="service-list-card">
-      <div class="service-list-card">
-        <h2>Your Selection</h2>
-        <div id="cart"></div>
-        <div class="total-section">
-          <div class="total-row">
-            <span>Total Duration:</span>
-            <span id="totalDuration">0 mins</span>
-          </div>
-          <div class="total-row">
-            <span>Total Price:</span>
-            <span>AED <span id="totalPrice">0.00</span></span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Booking Section -->
-    <section class="embossed-box" style="grid-column: span 2;">
-      <div class="service-list-card">
-        <h2>Book Your Appointment</h2>
-        <div class="env-warning" id="envWarning">
-          <strong>Note:</strong> Email functionality requires server-side configuration. In this GitHub Pages deployment, emails will be simulated but not actually sent.
-        </div>
-
-        <form id="bookingForm" onsubmit="submitBooking(event)">
-          <div class="form-row">
-            <div>
-              <label for="name">Full Name</label>
-              <input id="name" placeholder="Your Name" required type="text" />
-            </div>
-            <div>
-              <label for="email">Email</label>
-              <input id="email" placeholder="Your Email" required type="email" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div>
-              <label for="phone">Phone Number</label>
-              <input id="phone" placeholder="Your Phone Number" required type="tel" />
-            </div>
-
-            <label for="bookingDate">Preferred Date</label>
-            <input id="bookingDate" required type="date" />
-            <label>Select Time Slot</label>
-            <div id="timeSlotContainer" class="hidden" style="margin: 10px 0;">
-              <div id="timeSlotButtons" class="time-slots-wrapper" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-            </div>
-            <input id="selectedTime" type="hidden" />
-
-            <label for="notes">Special Requests</label>
-            <textarea id="notes" placeholder="Any special requests or notes" rows="3"></textarea>
-
-            <button class="btn" id="bookingSubmitBtn" type="submit">Confirm Booking</button>
-
-            <div id="confirmation"></div>
-          </div> <!-- closes .form-row -->
-        </form>
-      </div>
-    </section>
- </main> <!-- 🔽 START: Admin Panel Wrapper -->
+<form id="bookingForm" onsubmit="submitBooking(event)">
+<div class="form-row">
+<div>
+<label for="name">Full Name</label>
+<input id="name" placeholder="Your Name" required="" type="text"/>
+</div>
+<div>
+<label for="email">Email</label>
+<input id="email" placeholder="Your Email" required="" type="email"/>
+</div>
+</div>
+<div class="form-row">
+<div>
+<label for="phone">Phone Number</label>
+<input id="phone" placeholder="Your Phone Number" required="" type="tel"/>
+</div>
+<div>
+<label for="bookingDate">Preferred Date</label>
+<input id="bookingDate" onchange="window.showTimeSlots()" required type="date" />
+</div>
+</div>
+<div>
+<label>Select Time Slot</label>
+<div class="time-slots-container" id="timeSlots">
+<p>Please select a date first</p>
+</div>
+<input id="selectedTime" type="hidden"/>
+</div>
+<label for="notes">Special Requests</label>
+<textarea id="notes" placeholder="Any special requests or notes" rows="3"></textarea>
+<button class="btn" id="bookingSubmitBtn" type="submit">Confirm Booking</button>
+ </form>
+<div id="confirmation"></div>
+</section>
+</main> <!-- 🔽 START: Admin Panel Wrapper -->
 <div id="adminPanelWrapper" style="display: none;">
   <section id="adminLoginSection">
     <h2>Admin Login</h2>
@@ -879,7 +868,7 @@
 </footer>
 <script>
     // Configuration
-     CONFIG = {
+    const CONFIG = {
       // EmailJS configuration
       EMAILJS_PUBLIC_KEY: "X4BsAVt7IRjazbu8C",
       EMAILJS_SERVICE_ID: "service_7ge36du",
@@ -934,7 +923,7 @@
 
     // Detect environment (GitHub Pages, localhost, etc.)
     function detectEnvironment() {
-       hostname = window.location.hostname;
+      const hostname = window.location.hostname;
       
       // Check if we're on GitHub Pages
       if (false) {
@@ -961,22 +950,22 @@
     // Load data from localStorage
     function loadDataFromStorage() {
       // Use a prefix for all storage keys to avoid conflicts
-       prefix = 'yestonails_';
+      const prefix = 'yestonails_';
       
       // Load services
-       savedServices = localStorage.getItem(`${prefix}services`);
+      const savedServices = localStorage.getItem(`${prefix}services`);
       if (savedServices) {
         services = JSON.parse(savedServices);
       }
       
       // Load bookings
-       savedBookings = localStorage.getItem(`${prefix}bookings`);
+      const savedBookings = localStorage.getItem(`${prefix}bookings`);
       if (savedBookings) {
         bookings = JSON.parse(savedBookings);
       }
       
       // Load booked time slots
-       savedTimeSlots = localStorage.getItem(`${prefix}bookedTimeSlots`);
+      const savedTimeSlots = localStorage.getItem(`${prefix}bookedTimeSlots`);
       if (savedTimeSlots) {
         bookedTimeSlots = JSON.parse(savedTimeSlots);
       }
@@ -1839,83 +1828,88 @@ function showAdminLogin() {
       }
     }
 
-  // Populate bookings list from Supabase
-async function populateBookingsList() {
-  const bookingsList = document.getElementById('bookingsList');
-  bookingsList.innerHTML = '';
+    // Populate bookings list
+    function populateBookingsList() {
+      const bookingsList = document.getElementById('bookingsList');
+      bookingsList.innerHTML = '';
+      
+      if (bookings.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="6" style="text-align: center;">No bookings found.</td>';
+        bookingsList.appendChild(row);
+        return;
+      }
+      
+      bookings.forEach(booking => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${formatDate(booking.date)}<br>${booking.time.start} - ${booking.time.end}</td>
+          <td>${booking.name}<br><small>${booking.phone}</small><br><small>${booking.email}</small></td>
+          <td>${booking.services.map(s => s.name).join(', ')}</td>
+          <td>AED ${booking.totalPrice.toFixed(2)}<br>${booking.totalDuration} mins</td>
+          <td>${booking.status}</td>
+          <td>
+            <button class="btn" onclick="updateBookingStatus(${booking.id}, 'Confirmed')">Confirm</button>
+            <button class="remove-btn" onclick="updateBookingStatus(${booking.id}, 'Cancelled')">Cancel</button>
+          </td>
+        `;
+        bookingsList.appendChild(row);
+      });
+    }
 
-  const { data, error } = await supabase.from('bookings').select('*').order('date', { ascending: true });
-  if (error) {
-    console.error('Failed to fetch bookings:', error);
-    return;
-  }
-
-  bookings = data;
-
-  if (!bookings || bookings.length === 0) {
-    const row = document.createElement('tr');
-    row.innerHTML = '<td colspan="6" style="text-align: center;">No bookings found.</td>';
-    bookingsList.appendChild(row);
-    return;
-  }
-
-  bookings.forEach(booking => {
-    const services = JSON.parse(booking.services || '[]');
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${formatDate(booking.date)}<br>${booking.time_start} - ${booking.time_end}</td>
-      <td>${booking.name}<br><small>${booking.phone}</small><br><small>${booking.email}</small></td>
-      <td>${services.map(s => s.name).join(', ')}</td>
-      <td>AED ${booking.total_price?.toFixed(2)}<br>${booking.total_duration} mins</td>
-      <td>${booking.status}</td>
-      <td>
-        <button class="btn" onclick="updateBookingStatus(${booking.id}, 'Confirmed')">Confirm</button>
-        <button class="remove-btn" onclick="updateBookingStatus(${booking.id}, 'Cancelled')">Cancel</button>
-      </td>
-    `;
-    bookingsList.appendChild(row);
-  });
-}
-
-// Update booking status in Supabase
-async function updateBookingStatus(bookingId, status) {
-  const booking = bookings.find(b => b.id === bookingId);
-  if (!booking) return;
-
-  const { error } = await supabase
-    .from('bookings')
-    .update({ status })
-    .eq('id', bookingId);
-
-  if (error) {
-    console.error('Error updating status:', error);
-    return;
-  }
-
-  // Send email if status changed and email sending is enabled
-  if (emailSettings.sendToCustomers && booking.status !== status) {
-    const services = JSON.parse(booking.services || '[]');
-    const params = {
-      to_name: booking.name,
-      to_email: booking.email,
-      booking_date: formatDate(booking.date),
-      booking_time: `${booking.time_start} - ${booking.time_end}`,
-      booking_status: status,
-      booking_id: booking.id,
-      services_list: services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price?.toFixed(2)}`).join('<br>'),
-      total_price: `AED ${booking.total_price?.toFixed(2)}`
-    };
-
-    sendEmail(params, false);
-
-    const adminParams = { ...params, to_name: 'Admin', to_email: 'nailsk2022@gmail.com', customer_name: booking.name, customer_email: booking.email };
-    sendEmail(adminParams, true);
-  }
-
-  // Refresh bookings list
-  await populateBookingsList();
-}
-</script>
+    // Update booking status
+    function updateBookingStatus(bookingId, status) {
+      const booking = bookings.find(b => b.id === bookingId);
+      if (booking) {
+        const previousStatus = booking.status;
+        booking.status = status;
+        
+        // If cancelled, free up the time slot
+        if (status === 'Cancelled') {
+          const date = booking.date;
+          if (bookedTimeSlots[date]) {
+            bookedTimeSlots[date] = bookedTimeSlots[date].filter(slot => 
+              !(slot.start === booking.time.start && slot.end === booking.time.end)
+            );
+          }
+        
+        // Save to localStorage
+        saveDataToStorage();
+        
+        // Send status update email if enabled and status changed
+        if (previousStatus !== status && emailSettings.sendToCustomers) {
+          const statusParams = {
+            to_name: booking.name,
+            to_email: booking.email,
+            booking_date: formatDate(booking.date),
+            booking_time: `${booking.time.start} - ${booking.time.end}`,
+            booking_status: status,
+            booking_id: booking.id,
+            services_list: booking.services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price.toFixed(2)}`).join('<br>'),
+            total_price: `AED ${booking.totalPrice.toFixed(2)}`
+          };
+          
+          sendEmail(statusParams, false);
+          
+          // Also send notification to admin
+          const adminStatusParams = {
+            to_name: 'Admin',
+            to_email: 'nailsk2022@gmail.com',
+            customer_name: booking.name,
+            customer_email: booking.email,
+            booking_date: formatDate(booking.date),
+            booking_time: `${booking.time.start} - ${booking.time.end}`,
+            booking_status: status,
+            booking_id: booking.id,
+            services_list: booking.services.map(s => `${s.name} (${s.duration} mins) - AED ${s.price.toFixed(2)}`).join('<br>'),
+            total_price: `AED ${booking.totalPrice.toFixed(2)}`
+          };
+          
+          sendEmail(adminStatusParams, true);
+        }
+        
+        populateBookingsList();
+      }</script>
 <!-- Supabase & EmailJS Setup -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -2061,29 +2055,15 @@ function renderFilteredServices(category) {
     updateCart();
   }
 
-<script>
-  async function submitBooking(event) {
+  function submitBooking(event) {
     event.preventDefault();
 
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('phone').value.trim();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
     const date = document.getElementById('bookingDate').value;
-    const notes = document.getElementById('notes').value.trim();
-    const selectedTimeRaw = document.getElementById('selectedTime').value;
-    
-    if (!selectedTimeRaw) {
-      alert("Please select a time slot.");
-      return;
-    }
-
-    let selectedTime;
-    try {
-      selectedTime = JSON.parse(selectedTimeRaw);
-    } catch (e) {
-      alert("Invalid time slot format.");
-      return;
-    }
+    const notes = document.getElementById('notes').value;
+    const selectedTime = JSON.parse(document.getElementById('selectedTime').value || '{}');
 
     const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
     const totalDuration = cart.reduce((sum, item) => sum + item.duration, 0);
@@ -2102,20 +2082,12 @@ function renderFilteredServices(category) {
       status: 'Pending'
     };
 
-    try {
-      const { error } = await supabase.from('bookings').insert([booking]);
-      if (error) throw error;
-
-      alert("Booking submitted successfully!");
-      document.getElementById('bookingForm').reset();
-      cart = [];
-      updateCart();
-
-      // Optional: Send confirmation email using EmailJS here if integrated
-    } catch (err) {
-      console.error("Booking submission failed:", err);
-      alert("Something went wrong while submitting the booking. Please try again.");
-    }
+    saveBookingToSupabase(booking);
+    alert("Booking submitted!");
+    document.getElementById('bookingForm').reset();
+    cart = [];
+    updateCart();
+ 
   }
 
   function showUserPanel() {
@@ -2349,9 +2321,7 @@ window.logoutAdmin = logoutAdmin;
       .select('time_start, time_end')
       .eq('date', bookingDate);
 
-    const selectedDay = new Date(bookingDate)
-      .toLocaleDateString('en-US', { weekday: 'long' })
-      .trim();
+    const selectedDay = new Date(bookingDate).toLocaleDateString('en-US', { weekday: 'long' });
 
     const { data: hours, error } = await supabase
       .from('business_hours')
@@ -2399,56 +2369,54 @@ window.logoutAdmin = logoutAdmin;
       const slotStart = new Date(current);
       const slotEnd = new Date(current.getTime() + duration * 60000);
       slots.push({ start: formatTime(slotStart), end: formatTime(slotEnd) });
-      current = slotEnd; // step forward by full duration (non-overlapping)
+      current = slotEnd;
     }
 
     return slots;
   }
 
   function filterAvailableSlots(slots, bookings) {
-    return slots.map(slot => {
+    return slots.filter(slot => {
       const slotStart = new Date(`1970-01-01T${slot.start}`);
       const slotEnd = new Date(`1970-01-01T${slot.end}`);
-
-      const isAvailable = !bookings.some(b => {
+      return !bookings.some(b => {
         const bookedStart = new Date(`1970-01-01T${b.time_start}`);
         const bookedEnd = new Date(`1970-01-01T${b.time_end}`);
         return slotStart < bookedEnd && slotEnd > bookedStart;
       });
-
-      return { ...slot, available: isAvailable };
     });
   }
 
-  function renderTimeSlotButtons(slots) {
-    const container = document.getElementById('timeSlotButtons');
-    const wrapper = document.getElementById('timeSlotContainer');
-    container.innerHTML = '';
-    wrapper.classList.remove('hidden');
+function renderTimeSlotButtons(slots) {
+  const container = document.getElementById('timeSlotButtons');
+  const wrapper = document.getElementById('timeSlotContainer');
+  container.innerHTML = '';
+  wrapper.classList.remove('hidden');
 
-    if (!slots || slots.length === 0) {
-      container.innerHTML = "<p>No available slots for the selected date and duration.</p>";
-      return;
+  if (!slots || slots.length === 0) {
+    container.innerHTML = "<p>No available slots for the selected date and duration.</p>";
+    return;
+  }
+
+  slots.forEach(slot => {
+    const btn = document.createElement('button');
+    btn.textContent = `${slot.start} - ${slot.end}`;
+    btn.className = 'time-slot-btn';
+    btn.disabled = !slot.available;
+
+    if (!slot.available) {
+      btn.classList.add('disabled');
     }
 
-    slots.forEach(slot => {
-      const btn = document.createElement('button');
-      btn.textContent = `${slot.start} - ${slot.end}`;
-      btn.className = 'time-slot-btn';
-      btn.disabled = !slot.available;
+    btn.onclick = () => {
+      document.getElementById('selectedTime').value = JSON.stringify({ start: slot.start, end: slot.end });
+      highlightSelectedSlot(btn);
+    };
 
-      if (!slot.available) {
-        btn.classList.add('disabled');
-      }
+    container.appendChild(btn);
+  });
+}
 
-      btn.onclick = () => {
-        document.getElementById('selectedTime').value = JSON.stringify({ start: slot.start, end: slot.end });
-        highlightSelectedSlot(btn);
-      };
-
-      container.appendChild(btn);
-    });
-  }
 
   function highlightSelectedSlot(selectedBtn) {
     const allBtns = document.querySelectorAll('#timeSlotButtons button');
@@ -2459,21 +2427,6 @@ window.logoutAdmin = logoutAdmin;
   function formatTime(date) {
     return date.toTimeString().slice(0, 5);
   }
-</script>
-
-    <div id="timeSlotContainer" class="hidden">
-  <label for="timeSlotButtons">Available Time Slots</label>
-  <div id="timeSlotButtons" class="time-slots-wrapper"></div>
-</div>
-    <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("bookingDate").addEventListener("change", window.showTimeSlots);
-  });
-
-  window.showTimeSlots = async function () {
-    // Your slot generation logic should already be defined here
-    // If not, paste the full working showTimeSlots function here
-  };
 </script>
 
 </body>
