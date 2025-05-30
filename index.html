@@ -2329,7 +2329,7 @@ window.logoutAdmin = logoutAdmin;
 
     const { data: hours, error } = await supabase
       .from('business_hours')
-      .select('open_time, close_time')
+      .select('open_time, close_time, break_start, break_end')
       .eq('day', selectedDay)
       .single();
 
@@ -2339,7 +2339,19 @@ window.logoutAdmin = logoutAdmin;
       return;
     }
 
-    const slots = generateTimeSlots(hours.open_time, hours.close_time, totalDuration);
+    let slots = generateTimeSlots(hours.open_time, hours.close_time, totalDuration);
+
+    // Remove slots that fall during break
+    if (hours.break_start && hours.break_end) {
+      const breakStart = new Date(`1970-01-01T${hours.break_start}`);
+      const breakEnd = new Date(`1970-01-01T${hours.break_end}`);
+      slots = slots.filter(slot => {
+        const slotStart = new Date(`1970-01-01T${slot.start}`);
+        const slotEnd = new Date(`1970-01-01T${slot.end}`);
+        return slotEnd <= breakStart || slotStart >= breakEnd;
+      });
+    }
+
     const available = filterAvailableSlots(slots, bookings || []);
     renderTimeSlotButtons(available);
   };
@@ -2349,10 +2361,10 @@ window.logoutAdmin = logoutAdmin;
     const [startHour, startMin] = openTime.split(':').map(Number);
     const [endHour, endMin] = closeTime.split(':').map(Number);
 
-    let current = new Date();
+    let current = new Date('1970-01-01T00:00:00');
     current.setHours(startHour, startMin, 0, 0);
 
-    const end = new Date();
+    const end = new Date('1970-01-01T00:00:00');
     end.setHours(endHour, endMin, 0, 0);
 
     while (current.getTime() + duration * 60000 <= end.getTime()) {
@@ -2366,13 +2378,14 @@ window.logoutAdmin = logoutAdmin;
   }
 
   function filterAvailableSlots(slots, bookings) {
-    return slots.map(slot => {
-      const overlaps = bookings.some(b => (
-        (slot.start >= b.time_start && slot.start < b.time_end) ||
-        (slot.end > b.time_start && slot.end <= b.time_end) ||
-        (slot.start <= b.time_start && slot.end >= b.time_end)
-      ));
-      return { ...slot, available: !overlaps };
+    return slots.filter(slot => {
+      const slotStart = new Date(`1970-01-01T${slot.start}`);
+      const slotEnd = new Date(`1970-01-01T${slot.end}`);
+      return !bookings.some(b => {
+        const bookedStart = new Date(`1970-01-01T${b.time_start}`);
+        const bookedEnd = new Date(`1970-01-01T${b.time_end}`);
+        return slotStart < bookedEnd && slotEnd > bookedStart;
+      });
     });
   }
 
@@ -2382,11 +2395,15 @@ window.logoutAdmin = logoutAdmin;
     container.innerHTML = '';
     wrapper.classList.remove('hidden');
 
+    if (slots.length === 0) {
+      container.innerHTML = "<p>No available slots for the selected date and duration.</p>";
+      return;
+    }
+
     slots.forEach(slot => {
       const btn = document.createElement('button');
       btn.textContent = `${slot.start} - ${slot.end}`;
-      btn.disabled = !slot.available;
-      btn.className = slot.available ? 'time-slot-btn' : 'time-slot-btn disabled';
+      btn.className = 'time-slot-btn';
       btn.onclick = () => {
         document.getElementById('selectedTime').value = JSON.stringify({ start: slot.start, end: slot.end });
         highlightSelectedSlot(btn);
@@ -2405,7 +2422,6 @@ window.logoutAdmin = logoutAdmin;
     return date.toTimeString().slice(0, 5);
   }
 </script>
-
 
 </body>
 </html>
