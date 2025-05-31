@@ -1641,12 +1641,11 @@ function showAdminLogin() {
     }
 
     // Load email settings to form
-    function loadEmailSettings() {
-      document.getElementById('customerEmailToggle').checked = emailSettings.sendToCustomers;
-      document.getElementById('adminEmailToggle').checked = emailSettings.sendToAdmin;
-      document.getElementById('adminEmail').value = emailSettings.adminEmail || CONFIG.ADMIN_EMAIL;
-    }
-
+function loadEmailSettings() {
+  document.getElementById('customerEmailToggle').checked = emailSettings.sendToCustomers;
+  document.getElementById('adminEmailToggle').checked = emailSettings.sendToAdmin;
+  document.getElementById('adminEmail').value = emailSettings.adminEmail || 'nailsk2022@gmail.com';
+}
     // Save business hours
     async function saveBusinessHours(event) {
   event.preventDefault();
