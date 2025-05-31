@@ -2421,16 +2421,6 @@ async function populateBookingsList() {
     }
     window.showBookingManager = showBookingManager;
 
-    // Show business settings
-    function showBusinessSettings() {
-      document.getElementById('serviceManager').classList.add('hidden');
-      document.getElementById('bookingManager').classList.add('hidden');
-      document.getElementById('businessSettings').classList.remove('hidden');
-      loadBusinessHoursToForm();
-      loadEmailSettings();
-    }
-    window.showBusinessSettings = showBusinessSettings;
-
     // Logout admin
     function logoutAdmin() {
       document.getElementById('adminLoginSection').classList.remove('hidden');
