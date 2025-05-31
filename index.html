@@ -177,7 +177,7 @@
     .btn:hover {
       background-color: var(--dark-pink);
     }
-    #adminPanelpper {
+    #Panelpper {
       display: none;
       max-width: 800px;
       margin: 2em auto;
@@ -215,7 +215,7 @@
       margin: 1em 0;
       text-align: center;
     }
-    .admin-actions {
+    .-actions {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 1em;
@@ -846,12 +846,13 @@
     <button class="back-btn" onclick="showAdminDashboard()">Back to Dashboard</button>
     <h3>Business Settings</h3>
 
-    <div class="tab-container">
-      <div class="tab-buttons">
-        <button class="tab-button active" onclick="openTab(event, 'hoursTab')">Business Hours</button>
-        <button class="tab-button" onclick="openTab(event, 'logoTab')">Company Logo</button>
-        <button class="tab-button" onclick="openTab(event, 'emailTab')">Email Settings</button>
-      </div>
+   <div class="admin-card">
+  <div class="tab-container">
+    <div class="tab-buttons">
+      <button class="tab-button active" onclick="openTab(event, 'hoursTab')">Business Hours</button>
+      <button class="tab-button" onclick="openTab(event, 'logoTab')">Company Logo</button>
+      <button class="tab-button" onclick="openTab(event, 'emailTab')">Email Settings</button>
+    </div>
 
       <div class="tab-panel active" id="hoursTab">
         <h4>Set Business Hours</h4>
