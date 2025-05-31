@@ -1640,31 +1640,6 @@ function showAdminLogin() {
       event.currentTarget.classList.add('active');
     }
 
- async function loadBusinessHoursToForm() {
-  try {
-    const { data, error } = await supabase
-      .from('business_hours')
-      .select('day, open_time, close_time');
-
-    if (error) throw error;
-
-    data.forEach(row => {
-      const day = row.day.toLowerCase();
-      const openInput = document.getElementById(`${day}Open`);
-      const closeInput = document.getElementById(`${day}Close`);
-
-      if (openInput && closeInput) {
-        openInput.value = row.open_time || '';
-        closeInput.value = row.close_time || '';
-      }
-    });
-  } catch (err) {
-    console.error('Error loading business hours:', err);
-  }
-}
-
-window.loadBusinessHoursToForm = loadBusinessHoursToForm;
-
     // Load email settings to form
     function loadEmailSettings() {
       document.getElementById('customerEmailToggle').checked = emailSettings.sendToCustomers;
@@ -2649,7 +2624,30 @@ window.populateBookingsList = populateBookingsList;
   document.getElementById('adminEmailToggle').checked = data.sendToAdmin;
   document.getElementById('adminEmail').value = data.adminEmail || CONFIG.ADMIN_EMAIL;
 }
+ async function loadBusinessHoursToForm() {
+  try {
+    const { data, error } = await supabase
+      .from('business_hours')
+      .select('day, open_time, close_time');
 
+    if (error) throw error;
+
+    data.forEach(row => {
+      const day = row.day.toLowerCase();
+      const openInput = document.getElementById(`${day}Open`);
+      const closeInput = document.getElementById(`${day}Close`);
+
+      if (openInput && closeInput) {
+        openInput.value = row.open_time || '';
+        closeInput.value = row.close_time || '';
+      }
+    });
+  } catch (err) {
+    console.error('Error loading business hours:', err);
+  }
+}
+
+window.loadBusinessHoursToForm = loadBusinessHoursToForm;
         function adminAuth(event) {
   event.preventDefault();
   console.log("Login form submitted");
