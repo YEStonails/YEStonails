@@ -2455,15 +2455,6 @@ function showBookingManager() {
 }
 window.showBookingManager = showBookingManager;
 
-function showBusinessSettings() {
-  document.getElementById('serviceManager').classList.add('hidden');
-  document.getElementById('bookingManager').classList.add('hidden');
-  document.getElementById('businessSettings').classList.remove('hidden');
-  loadBusinessHoursToForm();
-  loadEmailSettings();
-}
-window.showBusinessSettings = showBusinessSettings;
-
 function openTab(event, tabId) {
   const tabPanels = document.getElementsByClassName('tab-panel');
   for (let i = 0; i < tabPanels.length; i++) {
@@ -2596,14 +2587,7 @@ async function populateBookingsList() {
 }
 window.populateBookingsList = populateBookingsList;
 
-
-function loadBusinessHoursToForm() {
-  // Placeholder: Add logic to fetch and display business hours in the form
-  console.log("loadBusinessHoursToForm executed (fetch from Supabase)");
-}
-window.loadBusinessHoursToForm = loadBusinessHoursToForm;
-
-async function loadEmailSettings() {
+        async function loadEmailSettings() {
   console.log("loadEmailSettings executed (fetch from Supabase)");
 
   const { data, error } = await supabase
