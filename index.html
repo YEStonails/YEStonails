@@ -2617,21 +2617,33 @@ window.populateBookingsList = populateBookingsList;
   const correctUsername = 'admin';
   const correctPassword = 'admin123';
 
-  if (username === correctUsername && password === correctPassword) {
-    document.getElementById('adminLoginSection').classList.add('hidden');
-    document.getElementById('adminPanel').classList.remove('hidden');
-    document.getElementById('adminPanelWrapper').style.display = 'block';
-    document.getElementById('userPanel').style.display = 'none';
-    showAdminDashboard();
-    loadBusinessHoursToForm();
-    loadEmailSettings();
-  } else {
-    document.getElementById('adminLoginMessage').innerHTML = `
-      <div class="error-box">Invalid username or password.</div>
-    `;
-  }
+ if (username === correctUsername && password === correctPassword) {
+  document.getElementById('adminLoginSection').classList.add('hidden');
+  document.getElementById('adminPanel').classList.remove('hidden');
+  document.getElementById('adminPanelWrapper').style.display = 'block';
+  document.getElementById('userPanel').style.display = 'none';
+  showAdminDashboard();
+  loadBusinessHoursToForm();
+  loadEmailSettings();
+} else {
+  document.getElementById('adminLoginMessage').innerHTML = `
+    <div class="error-box">Invalid username or password.</div>
+  `;
 }
-        window.adminAuth = adminAuth;
+} // ✅ This closes the adminAuth function
+
+// ✅ Define showBusinessSettings AFTER adminAuth is closed
+function showBusinessSettings() {
+  document.getElementById('serviceManager').classList.add('hidden');
+  document.getElementById('bookingManager').classList.add('hidden');
+  document.getElementById('businessSettings').classList.remove('hidden');
+  loadBusinessHoursToForm();
+  loadEmailSettings();
+}
+window.showBusinessSettings = showBusinessSettings;
+
+// ✅ Register all global functions
+window.adminAuth = adminAuth;
 window.showAdminDashboard = showAdminDashboard;
 window.loadBusinessHoursToForm = loadBusinessHoursToForm;
 window.populateAdminServiceList = populateAdminServiceList;
@@ -2641,7 +2653,6 @@ window.showBookingManager = showBookingManager;
 window.showBusinessSettings = showBusinessSettings;
 window.openTab = openTab;
 window.logoutAdmin = logoutAdmin;
-
 
 </script>
 <script>
