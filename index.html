@@ -1598,7 +1598,7 @@ function showAdminLogin() {
       event.currentTarget.classList.add('active');
     }
 
-  async function loadBusinessHoursToForm() {
+ async function loadBusinessHoursToForm() {
   try {
     const { data, error } = await supabase
       .from('business_hours')
@@ -1621,6 +1621,7 @@ function showAdminLogin() {
   }
 }
 
+window.loadBusinessHoursToForm = loadBusinessHoursToForm;
 
     // Load email settings to form
     function loadEmailSettings() {
